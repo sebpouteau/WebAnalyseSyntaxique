@@ -1,0 +1,39 @@
+div[class="nb"]/
+
+div[class="body"]{"contenu"}
+
+{"coucou" div[att="v1"]{"coucou2"}}
+
+div{
+"test"
+}
+
+foo/
+
+
+div[b="2"
+    b="5"]{}
+
+
+div{
+"contenu..."
+}
+div[att1="v1"
+    att2="v2"]
+    {
+    "contenu..."
+    }
+
+
+{"contenu ... "div[class="nb"]
+{
+"..."
+}
+"suite ..."}
+
+
+br[att1="v1"
+   att2="v2"]/
+
+
+

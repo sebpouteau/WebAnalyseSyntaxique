@@ -2,76 +2,69 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
+#include "web.h"
+
 int yylex(void);
 void yyerror(char *);
 int yyparse(void);
 
-struct tree;
-struct attributes;
-enum type {tree, word};        //typage des nœuds: permet de savoir si un nœud construit
-                               //un arbre ou s'il s'agit simplement de texte
-struct attributes{
-    char * key;               //nom de l'attribut
-    char * value;             //valeur de l'attribut
-    struct attributes * next; //attribut suivant
-};
-
-struct tree {
-    char * label;              //étiquette du nœud
-    bool nullary;              //nœud vide, par exemple <br/>
-    bool space;                //nœud suivi d'un espace
-    enum type tp;              //type du nœud. nullary doit être true si tp vaut word
-    struct attributes * attr;  //attributs du nœud
-    struct tree * daughters;   //fils gauche, qui doit être NULL si nullary est true
-    struct tree * right;       //frère droit
-};
 
 %}
 
-
+%union{
+  char * value;
+ };
 %token LABEL
 %token TEXT
                         
 %%
 
+start:          start begin '\n'
+        |       start '\n'
+        |       start error
+        |       /* empty */ 
+                ;
 
-content:        LABEL '{' content '}' {
-                  printf("label {content}\n");
-                }
+begin:          LABEL '/'         {printf("LABEL /\n");}
+        |       LABEL container   {printf("LABEL container\n");}
+        |       attribute         {printf("Attribute\n");}
+        |       container
+                {
+                  printf("container\n");}
+                ;
 
-        |       LABEL '[' attributes "]/"  {
-                  printf("label [attribut]\n");
-                }
-        |       LABEL '[' attributes ']' '{' text '}'
-                {
-                  printf("label [attribut]{text}\n");
-                }
-        |       '{' content '}'
-                {
-                  printf("{content}\n");
-                }
-        |       text
-                {
-                  printf("test\n");
-                }
+container:     '{' content '}'
+                ;
+
+content:        TEXT content
+        |       attribute content
+        |       container
+        |       /*empty */
+                ;
+
+
+attribute:      LABEL '[' assign ']' '/'
+        |       LABEL '[' assign ']' separator container
+                ;
+
+separator:       
+                separator ' '
+        |       separator '\n'
+        |       separator '\t'
         |       /* empty */
+                ;
+
+
+
+assign:         LABEL '=' TEXT assign
+        |       LABEL '=' TEXT
         ;
 
-attributes:     LABEL '=' text attributes
-        |       /* empty */
-        ;
 
 
-text:           TEXT
-        |       /* empty */
-        ;
+
+
 %%
 
-
-
-int main(void)
-{
-  yyparse();
-  return 0;
-}
 

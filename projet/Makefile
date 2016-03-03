@@ -10,7 +10,7 @@ CFLAGS=-std=c99 -g -pedantic -Wall -Wextra -Wshadow -Wpointer-arith -Wcast-qual 
 all: $(FILE)
 
 %.out: %.tab.c %.yy.c 
-	gcc $^ -ly -ll -lm $(CFLAGS) -o $@
+	gcc $^ $(MAIN) -ly -lfl -lm $(CFLAGS) -o $@
 
 %.tab.c: %.y
 	bison -d -v $<
@@ -18,13 +18,18 @@ all: $(FILE)
 %.yy.c: %.l
 	flex -o $@ $<
 
-
+check:
+	./$(FILE) < test
 
 draw:
 	bison -d -v --graph $(BISON)
 	dot -Tps $(DOT) -o $(PS)
 	evince $(PS)
 
+
+doc:
+	firefox https://www.labri.fr/perso/zeitoun/enseignement/15-16/ASPP3/uploads/Main/HomePage/projet.html &
+
 .PHONY: clean
 clean:
-	rm -f *.output *.tab.* $(FILE) *.yy.c *~
+	rm -rf *.output *.tab.* $(FILE) *.yy.c *~ *.ps *.out* *.dot
