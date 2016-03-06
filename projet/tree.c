@@ -1,11 +1,6 @@
 #include "tree.h"
 #include <assert.h>
 
-enum type_t
-{
-  _tree,
-  word
-}; 
 
 struct attributes_t
 {
@@ -24,7 +19,7 @@ struct tree_t {
   tree right;       //frère droit
 };
 
-int error(bool cond, char* message){
+static int error(bool cond, char* message){
   if(!cond){
     fprintf(stderr, "/!\\ ERROR: %s\n", message);
     return EXIT_FAILURE;
@@ -38,7 +33,7 @@ tree create_empty_tree(){
   t->label = NULL;
   t->nullary = NULL;
   t->space = NULL;
-  t->tp = NULL;
+  t->tp = _none;
   t->attr = NULL;
   t->daughters = NULL;
   t->right = NULL;
@@ -122,7 +117,7 @@ void set_tp(tree t, type tp){
 }
 
 type get_tp(tree t){
-  assert(t != NULL && t->tp != NULL);
+  assert(t != NULL && t->tp != _none);
   return t->tp;
 }
 

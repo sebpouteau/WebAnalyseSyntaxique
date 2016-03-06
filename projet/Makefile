@@ -5,12 +5,16 @@ BISON = $(ALL_FILE:.l=.y)
 DOT = $(ALL_FILE:.l=.dot)
 PS = $(ALL_FILE:.l=.ps)
 FILE = $(ALL_FILE:.l=.out)
+
 CFLAGS=-std=c99 -g -pedantic -Wall -Wextra -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes 
 
-all: $(FILE)
+all: $(FILE) xml_builder
 
-%.out: %.tab.c %.yy.c 
-	gcc $^ $(MAIN) -ly -lfl -lm $(CFLAGS) -o $@
+xml_builder:xml_builder.c tree.h tree.c
+	gcc $^ $(CFLAGS) -o $@
+
+%.out: %.tab.c %.yy.c tree.h tree.c $(MAIN)
+	gcc $^  -ly -lfl -lm $(CFLAGS) -o $@
 
 %.tab.c: %.y
 	bison -d -v $<
@@ -32,4 +36,4 @@ doc:
 
 .PHONY: clean
 clean:
-	rm -rf *.output *.tab.* $(FILE) *.yy.c *~ *.ps *.out* *.dot
+	rm -rf *.output *.tab.* $(FILE) xml_builder *.yy.c *~ *.ps *.out* *.dot

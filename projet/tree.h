@@ -4,7 +4,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-typedef enum type_t *type;
+typedef enum {
+  _tree,
+  _word,
+  _none
+} type;
 
 struct tree_t;
 struct attributes_t;
@@ -13,9 +17,9 @@ typedef struct tree_t *tree;
 typedef struct attributes_t *attributes;
 
 tree create_tree(char* label, bool nullary, bool space, type tp, attributes attr, tree daughters, tree right);
-tree create_empty_tree();
+tree create_empty_tree(void);
 
-attributes create_empty_attributes();
+attributes create_empty_attributes(void);
 attributes create_attributes(char* key, char* value, attributes a);
 
 void set_label(tree t, char* label);
@@ -38,5 +42,6 @@ void set_value(attributes a, char* value);
 char* get_value(attributes a);
 void set_next(attributes a, attributes next);
 attributes get_next(attributes a);
+
 
 #endif
