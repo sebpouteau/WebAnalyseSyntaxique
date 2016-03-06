@@ -3,7 +3,7 @@
 
 enum type_t
 {
-  tre_e,
+  _tree,
   word
 }; 
 
@@ -186,16 +186,3 @@ attributes get_next(attributes a){
   return a->next;
 }
 
-
-int main(){
-  tree t = NULL;
-  get_label(t);
-  tree t2 = create_empty_tree();
-  /*char* label = "coucou";
-  set_label(t2, label);
-  label = "enfait non";*/
-  char* test = get_label(t2);
-  if(test != NULL)
-    printf("%s\n", test);
-  printf("%s\n", test);//CAUSE A SEGFAULT SI test=NULL a cause du %s printf
-}

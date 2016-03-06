@@ -12,6 +12,12 @@ struct attributes_t;
 typedef struct tree_t *tree;
 typedef struct attributes_t *attributes;
 
+tree create_tree(char* label, bool nullary, bool space, type tp, attributes attr, tree daughters, tree right);
+tree create_empty_tree();
+
+attributes create_empty_attributes();
+attributes create_attributes(char* key, char* value, attributes a);
+
 void set_label(tree t, char* label);
 char* get_label(tree t);
 void set_nullary(tree t, bool nullary);
