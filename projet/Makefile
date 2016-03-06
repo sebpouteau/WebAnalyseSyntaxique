@@ -19,7 +19,7 @@ all: $(FILE)
 	flex -o $@ $<
 
 check:
-	./$(FILE) < test
+	./$(FILE) < valid_forms.txt
 
 draw:
 	bison -d -v --graph $(BISON)

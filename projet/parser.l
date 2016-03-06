@@ -1,7 +1,7 @@
 %{
 #include <string.h>
 #include <stdio.h>
-#include "web.tab.h"
+#include "parser.tab.h"
 char* strdup(char *);
 int fileno(FILE *);
 %}
