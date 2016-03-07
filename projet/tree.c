@@ -1,7 +1,6 @@
 #include "tree.h"
 #include <assert.h>
 
-
 struct attributes_t
 {
   char* key;               //nom de l'attribut
@@ -19,6 +18,9 @@ struct tree_t {
   tree right;       //frère droit
 };
 
+// TODO error ou assert il faut choisir
+// return exitfailure wtf exit(exit_failure) ou return true false
+
 static int error(bool cond, char* message){
   if(!cond){
     fprintf(stderr, "/!\\ ERROR: %s\n", message);
@@ -27,8 +29,27 @@ static int error(bool cond, char* message){
   return EXIT_SUCCESS;
 }
 
+static char* copy_string(char* s) {
+  char* new_s = malloc(sizeof(char) * strlen(s));
+  strcpy(new_s, s);
+  return new_s;
+}
 
-tree create_empty_tree(){
+tree create_basic_tree(char* label, type tp){
+  tree t = malloc(sizeof(*t));
+  
+  t->label = copy_string(label);
+  
+  t->nullary = false;
+  t->space = false;
+  t->tp = tp;
+  t->attr = NULL;
+  t->daughters = NULL;
+  t->right = NULL;
+  return t;
+ }
+
+/*tree create_empty_tree(){
   tree t = malloc(sizeof(*t));
   t->label = NULL;
   t->nullary = NULL;
@@ -38,11 +59,13 @@ tree create_empty_tree(){
   t->daughters = NULL;
   t->right = NULL;
   return t;
-}
+  }*/
 
 tree create_tree(char* label, bool nullary, bool space, type tp, attributes attr, tree daughters, tree right){
   tree t = malloc(sizeof(*t));
-  t->label = label;
+  
+  t->label = copy_string(label);
+  
   t->nullary = nullary;
   t->space = space;
   t->tp = tp;
@@ -51,6 +74,20 @@ tree create_tree(char* label, bool nullary, bool space, type tp, attributes attr
   t->right = right;
   return t;
 }
+
+void destroy_tree(tree t) {
+  if (t == NULL)
+    return;
+  
+  free(t->label);
+
+  destroy_tree(t->daughters);
+  destroy_tree(t->right);
+
+  destroy_attributes(t->attr);
+  free(t);
+}
+  
 
 attributes create_empty_attributes(){
   attributes a = malloc(sizeof(*a));
@@ -62,10 +99,19 @@ attributes create_empty_attributes(){
 
 attributes create_attributes(char* key, char* value, attributes next){
   attributes a = malloc(sizeof(*a));
-  a->key = key;
-  a->value = value;
+  a->key = copy_string(key);
+  a->value = copy_string(value);
   a->next = next;
   return a;
+}
+
+void destroy_attributes(attributes a) {
+  if (a == NULL)
+    return;
+  free(a->key);
+  free(a->value);
+  destroy_attributes(a->next);
+  free(a);
 }
 
 
@@ -73,9 +119,9 @@ attributes create_attributes(char* key, char* value, attributes next){
   ======== GETTERS & SETTERS TREE ========
   ======================================== */
 
-
 void set_label(tree t, char* label){
-  t->label = label;
+  free(t->label);
+  t->label = copy_string(label);
 }
 
 char* get_label(tree t){
@@ -117,11 +163,14 @@ void set_tp(tree t, type tp){
 }
 
 type get_tp(tree t){
-  assert(t != NULL && t->tp != _none);
+  //assert(t != NULL && t->tp != _none);
+  assert(t != NULL);
   return t->tp;
 }
 
+// TODO Assigne à t une nouvelle pile d'attributs. Il faut donc supprimer l'ancienne et faire une copie profonde de attr
 void set_attributes(tree t, attributes attr){
+  //destroy_attributes(t->attributes);
   t->attr = attr;
 }
 
@@ -130,6 +179,7 @@ attributes get_attributes(tree t){
   return t->attr;
 }
 
+// TODO
 void set_daughters(tree t, tree d){
   t->daughters = d;
 }
@@ -139,6 +189,7 @@ tree get_daughters(tree t){
   return t->daughters;
 }
 
+// TODO
 void set_right(tree t, tree r){
   t->right = r;
 }
@@ -148,6 +199,7 @@ tree get_right(tree t){
   return t->right;
 }
 
+// TODO fonctions add_daugther qui ajoute un fils en parcourant la liste du fils gauche ?
 
 /*========================================
   ======== GETTERS & SETTERS ATTR ========
@@ -155,7 +207,8 @@ tree get_right(tree t){
 
 
 void set_key(attributes a, char* key){
-  a->key = key;
+  free(a->key);
+  a->key = copy_string(key);
 }
 
 char* get_key(attributes a){
@@ -164,7 +217,8 @@ char* get_key(attributes a){
 }
 
 void set_value(attributes a, char* value){
-  a->value = value;
+  free(a->value);
+  a->value = copy_string(value);
 }
 
 char* get_value(attributes a){
@@ -172,6 +226,7 @@ char* get_value(attributes a){
   return a->value;
 }
 
+// TODO
 void set_next(attributes a, attributes next){
   a->next = next;
 }
@@ -181,3 +236,21 @@ attributes get_next(attributes a){
   return a->next;
 }
 
+static void draw_r(tree t, int cpt) {
+  if (t == NULL)
+    return;
+
+  for (int i = 0 ; i < cpt ; i++) {
+    printf("-");
+  }
+  
+  printf("%s\n", t->label);
+
+  draw_r(t->daughters, cpt + 3);
+
+  draw_r(t->right, cpt);
+}
+
+void draw(tree t) {
+  draw_r(t, 0);
+}

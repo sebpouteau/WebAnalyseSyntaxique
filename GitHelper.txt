@@ -3,3 +3,5 @@ git add file1 file2 : ajouter nouveaux fichiers au dépotoire
 git commit file1 file2 -m "Commentaire du commit" : commit des fichiers
 git commit -m "Comm" : commit de tout
 git push : envoyer
+git status . : voir les modifications
+git log : historique des modifications
