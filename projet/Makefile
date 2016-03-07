@@ -13,8 +13,8 @@ all: $(FILE) xml_builder
 xml_builder:xml_builder.c tree.h tree.c
 	gcc $^ $(CFLAGS) -o $@
 
-%.out: %.tab.c %.yy.c tree.h tree.c $(MAIN)
-	gcc $^  -ly -lfl -lm $(CFLAGS) -o $@
+%.out: %.tab.c %.yy.c tree.h tree.c
+	gcc $^ $(MAIN)  -ly -lfl -lm $(CFLAGS) -o $@
 
 %.tab.c: %.y
 	bison -d -v $<

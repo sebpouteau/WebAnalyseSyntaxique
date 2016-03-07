@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-typedef enum {
+typedef enum type_t {
   _tree,
   _word,
   _none
