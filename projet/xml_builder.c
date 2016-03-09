@@ -50,7 +50,6 @@ void depth_search(tree t, int cpt){
   
   if(get_tp(t) == _word) {
     print_label(t);
-    printf("\n");
   } else {
     printf("<");
     print_label(t);
