@@ -243,10 +243,9 @@ static void draw_r(tree t, int cpt) {
   if (t->attr != NULL) {
     draw_indent(cpt + 1);
     printf("Attributes :\n");
-    draw_attributes(t->attr, cpt + 1);
+    draw_attributes(t->attr, cpt + 2);
   }
   draw_r(t->daughters, cpt + 1);
-
   draw_r(t->right, cpt);
 }
 
