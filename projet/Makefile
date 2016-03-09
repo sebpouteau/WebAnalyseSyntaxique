@@ -8,13 +8,13 @@ FILE = $(ALL_FILE:.l=.out)
 
 CFLAGS=-std=c99 -g -pedantic -Wall -Wextra -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes 
 
-all: $(FILE) xml_builder
+all: $(FILE) 
 
-xml_builder:xml_builder.c tree.h tree.c
-	gcc $^ $(CFLAGS) -o $@
+#xml_builder:xml_builder.c tree.h tree.c
+#	gcc $^ $(CFLAGS) -o $@
 
-%.out: %.tab.c %.yy.c tree.h tree.c
-	gcc $^ $(MAIN)  -ly -lfl -lm $(CFLAGS) -o $@
+%.out: %.tab.c %.yy.c xml_builder.h  tree.h tree.c xml_builder.c
+	gcc $^ $(MAIN) -ly -lfl -lm $(CFLAGS) -o $@
 
 %.tab.c: %.y
 	bison -d -v $<

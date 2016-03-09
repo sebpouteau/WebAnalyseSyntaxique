@@ -1,4 +1,5 @@
 #include "xml_builder.h"
+#include "tree.h"
 
 void build_xml(tree t){
   int fd;
@@ -46,11 +47,12 @@ void depth_search(tree t, int cpt){
   if(t == NULL)
     return;
   
-  indent_search(cpt);
+
   
   if(get_tp(t) == _word) {
     print_label(t);
   } else {
+    indent_search(cpt);
     printf("<");
     print_label(t);
     if (get_nullary(t)) {
@@ -71,7 +73,7 @@ void depth_search(tree t, int cpt){
 
 
 /*
-int main(void){
+  int main(void){
   attributes a = create_attributes("href", "www.google.fr", NULL);
   attributes a1 = create_attributes("color", "blue", NULL);
   attributes a2 = create_attributes("bold", "false", NULL);
@@ -96,5 +98,5 @@ int main(void){
   t = create_tree("span", false, false, _tree, NULL, t5, NULL);
   
   depth_search(t,0);
-}
+  }
 */
