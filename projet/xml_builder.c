@@ -10,6 +10,9 @@ void build_xml(tree t){
 }
 
 void attributes_to_xml(attributes a){
+  if (a == NULL)
+    return;
+  
   printf(" ");
   while(a != NULL){
     printf("%s=\"%s\"", get_key(a), get_value(a));
@@ -43,14 +46,20 @@ void indent_search(int cpt){
   }
 }
 
+bool is_word(tree t){
+  if (t == NULL || get_tp(t) != _word)
+    return false;
+  return true;
+}
+
 void depth_search(tree t, int cpt){
   if(t == NULL)
     return;
   
-
-  
   if(get_tp(t) == _word) {
     print_label(t);
+    if (!is_word(get_right(t)))
+      printf("\n");
   } else {
     indent_search(cpt);
     printf("<");
@@ -60,14 +69,16 @@ void depth_search(tree t, int cpt){
     } else {
       attributes_to_xml(get_attributes(t));
       printf(">\n");
-      depth_search(get_daughters(t),cpt+1);
+      if (is_word(get_daughters(t)))
+        indent_search(cpt+1);
+      depth_search(get_daughters(t), cpt+1);
       indent_search(cpt);
       printf("</%s>\n", get_label(t));
     }
+    if (is_word(get_right(t)))
+      indent_search(cpt);
   }
-  if(get_right(t) != NULL){
-    depth_search(get_right(t),cpt);
-  }
+  depth_search(get_right(t), cpt);
 }
 
 
