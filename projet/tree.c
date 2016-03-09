@@ -36,36 +36,17 @@ static char* copy_string(char* s) {
 }
 
 tree create_basic_tree(char* label, type tp){
-  tree t = malloc(sizeof(*t));
-  
-  t->label = copy_string(label);
-  
-  t->nullary = false;
-  t->space = false;
-  t->tp = tp;
-  t->attr = NULL;
-  t->daughters = NULL;
-  t->right = NULL;
-  return t;
- }
+  return create_tree(copy_string(label),false,false,tp,NULL,NULL,NULL);
+}
 
-/*tree create_empty_tree(){
-  tree t = malloc(sizeof(*t));
-  t->label = NULL;
-  t->nullary = NULL;
-  t->space = NULL;
-  t->tp = _none;
-  t->attr = NULL;
-  t->daughters = NULL;
-  t->right = NULL;
-  return t;
-  }*/
+tree create_empty_tree(){
+  return create_tree(NULL,NULL,NULL,_tree,NULL,NULL,NULL);
+}
+
 
 tree create_tree(char* label, bool nullary, bool space, type tp, attributes attr, tree daughters, tree right){
   tree t = malloc(sizeof(*t));
-  
   t->label = copy_string(label);
-  
   t->nullary = nullary;
   t->space = space;
   t->tp = tp;
