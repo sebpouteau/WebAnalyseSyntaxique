@@ -12,8 +12,9 @@ static void build_xml(tree t){
 }
 
 static void attributes_to_xml(attributes a){
+  printf(" ");
   while(a != NULL){
-    printf(" %s=\"%s\"", get_key(a), get_value(a));
+    printf("%s=\"%s\"", get_key(a), get_value(a));
     a = get_next(a);
     if(a != NULL){
       printf(" ");
@@ -38,12 +39,21 @@ static void print_label(tree t){
   }
 }
 
-static void depth_search(tree t){
+static void indent_search(int cpt){
+  for (int i = 0; i < cpt; i++){
+    printf("   ");
+  }
+}
+
+static void depth_search(tree t, int cpt){
   if(t == NULL)
     return;
   
+  indent_search(cpt);
+  
   if(get_tp(t) == _word) {
     print_label(t);
+    printf("\n");
   } else {
     printf("<");
     print_label(t);
@@ -51,13 +61,14 @@ static void depth_search(tree t){
       printf("/>");
     } else {
       attributes_to_xml(get_attributes(t));
-      printf(">");
-      depth_search(get_daughters(t));
-      printf("</%s>", get_label(t));
+      printf(">\n");
+      depth_search(get_daughters(t),cpt+1);
+      indent_search(cpt);
+      printf("</%s>\n", get_label(t));
     }
   }
   if(get_right(t) != NULL){
-    depth_search(get_right(t));
+    depth_search(get_right(t),cpt);
   }
 }
 
@@ -75,13 +86,22 @@ int main(void){
   tree t2 = NULL;
   tree t3 = NULL;
   tree t4 = NULL;
+  tree t5 = NULL;
+  tree t6 = NULL;
+  tree t7 = NULL;
+  t7 = create_tree("list", true, false, _word, NULL, NULL, NULL);
   t3 = create_tree("Bonjour", true, false, _word, NULL, NULL, NULL);
-  t4 = create_tree("a", false, false, _tree, NULL, t3, NULL);
-  t2 = create_tree("Hello", true, true, _word, NULL, NULL, t4);
-  t = create_tree("div", false, false, _tree, NULL, t2, NULL);
+  t6 = create_tree("ul", false, false, _tree, NULL, t7, NULL);
+  t2 = create_tree("Hello", true, true, _word, NULL, NULL, t6);
+  
+  t4 = create_tree("a", false, false, _tree, a, t3, NULL);
+  t5 = create_tree("div", false, false, _tree, a2, t4, t2);
+
+  t = create_tree("span", false, false, _tree, NULL, t5, NULL);
+  
 
 
-  depth_search(t);
+  depth_search(t,0);
   /*
   tree t = NULL;
   get_label(t);
