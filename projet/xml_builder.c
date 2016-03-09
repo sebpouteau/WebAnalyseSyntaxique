@@ -1,9 +1,6 @@
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include "tree.h"
+#include "xml_builder.h"
 
-static void build_xml(tree t){
+void build_xml(tree t){
   int fd;
   if((fd = open("god.xml",O_CREAT|O_RDWR)) == -1){
     fprintf(stderr, "failed to open file\n");
@@ -11,7 +8,7 @@ static void build_xml(tree t){
   }
 }
 
-static void attributes_to_xml(attributes a){
+void attributes_to_xml(attributes a){
   printf(" ");
   while(a != NULL){
     printf("%s=\"%s\"", get_key(a), get_value(a));
@@ -23,29 +20,29 @@ static void attributes_to_xml(attributes a){
 }
 
 
-static void describe_tree(tree t){
+void describe_tree(tree t){
   
 }
 
-static void describe_word(tree t){
+void describe_word(tree t){
   
 }
 
 
-static void print_label(tree t){
+void print_label(tree t){
   printf("%s", get_label(t));
   if (get_space(t)) {
     printf(" ");
   }
 }
 
-static void indent_search(int cpt){
+void indent_search(int cpt){
   for (int i = 0; i < cpt; i++){
     printf("   ");
   }
 }
 
-static void depth_search(tree t, int cpt){
+void depth_search(tree t, int cpt){
   if(t == NULL)
     return;
   
@@ -74,7 +71,7 @@ static void depth_search(tree t, int cpt){
 
 
 
-
+/*
 int main(void){
   attributes a = create_attributes("href", "www.google.fr", NULL);
   attributes a1 = create_attributes("color", "blue", NULL);
@@ -99,20 +96,6 @@ int main(void){
 
   t = create_tree("span", false, false, _tree, NULL, t5, NULL);
   
-
-
   depth_search(t,0);
-  /*
-  tree t = NULL;
-  get_label(t);
-  tree t2 = create_empty_tree();
-  char* label = "coucou";
-  set_label(t2, label);
-  label = "enfait non";
-  char* test = get_label(t2);
-  if(test != NULL)
-    printf("%s\n", test);
-  printf("%s\n", test);//CAUSE A SEGFAULT SI test=NULL a cause du %s printf
-  */ 
 }
-
+*/
