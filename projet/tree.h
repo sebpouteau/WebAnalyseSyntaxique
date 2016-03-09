@@ -16,7 +16,7 @@ typedef struct attributes_t* attributes;
 
 tree create_tree(char* label, bool nullary, bool space, type tp, attributes attr, tree daughters, tree right);
 tree create_basic_tree(char* label, type tp);
-//tree create_empty_tree(void);
+tree create_empty_tree(void);
 
 void destroy_tree(tree t);
 
