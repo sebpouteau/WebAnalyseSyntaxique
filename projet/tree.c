@@ -236,17 +236,35 @@ attributes get_next(attributes a){
   return a->next;
 }
 
+void draw_indent(int cpt) {
+  for (int i = 0 ; i < cpt * 3 ; i++) {
+    printf("-");
+  }
+}
+
+void draw_attributes(attributes a, int cpt) {
+  if (a == NULL)
+    return;
+  draw_indent(cpt);
+
+  printf("%s=%s\n", a->key, a->value);
+
+  draw_attributes(a->next, cpt);
+}
+
 static void draw_r(tree t, int cpt) {
   if (t == NULL)
     return;
 
-  for (int i = 0 ; i < cpt ; i++) {
-    printf("-");
-  }
+  draw_indent(cpt);
   
   printf("%s\n", t->label);
-
-  draw_r(t->daughters, cpt + 3);
+  if (t->attr != NULL) {
+    draw_indent(cpt + 1);
+    printf("Attributes :\n");
+    draw_attributes(t->attr, cpt + 1);
+  }
+  draw_r(t->daughters, cpt + 1);
 
   draw_r(t->right, cpt);
 }
