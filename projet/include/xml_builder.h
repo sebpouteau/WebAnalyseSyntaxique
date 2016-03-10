@@ -32,7 +32,7 @@ void indent_search(int depth);
 /**
  * Retourne true si t est de type _word
  */
-bool is_word(tree t){
+bool is_word(tree t);
 
 /**
  * Affiche le xml en fonction du tree passé en paramètre
