@@ -32,7 +32,10 @@ int numberTree = 0;
 
 %%
 
-start:          start begin '\n' {depth_search(head_tree,0);
+start:          start begin '\n'
+                {
+                    draw(head_tree);
+                    depth_search(head_tree,0);
                     head_tree=NULL;
                     }
         |       start '\n'
@@ -42,9 +45,9 @@ start:          start begin '\n' {depth_search(head_tree,0);
 
 begin:          LABEL '/'
                 {
-                  tree tmp = create_tree($1, false, false, _tree, NULL, NULL, NULL);
+                  tree tmp = create_tree($1, true, false, _tree, NULL, NULL, NULL);
                   add_head(tmp);
-                  // printf("state: begin | format: LABEL /\n");
+                  //printf("state: begin | format: LABEL /\n");
                 }
         |       LABEL container
                 {
@@ -55,7 +58,7 @@ begin:          LABEL '/'
         |       attributes
                 {
                   add_head($1);
-                  // printf("state: begin | format: attribute\n");
+                  //printf("state: begin | format: attribute\n");
                 }
         |       container
                 {
@@ -73,7 +76,7 @@ container:     '{' content '}'
 
 content:        TEXT content
                 {
-                    $$= create_tree($1, true, true, _word,NULL,NULL, $2);
+                    $$= create_tree($1, true, true, _word, NULL,NULL, $2);
                     // printf("state: content | format: TEXT + content\n");
                 }
         |       attributes content
@@ -82,9 +85,9 @@ content:        TEXT content
                   $$ = $1;
                   //printf("state: content | format: attribute + content\n");
                 }
-        |       LABEL '/'
+        |       LABEL '/' content
                 {
-                  $$ = create_tree($1, false, false, _tree, NULL, NULL, NULL);
+                  $$ = create_tree($1, true, false, _tree, NULL, NULL, NULL);
                   //printf("state: content | format: LABEL /\n");
                 }
         |       LABEL container content
@@ -98,7 +101,7 @@ content:        TEXT content
                   $$=$1;
                   // printf("state: content | format: container\n");
                 }
-        |       /*empty */
+        |       /* empty */
                 {
                   $$ = NULL;
                 }
@@ -107,7 +110,7 @@ content:        TEXT content
 
 attributes:      LABEL '[' assign ']' '/'
                 {
-                  $$ = create_tree($1, false, false, _tree, $3, NULL, NULL);
+                  $$ = create_tree($1, true, false, _tree, $3, NULL, NULL);
                   // printf("state: attribute | format: LABEL[assign]/\n");
                 }
         |       LABEL '[' assign ']' separator container
@@ -138,8 +141,8 @@ assign:         LABEL '=' TEXT assign
 
 
 %%
-
                 /*
+
 tree create_tree_text(char* text, tree right_tree){
   char *tmp;
   tmp=strtok(text," ");
@@ -149,6 +152,7 @@ tree create_tree_text(char* text, tree right_tree){
     set_label(first,strdup(tmp));
     set_nullary(first,true);
     set_space(first,true);
+    //first = create_tree(strdup(tmp),true,true,_word,NULL,NULL,NULL);
   }
   tree seconde = first;
   while (tmp){
@@ -161,6 +165,7 @@ tree create_tree_text(char* text, tree right_tree){
   return first;
 }
                 */
+
 
 
 void add_daugthers(tree t, tree s){
