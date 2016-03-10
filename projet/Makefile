@@ -7,12 +7,12 @@ all:
 
 
 
-check:
-	./bin/parser.out < src/check/valid_forms.txt
+check:all
+	valgrind ./bin/parser.out < src/check/valid_forms.txt
 	gcov src/tree/tree.c
 	gcov src/xml_builder/xml_builder.c
 
-draw:
+draw:all
 	$(MAKE) -C $(LIBS) draw
 
 clean:
