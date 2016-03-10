@@ -5,3 +5,9 @@ git commit -m "Comm" : commit de tout
 git push : envoyer
 git status . : voir les modifications
 git log : historique des modifications
+
+###Pour faire un merge###
+1. git commit file1 file2 -m "Commentaire"
+2. git pull
+.. merge..
+3. git push
