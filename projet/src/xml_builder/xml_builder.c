@@ -7,6 +7,7 @@ void build_xml(tree t){
     fprintf(stderr, "failed to open file\n");
     exit(EXIT_FAILURE);
   }
+  depth_search(t,0);
 }
 
 void attributes_to_xml(attributes a){
@@ -23,7 +24,7 @@ void attributes_to_xml(attributes a){
   }
 }
 
-
+/*
 void describe_tree(tree t){
   
 }
@@ -31,7 +32,7 @@ void describe_tree(tree t){
 void describe_word(tree t){
   
 }
-
+*/
 
 void print_label(tree t){
   printf("%s", get_label(t));

@@ -10,13 +10,26 @@ void yyerror(char *);
 int yyparse(void);
 char* strdup(char*);
 
-void add_daugthers(tree t, tree s);
-void add_right(tree t, tree s);
-  void add_head(tree t);
+
+void add_head(tree t);
 
 tree create_tree_text(char * text, tree right_tree);
 tree head_tree = NULL;
 int numberTree = 0;
+
+
+struct variable{
+    tree value;
+    char *name;
+    struct variable *next;
+    };
+
+struct variable *first, *last;
+
+struct variable* new_var(char* name);
+void  assign(char * name, tree value);
+struct variable* lookup(char* name);
+
 %}
 
 %union{
@@ -26,43 +39,54 @@ int numberTree = 0;
  };
 
 %type   <attributes_parser>  assign
-%type   <tree_parser>        container content attributes
-%token  <value> LABEL TEXT
+%type   <tree_parser>        container content attributes begin
+%token  <value> LABEL TEXT NAME LET
 
 
 %%
 
 start:          start begin '\n'
                 {
+		    add_head($2);
                     draw(head_tree);
                     depth_search(head_tree,0);
-                    head_tree=NULL;
+		    destroy_tree(head_tree);
+		    head_tree=NULL;
+		    printf("\n");
                     }
+	|	start variable '\n'
         |       start '\n'
         |       start error
         |       /* empty */
                 ;
 
+variable:	LET NAME '=' begin ';'
+		{
+		    assign($2,$4);
+		    printf("sauvegarde variable\n");
+		}
+	;
 begin:          LABEL '/'
                 {
-                  tree tmp = create_tree($1, true, false, _tree, NULL, NULL, NULL);
-                  add_head(tmp);
+                  $$ = create_tree($1, true, false, _tree, NULL, NULL, NULL);
+
                   //printf("state: begin | format: LABEL /\n");
                 }
         |       LABEL container
                 {
-                  tree tmp = create_tree($1, false, false, _tree, NULL, $2, NULL);
-                  add_head(tmp);
+                  $$ = create_tree($1, false, false, _tree, NULL, $2, NULL);
+                  
                   //printf("state: begin | format: LABEL container\n");
                 }
         |       attributes
                 {
-                  add_head($1);
+		    $$ = $1;
                   //printf("state: begin | format: attribute\n");
                 }
         |       container
                 {
-                  add_head($1);
+		    $$ = $1;
+		   
                   //printf("state: begin | format: container\n");
                 }
         ;
@@ -110,7 +134,7 @@ content:        TEXT content
 
 attributes:      LABEL '[' assign ']' '/'
                 {
-                  $$ = create_tree($1, true, false, _tree, $3, NULL, NULL);
+                  $$ = create_tree($1, false, false, _tree, $3, NULL, NULL);
                   // printf("state: attribute | format: LABEL[assign]/\n");
                 }
         |       LABEL '[' assign ']' separator container
@@ -168,22 +192,6 @@ tree create_tree_text(char* text, tree right_tree){
 
 
 
-void add_daugthers(tree t, tree s){
-  if (!get_daughters(t)){
-    set_daughters(t,s);
-    return;
-  }
-  t = get_daughters(t);
-  add_right(t,s);
-}
-
-
-void add_right(tree t, tree s){
-  while (get_right(t)){
-    t = get_right(t);
-  }
-  set_right(t,s);
-}
 
 void add_head(tree t){
   if (head_tree == NULL){
@@ -191,4 +199,33 @@ void add_head(tree t){
     return;
   }
   add_right(head_tree, t);
+}
+
+
+struct variable* new_var(char* name){
+    struct variable* tmp =  malloc(sizeof(struct variable));
+    tmp->name = strdup(name);
+    tmp->value = 0;
+    tmp->next = NULL;
+    if (first == NULL)
+	first = last = tmp;
+    else
+       {
+	   last->next = tmp;
+	   last = tmp;
+       }
+    return tmp;
+}
+
+struct variable* lookup(char* name){
+    for (struct variable* p = first; p != NULL ;p = p->next){
+	if(strcmp(p->name, name) == 0)
+	    return p;
+    }
+    return new_var(name);
+}
+
+void  assign(char* name, tree value){
+  struct variable* tmp = lookup(name);
+  tmp->value = value;
 }

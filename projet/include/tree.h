@@ -46,6 +46,10 @@ char* get_value(attributes a);
 void set_next(attributes a, attributes next);
 attributes get_next(attributes a);
 
+void add_daugthers(tree t, tree s);
+void add_right(tree t, tree s);
+
+
 void draw(tree t);
 
 

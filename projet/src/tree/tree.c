@@ -64,8 +64,8 @@ void destroy_tree(tree t) {
 
   destroy_tree(t->daughters);
   destroy_tree(t->right);
-
   destroy_attributes(t->attr);
+
   free(t);
 }
   
@@ -217,13 +217,31 @@ attributes get_next(attributes a){
   return a->next;
 }
 
-void draw_indent(int cpt) {
+void add_daugthers(tree t, tree s){
+  if (!get_daughters(t)){
+    set_daughters(t,s);
+    return;
+  }
+  t = get_daughters(t);
+  add_right(t,s);
+}
+
+
+void add_right(tree t, tree s){
+  while (get_right(t)){
+    t = get_right(t);
+  }
+  set_right(t,s);
+}
+
+
+static void draw_indent(int cpt) {
   for (int i = 0 ; i < cpt * 3 ; i++) {
     printf("-");
   }
 }
 
-void draw_attributes(attributes a, int cpt) {
+static void draw_attributes(attributes a, int cpt) {
   if (a == NULL)
     return;
   draw_indent(cpt);

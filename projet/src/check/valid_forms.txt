@@ -24,7 +24,7 @@ div[att1="v1"
     "contenu..."
     }
 
-br[att1="v1"
+div[att1="v1"
    att2="v2"]/
 
 {"contenu ... " div[class="nb"]{"..."}
@@ -66,3 +66,4 @@ br[att1="v1"
 
 
 
+let bonjour = {"je suis la"};
