@@ -22,14 +22,14 @@ struct variable{
     tree value;
     char *name;
     struct variable *next;
-    };
+};
 
 struct variable *first, *last;
 
 struct variable* new_var(char* name);
 void  assign(char * name, tree value);
 struct variable* lookup(char* name);
-
+void create_file(char *name,tree t);
 %}
 
 %union{
@@ -40,9 +40,15 @@ struct variable* lookup(char* name);
 
 %type   <attributes_parser>  assign
 %type   <tree_parser>        container content attributes begin
-%token  <value> LABEL TEXT NAME LET
+%token  <value> LABEL TEXT NAME LET EMIT
 
 
+/* func:           FUN N '-' '>' begin ';' */
+
+
+/* N:              NAME N  */
+/*         |       /\* empty *\/ */
+/*         ; */
 %%
 
 start:          start begin '\n'
@@ -54,11 +60,13 @@ start:          start begin '\n'
 		    head_tree=NULL;
 		    printf("\n");
                     }
-	|	start variable '\n'
+        |       start EMIT TEXT begin '\n' { create_file($3,$4);}
+        |	start variable '\n'
         |       start '\n'
         |       start error
         |       /* empty */
                 ;
+
 
 variable:	LET NAME '=' begin ';'
 		{
@@ -66,6 +74,9 @@ variable:	LET NAME '=' begin ';'
 		    printf("sauvegarde variable\n");
 		}
 	;
+
+
+
 begin:          LABEL '/'
                 {
                   $$ = create_tree($1, true, false, _tree, NULL, NULL, NULL);
@@ -228,4 +239,15 @@ struct variable* lookup(char* name){
 void  assign(char* name, tree value){
   struct variable* tmp = lookup(name);
   tmp->value = value;
+}
+
+void create_file(char *name,tree t){
+  printf("\n");
+  int fd = open(name,O_CREAT|O_TRUNC|O_RDWR,0700);
+  int save = dup(1);
+  dup2(fd,1);
+  depth_search(t,0);
+  dup2(save,1);
+  close(fd);
+  close(save);
 }
