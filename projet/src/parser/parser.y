@@ -127,13 +127,17 @@ content:        TEXT content
                 }
         |       LABEL container content
                 {
-                  add_right($2,$3);
-                  $$ = create_tree($1, false, false, _tree, NULL, $2, NULL);
+                  $$ = create_tree($1, false, false, _tree, NULL, $2, $3);
                   // printf("state: content | format: LABEL container + content\n");
                 }
-        |       container
+        |       container content
                 {
-                  $$=$1;
+                  if (!$1)
+                    $$=$2;
+                  else {
+                    add_right($1,$2);
+                    $$ = $1;
+                  }
                   // printf("state: content | format: container\n");
                 }
         |       /* empty */
