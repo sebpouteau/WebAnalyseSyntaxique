@@ -71,7 +71,6 @@ start:          start begin '\n'
         |       /* empty */
                 ;
 
-
 keywords:       variable IN begin
                 {
                   printf("coucou je suis ici j'ai bien trouvé ton keyword\n");
