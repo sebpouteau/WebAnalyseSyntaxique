@@ -22,21 +22,29 @@ xml (?i:xml)({label})*
   yy_push_state(LET_MODE);
   return LET;
 }
+
 "emit" {
   yy_push_state(EMIT_MODE);
   return EMIT;
 }
 
+"in" {
+printf("coucou\n");
+yy_pop_state();
+return IN;
+}
 
+"where" {
+return WHERE;
+}
 
-<LET_MODE>{label}  {
-  yylval.value = yytext;
-  return NAME;
-  }
+<LET_MODE>"=" {
+  return AFFECT;
+}
 
 <LET_MODE>";"  {
   yy_pop_state();
-  return yytext[0];
+  return END_LET;
  }
 
 {xml} {}
