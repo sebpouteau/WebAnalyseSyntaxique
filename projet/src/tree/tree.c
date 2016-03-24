@@ -101,26 +101,20 @@ void destroy_attributes(attributes a) {
   ======================================== */
 
 void set_label(tree t, char* label){
+  if (t == NULL)
+    return;
   free(t->label);
   t->label = copy_string(label);
 }
 
 char* get_label(tree t){
-  if(!error((t != NULL), "uninitialized tree")){
-    if(!error((t->label !=NULL), "tree label isn't defined")){
-      return t->label;
-    }
-  }
-  return NULL;
+  assert(t != NULL);
+  return t->label;
 }
-/*
-   assert(t != NULL && t->label != NULL){
-     return t->label;
-   }
-}
-*/
 
 void set_nullary(tree t, bool nullary){
+  if (t == NULL)
+    return;
   t->nullary = nullary;
 }
 
@@ -130,6 +124,8 @@ bool get_nullary(tree t){
 }
 
 void set_space(tree t, bool space){
+  if (t == NULL)
+    return;
   t->space = space;
 }
 
@@ -140,11 +136,12 @@ bool get_space(tree t){
 
 
 void set_tp(tree t, type tp){
+  if (t == NULL)
+    return;
   t->tp = tp;
 }
 
 type get_tp(tree t){
-  //assert(t != NULL && t->tp != _none);
   assert(t != NULL);
   return t->tp;
 }
