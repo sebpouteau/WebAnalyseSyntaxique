@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include <assert.h>
 #include "tree.h"
 #include "xml_builder.h"
 int yylex(void);
@@ -18,17 +19,19 @@ tree head_tree = NULL;
 int numberTree = 0;
 
 
-struct variable{
+typedef struct variable_t* variable;
+typedef struct variable_t{
     tree value;
     char *name;
-    struct variable *next;
+    variable next;
 };
 
-struct variable *first, *last;
+variable first;
 
-struct variable* new_var(char* name);
-void  assign(char * name, tree value);
-struct variable* lookup(char* name);
+variable new_var(char* name, tree t, variable next);
+void  var_assign(char * name, tree value);
+tree var_get(char* name);
+variable var_lookup(char* name);
 void create_file(char *name,tree t);
 %}
 
@@ -60,7 +63,7 @@ start:          start begin '\n'
         |	    start variable END_LET '\n'
                 {
                   printf("var save\n");
-                  assign(get_label(get_daughters($variable)), get_right(get_daughters($variable)));
+                  var_assign(get_label(get_daughters($variable)), get_right(get_daughters($variable)));
                 }
         |       start keywords ';' '\n'
         |       start '\n'
@@ -237,7 +240,7 @@ tree evaluate(tree t){
   while(son != NULL){
     if(get_tp(son) == _var){
       //On récup l'arbre de la variable
-      struct variable* var = lookup(get_label(son));
+      variable var = var_lookup(get_label(son));
       //On remplace le fils actuel de notre arbre, par l'arbre de variable
       set_daughters(var->value, get_daughters(son));
       set_right(var->value, get_right(son));
@@ -254,33 +257,48 @@ tree evaluate(tree t){
   return t;
 }
 
+/*tree evaluate (tree t, tree father) {
+  if (t == NULL)
+    return;
+  if (get_tp(t) == _var) {
+    tree cp = copy_tree(
+    set_daughters(father, 
 
-struct variable* new_var(char* name){
-    struct variable* tmp =  malloc(sizeof(struct variable));
+    
+  for ( ; t != NULL ; t = get_right(t)) {
+   type_t ty = get_tp(t);
+   if (ty == _var) {
+*/
+    
+
+
+
+variable new_var(char* name, tree value, variable next){
+    variable tmp =  malloc(sizeof(*tmp));
     tmp->name = strdup(name);
     tmp->value = 0;
     tmp->next = NULL;
-    if (first == NULL)
-	first = last = tmp;
-    else
-       {
-	   last->next = tmp;
-	   last = tmp;
-       }
     return tmp;
 }
 
-struct variable* lookup(char* name){
-    for (struct variable* p = first; p != NULL ;p = p->next){
-	if(strcmp(p->name, name) == 0)
-	    return p;
-    }
-    return new_var(name);
+variable var_lookup(char* name){
+  variable p;
+  for (p = first; p != NULL && strcmp(p->name, name) != 0;p = p->next){}
+  return p;
 }
 
-void assign(char* name, tree value){
-  struct variable* tmp = lookup(name);
-  tmp->value = value;
+tree var_get(char* name) {
+  variable p = var_lookup(name);
+  assert(p != NULL);
+  return p->value;
+}
+
+void var_assign(char* name, tree value){
+  variable tmp = var_lookup(name);
+  if (tmp == NULL)
+    first = new_var (name, value, first);
+  else
+    tmp->value = value;
 }
 
 void create_file(char *name,tree t){
