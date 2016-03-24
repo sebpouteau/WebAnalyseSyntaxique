@@ -8,12 +8,12 @@
 int yylex(void);
 void yyerror(char *);
 int yyparse(void);
-char* strdup(char*);
 
+char* strdup(char*); //TODO : Inutile a discuter avec Paul/Frantisek
 
 void add_head(tree t);
-
 tree create_tree_text(char * text, tree right_tree);
+tree evaluate(tree t); //substitution valeurs
 tree head_tree = NULL;
 int numberTree = 0;
 
@@ -22,14 +22,14 @@ struct variable{
     tree value;
     char *name;
     struct variable *next;
-    };
+};
 
 struct variable *first, *last;
 
 struct variable* new_var(char* name);
 void  assign(char * name, tree value);
 struct variable* lookup(char* name);
-
+void create_file(char *name,tree t);
 %}
 
 %union{
@@ -39,33 +39,64 @@ struct variable* lookup(char* name);
  };
 
 %type   <attributes_parser>  assign
-%type   <tree_parser>        container content attributes begin
-%token  <value> LABEL TEXT NAME LET
-
+%type   <tree_parser>        container content attributes begin variable keywords
+%token  <value> LABEL TEXT NAME LET EMIT IN WHERE AFFECT END_LET
 
 %%
 
 start:          start begin '\n'
                 {
-		    add_head($2);
+                    add_head($2);
                     draw(head_tree);
                     depth_search(head_tree,0);
-		    destroy_tree(head_tree);
-		    head_tree=NULL;
-		    printf("\n");
-                    }
-	|	start variable '\n'
+                    destroy_tree(head_tree);
+                    head_tree=NULL;
+                    printf("\n");
+                }
+        |       start EMIT TEXT begin '\n'
+                {
+                  create_file($3,$4);
+                }
+        |	    start variable END_LET '\n'
+                {
+                  printf("var save\n");
+                  assign(get_label(get_daughters($variable)), get_right(get_daughters($variable)));
+                }
+        |       start keywords ';' '\n'
         |       start '\n'
-        |       start error
+        |       start error '\n'
+                {
+                  yyerrok;
+                }
         |       /* empty */
                 ;
 
-variable:	LET NAME '=' begin ';'
+keywords:       variable IN begin
+                {
+                  printf("coucou je suis ici j'ai bien trouvé ton keyword\n");
+                  set_right($variable, $begin);
+                  $$ = create_tree("in", false, false, _in, NULL, $variable, NULL);
+                  draw($$);
+                }
+        |       begin WHERE variable
+                {
+                  set_right($variable, $begin);
+                  tree where = create_tree("where", false, false, _where, NULL, $variable, NULL);
+                  evaluate($begin);
+                }
+        ;
+
+variable:	LET LABEL AFFECT begin
 		{
-		    assign($2,$4);
-		    printf("sauvegarde variable\n");
+          printf("coucou je suis ici j'ai bien trouvé ta variable\n");
+          tree name = create_tree($LABEL, false, false, _word, NULL, NULL, $begin);
+          $$ = create_tree("=", false, false, _affect, NULL, name, NULL);
+          //printf("sauvegarde variable\n");
 		}
 	;
+
+
+
 begin:          LABEL '/'
                 {
                   $$ = create_tree($1, true, false, _tree, NULL, NULL, NULL);
@@ -80,13 +111,12 @@ begin:          LABEL '/'
                 }
         |       attributes
                 {
-		    $$ = $1;
+                  $$ = $1;
                   //printf("state: begin | format: attribute\n");
                 }
         |       container
                 {
-		    $$ = $1;
-		   
+                  $$ = $1;
                   //printf("state: begin | format: container\n");
                 }
         ;
@@ -116,13 +146,17 @@ content:        TEXT content
                 }
         |       LABEL container content
                 {
-                  add_right($2,$3);
-                  $$ = create_tree($1, false, false, _tree, NULL, $2, NULL);
+                  $$ = create_tree($1, false, false, _tree, NULL, $2, $3);
                   // printf("state: content | format: LABEL container + content\n");
                 }
-        |       container
+        |       container content
                 {
-                  $$=$1;
+                  if (!$1)
+                    $$=$2;
+                  else {
+                    add_right($1,$2);
+                    $$ = $1;
+                  }
                   // printf("state: content | format: container\n");
                 }
         |       /* empty */
@@ -190,15 +224,34 @@ tree create_tree_text(char* text, tree right_tree){
 }
                 */
 
-
-
-
 void add_head(tree t){
   if (head_tree == NULL){
     head_tree  = t;
     return;
   }
   add_right(head_tree, t);
+}
+
+tree evaluate(tree t){
+  tree son = get_daughters(t);
+  while(son != NULL){
+    if(get_tp(son) == _var){
+      //On récup l'arbre de la variable
+      struct variable* var = lookup(get_label(son));
+      //On remplace le fils actuel de notre arbre, par l'arbre de variable
+      set_daughters(var->value, get_daughters(son));
+      set_right(var->value, get_right(son));
+      destroy_tree(son);
+      set_daughters(t, var->value);
+      son = var->value;
+    }
+    else {
+      son = get_right(son);
+    }
+  }
+  evaluate(get_right(t));
+  evaluate(get_daughters(t));
+  return t;
 }
 
 
@@ -225,7 +278,18 @@ struct variable* lookup(char* name){
     return new_var(name);
 }
 
-void  assign(char* name, tree value){
+void assign(char* name, tree value){
   struct variable* tmp = lookup(name);
   tmp->value = value;
+}
+
+void create_file(char *name,tree t){
+  printf("\n");
+  int fd = open(name,O_CREAT|O_TRUNC|O_RDWR,0700);
+  int save = dup(1);
+  dup2(fd,1);
+  depth_search(t,0);
+  dup2(save,1);
+  close(fd);
+  close(save);
 }

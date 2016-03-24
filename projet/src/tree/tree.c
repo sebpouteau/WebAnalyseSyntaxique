@@ -1,5 +1,6 @@
 #include <tree.h>
 #include <assert.h>
+char *strdup(char *);
 
 struct attributes_t
 {
@@ -30,9 +31,9 @@ static int error(bool cond, char* message){
 }
 
 static char* copy_string(char* s) {
-  char* new_s = malloc(sizeof(char) * strlen(s));
-  strcpy(new_s, s);
-  return new_s;
+  // char* new_s = malloc(sizeof(char) * strlen(s));
+  return strdup(s);
+  //return new_s;
 }
 
 tree create_basic_tree(char* label, type tp){

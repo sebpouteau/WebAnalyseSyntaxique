@@ -66,7 +66,7 @@ void depth_search(tree t, int cpt){
     printf("<");
     print_label(t);
     if (get_nullary(t)) {
-      printf("/>");
+      printf("/>\n");
     } else {
       attributes_to_xml(get_attributes(t));
       printf(">\n");

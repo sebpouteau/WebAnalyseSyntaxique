@@ -11,7 +11,7 @@ label (_[[:alpha:]]|[[:alpha:]])[[:alnum:]\'._]*
 xml (?i:xml)({label})*
 
 %x TEXT_MODE
-%s TREE_MODE LET_MODE
+%s TREE_MODE LET_MODE EMIT_MODE
 
 %option noyy_top_state
 %option noinput nounput stack
@@ -23,14 +23,28 @@ xml (?i:xml)({label})*
   return LET;
 }
 
-<LET_MODE>{xml}|{label}  {
-  yylval.value = yytext;
-  return NAME;
-  }
+"emit" {
+  yy_push_state(EMIT_MODE);
+  return EMIT;
+}
+
+"in" {
+printf("coucou\n");
+yy_pop_state();
+return IN;
+}
+
+"where" {
+return WHERE;
+}
+
+<LET_MODE>"=" {
+  return AFFECT;
+}
 
 <LET_MODE>";"  {
   yy_pop_state();
-  return yytext[0];
+  return END_LET;
  }
 
 {xml} {}
@@ -69,7 +83,8 @@ xml (?i:xml)({label})*
 
 <TREE_MODE,TEXT_MODE,LET_MODE>[[:space:]\n] {}
 
-
+<EMIT_MODE>\n {yy_pop_state(); return yytext[0];}
+<EMIT_MODE>[[:space:]] {}
 
 .|\n { return yytext[0];}
 

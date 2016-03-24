@@ -65,5 +65,9 @@ br[att1="v1"
    att2="v2"]/
 
 
+{{div{"contenu1"} div{"contenu2"}}
+   a[href="www.labri.fr"]{"LaBRI"}
+   {{} {p{"contenu3"}}
+}}
 
 let bonjour = {"je suis la"};
