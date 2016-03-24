@@ -18,43 +18,50 @@ typedef enum type_t {
 typedef struct tree_t* tree;
 typedef struct attributes_t* attributes;
 
-tree create_tree(char* label, bool nullary, bool space, type tp, attributes attr, tree daughters, tree right);
-tree create_basic_tree(char* label, type tp);
-tree create_empty_tree(void);
+tree tree_create(char* label, bool nullary, bool space, type tp, attributes attr, tree daughters, tree right);
+tree tree_create_basic(char* label, type tp);
+tree tree_create_empty(void);
 
-void destroy_tree(tree t);
+void tree_destroy(tree t);
 
-attributes create_empty_attributes(void);
-attributes create_attributes(char* key, char* value, attributes a);
+void tree_set_label(tree t, char* label);
+char* tree_get_label(tree t);
 
-void destroy_attributes(attributes a);
+void tree_set_nullary(tree t, bool nullary);
+bool tree_get_nullary(tree t);
 
-void set_label(tree t, char* label);
-char* get_label(tree t);
-void set_nullary(tree t, bool nullary);
-bool get_nullary(tree t);
-void set_space(tree t, bool space);
-bool get_space(tree t);
-void set_tp(tree t, type tp);
-type get_tp(tree t);
-void set_attributes(tree t, attributes attr);
-attributes get_attributes(tree t);
-void set_daughters(tree t, tree d);
-tree get_daughters(tree t);
-void set_right(tree t, tree r);
-tree get_right(tree t);
-void set_key(attributes a, char* key);
-char* get_key(attributes a);
-void set_value(attributes a, char* value);
-char* get_value(attributes a);
-void set_next(attributes a, attributes next);
-attributes get_next(attributes a);
+void tree_set_space(tree t, bool space);
+bool tree_get_space(tree t);
 
-void add_daugthers(tree t, tree s);
-void add_right(tree t, tree s);
+void tree_set_tp(tree t, type tp);
+type tree_get_tp(tree t);
 
+void tree_set_attributes(tree t, attributes attr);
+attributes tree_get_attributes(tree t);
 
-void draw(tree t);
+void tree_set_daughters(tree t, tree d);
+tree tree_get_daughters(tree t);
 
+void tree_set_right(tree t, tree r);
+tree tree_get_right(tree t);
+
+void tree_add_daugthers(tree t, tree s);
+void tree_add_right(tree t, tree s);
+
+void tree_draw(tree t);
+
+attributes attr_create_empty(void);
+attributes attr_create(char* key, char* value, attributes a);
+
+void attr_destroy(attributes a);
+
+void attr_set_key(attributes a, char* key);
+char* attr_get_key(attributes a);
+
+void attr_set_value(attributes a, char* value);
+char* attr_get_value(attributes a);
+
+void attr_set_next(attributes a, attributes next);
+attributes attr_get_next(attributes a);
 
 #endif

@@ -13,14 +13,14 @@ int yyparse(void);
 char* strdup(char*); //TODO : Inutile a discuter avec Paul/Frantisek
 
 void add_head(tree t);
-tree create_tree_text(char * text, tree right_tree);
+tree tree_create_text(char * text, tree right_tree);
 tree evaluate(tree t); //substitution valeurs
 tree head_tree = NULL;
 int numberTree = 0;
 
-
+// VARIABLES
 typedef struct variable_t* variable;
-typedef struct variable_t{
+struct variable_t{
     tree value;
     char *name;
     variable next;
@@ -28,10 +28,21 @@ typedef struct variable_t{
 
 variable first;
 
-variable new_var(char* name, tree t, variable next);
+void var_init(void);
+void var_quit(void);
+
+variable var_create(char* name, tree t, variable next);
+void var_destroy(variable v);
+
+// Appelle récursivement var_destroy sur toutes les variables de la liste
+void var_destroy_all(variable v);
+
 void  var_assign(char * name, tree value);
 tree var_get(char* name);
-variable var_lookup(char* name);
+
+static variable var_lookup(char* name);
+// FIN VARIABLES
+
 void create_file(char *name,tree t);
 %}
 
@@ -50,9 +61,9 @@ void create_file(char *name,tree t);
 start:          start begin '\n'
                 {
                     add_head($2);
-                    draw(head_tree);
+                    tree_draw(head_tree);
                     depth_search(head_tree,0);
-                    destroy_tree(head_tree);
+                    tree_destroy(head_tree);
                     head_tree=NULL;
                     printf("\n");
                 }
@@ -63,7 +74,7 @@ start:          start begin '\n'
         |	    start variable END_LET '\n'
                 {
                   printf("var save\n");
-                  var_assign(get_label(get_daughters($variable)), get_right(get_daughters($variable)));
+                  var_assign(tree_get_label(tree_get_daughters($variable)), tree_get_right(tree_get_daughters($variable)));
                 }
         |       start keywords ';' '\n'
         |       start '\n'
@@ -77,14 +88,14 @@ start:          start begin '\n'
 keywords:       variable IN begin
                 {
                   printf("coucou je suis ici j'ai bien trouvé ton keyword\n");
-                  set_right($variable, $begin);
-                  $$ = create_tree("in", false, false, _in, NULL, $variable, NULL);
-                  draw($$);
+                  tree_set_right($variable, $begin);
+                  $$ = tree_create("in", false, false, _in, NULL, $variable, NULL);
+                  tree_draw($$);
                 }
         |       begin WHERE variable
                 {
-                  set_right($variable, $begin);
-                  tree where = create_tree("where", false, false, _where, NULL, $variable, NULL);
+                  tree_set_right($variable, $begin);
+                  tree where = tree_create("where", false, false, _where, NULL, $variable, NULL);
                   evaluate($begin);
                 }
         ;
@@ -92,8 +103,8 @@ keywords:       variable IN begin
 variable:	LET LABEL AFFECT begin
 		{
           printf("coucou je suis ici j'ai bien trouvé ta variable\n");
-          tree name = create_tree($LABEL, false, false, _word, NULL, NULL, $begin);
-          $$ = create_tree("=", false, false, _affect, NULL, name, NULL);
+          tree name = tree_create($LABEL, false, false, _word, NULL, NULL, $begin);
+          $$ = tree_create("=", false, false, _affect, NULL, name, NULL);
           //printf("sauvegarde variable\n");
 		}
 	;
@@ -102,13 +113,13 @@ variable:	LET LABEL AFFECT begin
 
 begin:          LABEL '/'
                 {
-                  $$ = create_tree($1, true, false, _tree, NULL, NULL, NULL);
+                  $$ = tree_create($1, true, false, _tree, NULL, NULL, NULL);
 
                   //printf("state: begin | format: LABEL /\n");
                 }
         |       LABEL container
                 {
-                  $$ = create_tree($1, false, false, _tree, NULL, $2, NULL);
+                  $$ = tree_create($1, false, false, _tree, NULL, $2, NULL);
                   
                   //printf("state: begin | format: LABEL container\n");
                 }
@@ -133,23 +144,23 @@ container:     '{' content '}'
 
 content:        TEXT content
                 {
-                    $$= create_tree($1, true, true, _word, NULL,NULL, $2);
+                    $$= tree_create($1, true, true, _word, NULL,NULL, $2);
                     // printf("state: content | format: TEXT + content\n");
                 }
         |       attributes content
                 {
-                  set_right($1,$2);
+                  tree_set_right($1,$2);
                   $$ = $1;
                   //printf("state: content | format: attribute + content\n");
                 }
         |       LABEL '/' content
                 {
-                  $$ = create_tree($1, true, false, _tree, NULL, NULL, NULL);
+                  $$ = tree_create($1, true, false, _tree, NULL, NULL, NULL);
                   //printf("state: content | format: LABEL /\n");
                 }
         |       LABEL container content
                 {
-                  $$ = create_tree($1, false, false, _tree, NULL, $2, $3);
+                  $$ = tree_create($1, false, false, _tree, NULL, $2, $3);
                   // printf("state: content | format: LABEL container + content\n");
                 }
         |       container content
@@ -157,7 +168,7 @@ content:        TEXT content
                   if (!$1)
                     $$=$2;
                   else {
-                    add_right($1,$2);
+                    tree_add_right($1,$2);
                     $$ = $1;
                   }
                   // printf("state: content | format: container\n");
@@ -171,12 +182,12 @@ content:        TEXT content
 
 attributes:      LABEL '[' assign ']' '/'
                 {
-                  $$ = create_tree($1, false, false, _tree, $3, NULL, NULL);
+                  $$ = tree_create($1, false, false, _tree, $3, NULL, NULL);
                   // printf("state: attribute | format: LABEL[assign]/\n");
                 }
         |       LABEL '[' assign ']' separator container
                 {
-                  $$ = create_tree($1, false, false, _tree, $3, $6, NULL);
+                  $$ = tree_create($1, false, false, _tree, $3, $6, NULL);
                   // printf("state: attribute | format: LABEL[assign] + separator + container\n");
                 }
                 ;
@@ -192,11 +203,11 @@ separator:
 
 assign:         LABEL '=' TEXT assign
                 {
-                    $$ = create_attributes($1, $3, $4);
+                    $$ = attr_create($1, $3, $4);
                 }
         |       LABEL '=' TEXT
                 {
-                    $$ =  create_attributes($1, $3, NULL);
+                    $$ =  attr_create($1, $3, NULL);
                 }
         ;
 
@@ -204,25 +215,25 @@ assign:         LABEL '=' TEXT assign
 %%
                 /*
 
-tree create_tree_text(char* text, tree right_tree){
+tree tree_create_text(char* text, tree right_tree){
   char *tmp;
   tmp=strtok(text," ");
-  tree first = create_empty_tree();
+  tree first = tree_create_empty();
   if (tmp){
-    set_tp(first,_word);
-    set_label(first,strdup(tmp));
-    set_nullary(first,true);
-    set_space(first,true);
-    //first = create_tree(strdup(tmp),true,true,_word,NULL,NULL,NULL);
+    tree_set_tp(first,_word);
+    tree_set_label(first,strdup(tmp));
+    tree_set_nullary(first,true);
+    tree_set_space(first,true);
+    //first = tree_create(strdup(tmp),true,true,_word,NULL,NULL,NULL);
   }
   tree seconde = first;
   while (tmp){
-    tree tmp_tree = create_tree(strdup(tmp),true,true,_word,NULL,NULL,NULL);
-    set_right(seconde, tmp_tree);
+    tree tmp_tree = tree_create(strdup(tmp),true,true,_word,NULL,NULL,NULL);
+    tree_set_right(seconde, tmp_tree);
     seconde = tmp_tree;
     tmp=strtok(NULL," ");
   }
-  set_right(seconde, right_tree);
+  tree_set_right(seconde, right_tree);
   return first;
 }
                 */
@@ -232,52 +243,87 @@ void add_head(tree t){
     head_tree  = t;
     return;
   }
-  add_right(head_tree, t);
+  tree_add_right(head_tree, t);
 }
 
 tree evaluate(tree t){
-  tree son = get_daughters(t);
+  tree son = tree_get_daughters(t);
   while(son != NULL){
-    if(get_tp(son) == _var){
+    if(tree_get_tp(son) == _var){
       //On récup l'arbre de la variable
-      variable var = var_lookup(get_label(son));
+      variable var = var_lookup(tree_get_label(son));
       //On remplace le fils actuel de notre arbre, par l'arbre de variable
-      set_daughters(var->value, get_daughters(son));
-      set_right(var->value, get_right(son));
-      destroy_tree(son);
-      set_daughters(t, var->value);
+      tree_set_daughters(var->value, tree_get_daughters(son));
+      tree_set_right(var->value, tree_get_right(son));
+      tree_destroy(son);
+      tree_set_daughters(t, var->value);
       son = var->value;
     }
     else {
-      son = get_right(son);
+      son = tree_get_right(son);
     }
   }
-  evaluate(get_right(t));
-  evaluate(get_daughters(t));
+  evaluate(tree_get_right(t));
+  evaluate(tree_get_daughters(t));
   return t;
 }
 
-/*tree evaluate (tree t, tree father) {
+/* Etienne version a tester
+// TODO ne pas oublier de destroy les arbres après utilisation
+tree evaluate (tree t, tree father) {
   if (t == NULL)
     return;
-  if (get_tp(t) == _var) {
-    tree cp = copy_tree(
-    set_daughters(father, 
 
-    
-  for ( ; t != NULL ; t = get_right(t)) {
-   type_t ty = get_tp(t);
-   if (ty == _var) {
+  // Le premier fils est il une var ?
+  while (tree_get_tp(t) == _var) { // Si on a remplacvé par une var faut aller voir
+    tree cp = copy_tree(var_get(tree_get_label(t)));
+    tree_set_daughters(father, cp);
+    tree_add_right(cp, tree_get_right(t));
+    tree_destroy(t); // On détruit le noeud var
+    t = cp;
+  }
+  
+  // Y a t'il une var dans la suite de rights ?
+  tree left = t;
+  for ( tree act = tree_get_right(t) ; act != NULL ; act = tree_get_right(act)) {
+    while (tree_get_tp(act) == _var) {
+      tree cp = copy_tree(var_get(tree_get_label(act)));
+      tree_set_right(left, cp);
+      tree_add_right(cp, act->right);
+      tree_destroy(act);
+    }
+    evaluate(get_daugthers(act), act);
+  }
+
+  return t;
+}
 */
-    
+
+void var_init(void) {}
+
+void var_quit(void) {
+  var_destroy_all(first);
+}
 
 
+void var_destroy_all(variable v) {
+  if (v == NULL)
+    return;
+  var_destroy_all(v->next);
+  var_destroy(v);
+}
 
-variable new_var(char* name, tree value, variable next){
+void var_destroy(variable v) {
+  free(v->name);
+  free(v);
+}
+
+variable var_create(char* name, tree value, variable next){
     variable tmp =  malloc(sizeof(*tmp));
     tmp->name = strdup(name);
-    tmp->value = 0;
-    tmp->next = NULL;
+    tmp->value = value; // TODO COPY TREE ?
+    tmp->next = next;
+
     return tmp;
 }
 
@@ -296,7 +342,7 @@ tree var_get(char* name) {
 void var_assign(char* name, tree value){
   variable tmp = var_lookup(name);
   if (tmp == NULL)
-    first = new_var (name, value, first);
+    first = var_create (name, value, first);
   else
     tmp->value = value;
 }
