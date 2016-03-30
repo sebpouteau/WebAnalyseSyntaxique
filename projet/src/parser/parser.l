@@ -2,13 +2,13 @@
 #include <string.h>
 #include <stdio.h>
 #include "parser.tab.h"
-char* strdup(char *);
+char* strdup(const char *);
 int fileno(FILE *);
 %}
 
 
-label (_[[:alpha:]]|[[:alpha:]])[[:alnum:]\'._]*
-xml (?i:xml)({label})*
+label (_[[:alpha:]]|[[:alpha:]])[[:alnum:]._]*
+xml (i:xml)?({label})*
 
 %x TEXT_MODE
 %s TREE_MODE LET_MODE EMIT_MODE
@@ -28,17 +28,32 @@ xml (?i:xml)({label})*
   return EMIT;
 }
 
-"in" {
-printf("coucou\n");
+"in"[[:space:]]+ {
 yy_pop_state();
 return IN;
 }
 
-"where" {
-return WHERE;
+[[:space:]\n]*"where"[[:space:]\n]* {
+  yy_push_state(LET_MODE);
+  return WHERE;
 }
 
-<LET_MODE>"=" {
+
+<LET_MODE>{xml} {
+  yylval.value = strdup(yytext);
+  return LABEL;
+}
+
+<TREE_MODE>{xml} {
+  yylval.value = strdup(yytext);
+  return LABEL;
+}
+
+<TREE_MODE>"," {
+  return VIRGULE;
+}
+
+<INITIAL,LET_MODE>"=" {
   return AFFECT;
 }
 
@@ -47,12 +62,14 @@ return WHERE;
   return END_LET;
  }
 
-{xml} {}
-
 {label}   {
   yylval.value = strdup(yytext);
   return LABEL;
 }
+
+{xml} {}
+
+
 
 
 \"  {
@@ -74,6 +91,8 @@ return WHERE;
   yy_push_state (TREE_MODE);
   return yytext[0];
  }
+
+
 
 <TREE_MODE>"]"|"}" {
   yy_pop_state ();

@@ -1,12 +1,8 @@
 #include <tree.h>
 #include <assert.h>
-<<<<<<< HEAD
-char *strdup(const char *);
-=======
 
-//TODO Réorganiser le fichier pour coller à l'ordre du header
-char *strdup(char *);
->>>>>>> 19699a69516c05a67f492db4b90e9edcc89e665d
+char *strdup(const char *);
+
 
 struct attributes_t
 {
@@ -276,4 +272,31 @@ static void tree_draw_r(tree t, int cpt) {
 
 void tree_draw(tree t) {
   tree_draw_r(t, 0);
+}
+
+
+static attributes attr_copy(attributes a){
+  if (a == NULL){
+    return NULL;
+  }
+  attributes next = attr_copy(a->next);
+  
+  attributes new_a = attr_create(attr_get_key(a), attr_get_value(a), next);
+  
+  return new_a;
+}
+
+
+tree tree_copy(tree t){
+  if (t == NULL){
+    return NULL;
+  }
+  
+  attributes a = attr_copy(t->attr);
+  tree daughters = tree_copy(t->daughters);
+  tree right = tree_copy(t->right);
+
+  tree copy_t = tree_create(tree_get_label(t), tree_get_nullary(t), tree_get_space(t), tree_get_tp(t), a, daughters, right);
+  
+  return copy_t;
 }

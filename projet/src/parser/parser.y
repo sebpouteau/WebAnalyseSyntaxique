@@ -11,7 +11,9 @@ void yyerror(char *);
 int yyparse(void);
 
 char* strdup(const char*); //TODO : Inutile a discuter avec Paul/Frantisek
-
+int dup(int);
+int dup2(int,int);
+int close(int);
 void add_head(tree t);
 tree tree_create_text(char * text, tree right_tree);
 tree evaluate(tree t); //substitution valeurs
@@ -71,7 +73,7 @@ start:          start begin '\n'
                 {
                   create_file($3,$4);
                 }
-        |	    start affectation END_LET '\n'
+        |	    start LET affectation END_LET '\n'
                 {
                   printf("var save\n");
                   var_assign(tree_get_label(tree_get_daughters($affectation)), tree_get_right(tree_get_daughters($affectation)));
@@ -85,28 +87,30 @@ start:          start begin '\n'
         |       /* empty */
                 ;
 
-keywords:       affectation IN begin
+keywords:       LET affectation IN begin
                 {
                   printf("coucou je suis ici j'ai bien trouvé ton keyword\n");
 
-                  tree_set_right($variable, $begin);
-                  $$ = tree_create("in", false, false, _in, NULL, $variable, NULL);
+                  tree_set_right($affectation, $begin);
+                  $$ = tree_create("in", false, false, _in, NULL, $affectation, NULL);
                   tree_draw($$);
                 }
         |       begin WHERE affectation
                 {
-
-                  tree_set_right($variable, $begin);
-                  tree where = tree_create("where", false, false, _where, NULL, $variable, NULL);
-                  evaluate($begin);
+                  tree_set_right($affectation, $begin);
+                  tree t = tree_create("where", false, false, _where, NULL, $affectation, NULL);
+                  tree_draw(t);
+                  $$ = t; //evaluate(t);
+                  //tree_draw($$);
                 }
         ;
 
-affectation:	LET LABEL AFFECT begin
+affectation:	LABEL AFFECT begin
 		{
                   printf("coucou je suis ici j'ai bien trouvé ta variable\n");
                   tree name = tree_create($LABEL, false, false, _word, NULL, NULL, $begin);
                   $$ = tree_create("=", false, false, _affect, NULL, name, NULL);
+                  var_assign($1,$3);
                   //printf("sauvegarde variable\n");
 		}
 	;
@@ -142,30 +146,63 @@ container:     '{' content '}'
                 {
                   $$ = $2;
                 }
+        |       '{' content LABEL '}'
+                {
+                  tree t =  tree_create($LABEL, false, false, _var, NULL, NULL, NULL);
+                  if (!$content)
+                    $$ = t;
+                  else{
+                    tree_add_right($content,t);
+                    $$ = $content;
+                }
+                }
                 ;
 
-content:        TEXT content
+content:        content TEXT 
                 {
-                    $$= tree_create($1, true, true, _word, NULL,NULL, $2);
+                    tree t = tree_create($2, true, true, _word, NULL,NULL, NULL);
+                    if (!$1)
+                      $$ = t;
+                    else{
+                      tree_add_right($1,t);
+                      $$ = $1;
+                      
+                }
                     // printf("state: content | format: TEXT + content\n");
                 }
-        |       attributes content
+        |       content attributes 
                 {
-                  tree_set_right($1,$2);
-                  $$ = $1;
+                  if (!$1)
+                    $$ = $2;
+                  else{
+                    tree_add_right($1,$2);
+                    $$ = $1;
+                  }
                   //printf("state: content | format: attribute + content\n");
                 }
-        |       LABEL '/' content
+        |       content LABEL '/' 
                 {
-                  $$ = tree_create($1, true, false, _tree, NULL, NULL, NULL);
-                  //printf("state: content | format: LABEL /\n");
+                  tree t = tree_create($2, true, false, _tree, NULL, NULL, NULL);
+                  if (!$1)
+                    $$ = t;
+                  else {
+                    tree_add_right($1,t);
+                    $$ = $1;
                 }
-        |       LABEL container content
+        //      printf("state: content | format: LABEL /\n");
+                }
+        |       content LABEL container 
                 {
-                  $$ = tree_create($1, false, false, _tree, NULL, $2, $3);
+                  tree t = tree_create($2, false, false, _tree, NULL, $3, NULL);
+                  if (!$1){
+                    $$ = t;
+                  }else{
+                    tree_add_right($1,t);
+                    $$ =$1;
+                }
                   // printf("state: content | format: LABEL container + content\n");
                 }
-        |       container content
+        |       content container 
                 {
                   if (!$1)
                     $$=$2;
@@ -175,10 +212,15 @@ content:        TEXT content
                   }
                   // printf("state: content | format: container\n");
                 }
-        |       VAR VIRGULE content
+        |       content LABEL VIRGULE 
                 {
-                
-                  $$ = create_tree($1, false, false, _var, NULL, NULL, $3);
+                  tree t =  tree_create($2, false, false, _var, NULL, NULL, $1);
+                  if (!$1)
+                    $$ = t;
+                  else{
+                    tree_add_right($1,t);
+                    $$=$1;
+                    }
                 }
         |       /* empty */
                 {
@@ -252,7 +294,7 @@ void add_head(tree t){
   }
   tree_add_right(head_tree, t);
 }
-
+/*
 tree evaluate(tree t){
   tree son = tree_get_daughters(t);
   while(son != NULL){
@@ -274,16 +316,21 @@ tree evaluate(tree t){
   evaluate(tree_get_daughters(t));
   return t;
 }
+*/
 
-/* Etienne version a tester
+
+  
+/*
+//Etienne version a tester
 // TODO ne pas oublier de destroy les arbres après utilisation
 tree evaluate (tree t, tree father) {
-  if (t == NULL)
-    return;
+  if (!t)
+    return NULL;
 
   // Le premier fils est il une var ?
   while (tree_get_tp(t) == _var) { // Si on a remplacvé par une var faut aller voir
-    tree cp = copy_tree(var_get(tree_get_label(t)));
+    tree_draw(var_get(tree_get_label(t)));
+    tree cp = tree_copy(var_get(tree_get_label(t)));
     tree_set_daughters(father, cp);
     tree_add_right(cp, tree_get_right(t));
     tree_destroy(t); // On détruit le noeud var
@@ -294,15 +341,33 @@ tree evaluate (tree t, tree father) {
   tree left = t;
   for ( tree act = tree_get_right(t) ; act != NULL ; act = tree_get_right(act)) {
     while (tree_get_tp(act) == _var) {
-      tree cp = copy_tree(var_get(tree_get_label(act)));
+      tree cp = tree_copy(var_get(tree_get_label(act)));
       tree_set_right(left, cp);
-      tree_add_right(cp, act->right);
+      tree_add_right(cp, tree_get_right(act));
       tree_destroy(act);
     }
-    evaluate(get_daugthers(act), act);
+    evaluate(tree_get_daughters(act), act);
   }
 
   return t;
+}
+*/
+/*
+tree evaluate(tree t){
+  if (!t)
+    return NULL;
+
+  if(strcmp(tree_get_label(t),"=") == 0){
+    tree label = tree_get_daughters(t);
+    tree value = tree_get_right(label);
+    var_assign(label,value);
+  }
+
+  if (tree_get_tp(t) == _var){
+    tree cp = tree_copy(var_get(tree_get_label(act)));
+    tree_set_daughters(t,cp);
+  }
+  
 }
 */
 

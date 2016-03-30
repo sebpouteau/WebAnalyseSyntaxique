@@ -16,7 +16,7 @@ LDLIBS= -ltree -lxml -L../../lib/
 all: $(PATH_BIN)/$(FILE) 
 
 $(PATH_BIN)/%.out: %.tab.c %.yy.c  $(PATH_LIB)/*
-	gcc $^ $(MAIN) -ly -lfl -lm $(CFLAGS) -o  $@
+	gcc $^ $(MAIN) -ly -ll -lm $(CFLAGS) -o  $@
 
 %.tab.c: %.y
 	bison -d -v $<

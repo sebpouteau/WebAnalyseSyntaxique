@@ -64,4 +64,6 @@ char* attr_get_value(attributes a);
 void attr_set_next(attributes a, attributes next);
 attributes attr_get_next(attributes a);
 
+tree tree_copy(tree t);
+
 #endif
