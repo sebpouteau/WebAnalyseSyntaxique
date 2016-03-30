@@ -1,6 +1,12 @@
 #include <tree.h>
 #include <assert.h>
+<<<<<<< HEAD
 char *strdup(const char *);
+=======
+
+//TODO Réorganiser le fichier pour coller à l'ordre du header
+char *strdup(char *);
+>>>>>>> 19699a69516c05a67f492db4b90e9edcc89e665d
 
 struct attributes_t
 {
@@ -19,6 +25,7 @@ struct tree_t {
   tree right;       //frère droit
 };
 
+/*
 // TODO error ou assert il faut choisir
 // return exitfailure wtf exit(exit_failure) ou return true false
 
@@ -29,6 +36,7 @@ static int error(bool cond, char* message){
   }
   return EXIT_SUCCESS;
 }
+*/
 
 static char* copy_string(char* s) {
   // char* new_s = malloc(sizeof(char) * strlen(s));
@@ -36,16 +44,16 @@ static char* copy_string(char* s) {
   //return new_s;
 }
 
-tree create_basic_tree(char* label, type tp){
-  return create_tree(copy_string(label),false,false,tp,NULL,NULL,NULL);
+tree tree_create_basic(char* label, type tp){
+  return tree_create(copy_string(label),false,false,tp,NULL,NULL,NULL);
 }
 
-tree create_empty_tree(){
-  return create_tree(NULL,NULL,NULL,_tree,NULL,NULL,NULL);
+tree tree_create_empty(){
+  return tree_create(NULL,NULL,NULL,_tree,NULL,NULL,NULL);
 }
 
 
-tree create_tree(char* label, bool nullary, bool space, type tp, attributes attr, tree daughters, tree right){
+tree tree_create(char* label, bool nullary, bool space, type tp, attributes attr, tree daughters, tree right){
   tree t = malloc(sizeof(*t));
   t->label = copy_string(label);
   t->nullary = nullary;
@@ -57,21 +65,21 @@ tree create_tree(char* label, bool nullary, bool space, type tp, attributes attr
   return t;
 }
 
-void destroy_tree(tree t) {
+void tree_destroy(tree t) {
   if (t == NULL)
     return;
   
   free(t->label);
 
-  destroy_tree(t->daughters);
-  destroy_tree(t->right);
-  destroy_attributes(t->attr);
+  tree_destroy(t->daughters);
+  tree_destroy(t->right);
+  attr_destroy(t->attr);
 
   free(t);
 }
   
 
-attributes create_empty_attributes(){
+attributes attr_create_empty(){
   attributes a = malloc(sizeof(*a));
   a->key = NULL;
   a->value = NULL;
@@ -79,7 +87,7 @@ attributes create_empty_attributes(){
   return a;
 }
 
-attributes create_attributes(char* key, char* value, attributes next){
+attributes attr_create(char* key, char* value, attributes next){
   attributes a = malloc(sizeof(*a));
   a->key = copy_string(key);
   a->value = copy_string(value);
@@ -87,12 +95,12 @@ attributes create_attributes(char* key, char* value, attributes next){
   return a;
 }
 
-void destroy_attributes(attributes a) {
+void attr_destroy(attributes a) {
   if (a == NULL)
     return;
   free(a->key);
   free(a->value);
-  destroy_attributes(a->next);
+  attr_destroy(a->next);
   free(a);
 }
 
@@ -101,82 +109,80 @@ void destroy_attributes(attributes a) {
   ======== GETTERS & SETTERS TREE ========
   ======================================== */
 
-void set_label(tree t, char* label){
+void tree_set_label(tree t, char* label){
+  if (t == NULL)
+    return;
   free(t->label);
   t->label = copy_string(label);
 }
 
-char* get_label(tree t){
-  if(!error((t != NULL), "uninitialized tree")){
-    if(!error((t->label !=NULL), "tree label isn't defined")){
-      return t->label;
-    }
-  }
-  return NULL;
+char* tree_get_label(tree t){
+  assert(t != NULL);
+  return t->label;
 }
-/*
-   assert(t != NULL && t->label != NULL){
-     return t->label;
-   }
-}
-*/
 
-void set_nullary(tree t, bool nullary){
+void tree_set_nullary(tree t, bool nullary){
+  if (t == NULL)
+    return;
   t->nullary = nullary;
 }
 
-bool get_nullary(tree t){
+bool tree_get_nullary(tree t){
   assert(t !=NULL);
   return t->nullary;
 }
 
-void set_space(tree t, bool space){
+void tree_set_space(tree t, bool space){
+  if (t == NULL)
+    return;
   t->space = space;
 }
 
-bool get_space(tree t){
+bool tree_get_space(tree t){
   assert(t !=NULL);
   return t->space;
 }
 
 
-void set_tp(tree t, type tp){
+void tree_set_tp(tree t, type tp){
+  if (t == NULL)
+    return;
   t->tp = tp;
 }
 
-type get_tp(tree t){
-  //assert(t != NULL && t->tp != _none);
+type tree_get_tp(tree t){
   assert(t != NULL);
   return t->tp;
 }
 
 // TODO Assigne à t une nouvelle pile d'attributs. Il faut donc supprimer l'ancienne et faire une copie profonde de attr
-void set_attributes(tree t, attributes attr){
-  //destroy_attributes(t->attributes);
+void tree_set_attributes(tree t, attributes attr){
+  //attr_destroy(t->attributes);
   t->attr = attr;
 }
 
-attributes get_attributes(tree t){
+attributes tree_get_attributes(tree t){
   assert(t != NULL);
   return t->attr;
 }
 
-// TODO
-void set_daughters(tree t, tree d){
+void tree_set_daughters(tree t, tree d){
+  if (t == NULL)
+    return;
   t->daughters = d;
 }
 
-tree get_daughters(tree t){
+tree tree_get_daughters(tree t){
   assert(t != NULL);
   return t->daughters;
 }
 
 // TODO
-void set_right(tree t, tree r){
+void tree_set_right(tree t, tree r){
   t->right = r;
 }
 
-tree get_right(tree t){
+tree tree_get_right(tree t){
   assert(t != NULL);
   return t->right;
 }
@@ -188,86 +194,86 @@ tree get_right(tree t){
   ======================================== */
 
 
-void set_key(attributes a, char* key){
+void attr_set_key(attributes a, char* key){
   free(a->key);
   a->key = copy_string(key);
 }
 
-char* get_key(attributes a){
+char* attr_get_key(attributes a){
   assert( a != NULL && a->key != NULL);
   return a->key;
 }
 
-void set_value(attributes a, char* value){
+void attr_set_value(attributes a, char* value){
   free(a->value);
   a->value = copy_string(value);
 }
 
-char* get_value(attributes a){
+char* attr_get_value(attributes a){
   assert(a != NULL && a->value != NULL);
   return a->value;
 }
 
 // TODO
-void set_next(attributes a, attributes next){
+void attr_set_next(attributes a, attributes next){
   a->next = next;
 }
 
-attributes get_next(attributes a){
+attributes attr_get_next(attributes a){
   assert(a != NULL);
   return a->next;
 }
 
-void add_daugthers(tree t, tree s){
-  if (!get_daughters(t)){
-    set_daughters(t,s);
+void tree_add_daugthers(tree t, tree s){
+  if (!tree_get_daughters(t)){
+    tree_set_daughters(t,s);
     return;
   }
-  t = get_daughters(t);
-  add_right(t,s);
+  t = tree_get_daughters(t);
+  tree_add_right(t,s);
 }
 
 
-void add_right(tree t, tree s){
-  while (get_right(t)){
-    t = get_right(t);
+void tree_add_right(tree t, tree s){
+  while (tree_get_right(t)){
+    t = tree_get_right(t);
   }
-  set_right(t,s);
+  tree_set_right(t,s);
 }
 
 
-static void draw_indent(int cpt) {
+static void tree_draw_indent(int cpt) {
   for (int i = 0 ; i < cpt * 3 ; i++) {
     printf("-");
   }
 }
 
-static void draw_attributes(attributes a, int cpt) {
+static void tree_draw_attributes(attributes a, int cpt) {
   if (a == NULL)
     return;
-  draw_indent(cpt);
+  tree_draw_indent(cpt);
 
   printf("%s=%s\n", a->key, a->value);
 
-  draw_attributes(a->next, cpt);
+  tree_draw_attributes(a->next, cpt);
 }
 
-static void draw_r(tree t, int cpt) {
+static void tree_draw_r(tree t, int cpt) {
   if (t == NULL)
     return;
 
-  draw_indent(cpt);
+  tree_draw_indent(cpt);
   
   printf("%s\n", t->label);
   if (t->attr != NULL) {
-    draw_indent(cpt + 1);
+    tree_draw_indent(cpt + 1);
     printf("Attributes :\n");
-    draw_attributes(t->attr, cpt + 2);
+    tree_draw_attributes(t->attr, cpt + 2);
   }
-  draw_r(t->daughters, cpt + 1);
-  draw_r(t->right, cpt);
+  tree_draw_r(t->daughters, cpt + 1);
+  tree_draw_r(t->right, cpt);
 }
 
-void draw(tree t) {
-  draw_r(t, 0);
+void tree_draw(tree t) {
+  tree_draw_r(t, 0);
 }
