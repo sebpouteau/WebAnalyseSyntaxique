@@ -9,7 +9,7 @@ int yylex(void);
 void yyerror(char *);
 int yyparse(void);
 
-char* strdup(char*); //TODO : Inutile a discuter avec Paul/Frantisek
+char* strdup(const char*); //TODO : Inutile a discuter avec Paul/Frantisek
 
 void add_head(tree t);
 tree create_tree_text(char * text, tree right_tree);
@@ -39,8 +39,8 @@ void create_file(char *name,tree t);
  };
 
 %type   <attributes_parser>  assign
-%type   <tree_parser>        container content attributes begin variable keywords
-%token  <value> LABEL TEXT NAME LET EMIT IN WHERE AFFECT END_LET
+%type   <tree_parser>        container content attributes begin affectation keywords
+%token  <value> LABEL TEXT NAME LET EMIT IN WHERE AFFECT END_LET VAR VIRGULE
 
 %%
 
@@ -57,12 +57,12 @@ start:          start begin '\n'
                 {
                   create_file($3,$4);
                 }
-        |	    start variable END_LET '\n'
+        |	    start affectation END_LET '\n'
                 {
                   printf("var save\n");
-                  assign(get_label(get_daughters($variable)), get_right(get_daughters($variable)));
+                  assign(get_label(get_daughters($affectation)), get_right(get_daughters($affectation)));
                 }
-        |       start keywords ';' '\n'
+        |       start keywords '\n'
         |       start '\n'
         |       start error '\n'
                 {
@@ -71,22 +71,22 @@ start:          start begin '\n'
         |       /* empty */
                 ;
 
-keywords:       variable IN begin
+keywords:       affectation IN begin
                 {
                   printf("coucou je suis ici j'ai bien trouvé ton keyword\n");
-                  set_right($variable, $begin);
-                  $$ = create_tree("in", false, false, _in, NULL, $variable, NULL);
+                  set_right($affectation, $begin);
+                  $$ = create_tree("in", false, false, _in, NULL, $affectation, NULL);
                   draw($$);
                 }
-        |       begin WHERE variable
+        |       begin WHERE affectation
                 {
-                  set_right($variable, $begin);
-                  tree where = create_tree("where", false, false, _where, NULL, $variable, NULL);
+                  set_right($affectation, $begin);
+                  tree where = create_tree("where", false, false, _where, NULL, $affectation, NULL);
                   evaluate($begin);
                 }
         ;
 
-variable:	LET LABEL AFFECT begin
+affectation:	LET LABEL AFFECT begin
 		{
           printf("coucou je suis ici j'ai bien trouvé ta variable\n");
           tree name = create_tree($LABEL, false, false, _word, NULL, NULL, $begin);
@@ -158,6 +158,11 @@ content:        TEXT content
                     $$ = $1;
                   }
                   // printf("state: content | format: container\n");
+                }
+        |       VAR VIRGULE content
+                {
+                
+                  $$ = create_tree($1, false, false, _var, NULL, NULL, $3);
                 }
         |       /* empty */
                 {

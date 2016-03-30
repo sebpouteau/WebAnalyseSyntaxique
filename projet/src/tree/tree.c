@@ -1,6 +1,6 @@
 #include <tree.h>
 #include <assert.h>
-char *strdup(char *);
+char *strdup(const char *);
 
 struct attributes_t
 {
