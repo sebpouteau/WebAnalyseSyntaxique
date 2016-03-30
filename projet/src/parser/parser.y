@@ -17,8 +17,8 @@ int close(int);
 void add_head(tree t);
 tree tree_create_text(char * text, tree right_tree);
 tree evaluate(tree t); //substitution valeurs
+tree evaluate_r(tree t);
 tree head_tree = NULL;
-int numberTree = 0;
 
 // VARIABLES
 typedef struct variable_t* variable;
@@ -100,8 +100,8 @@ keywords:       LET affectation IN begin
                   tree_set_right($affectation, $begin);
                   tree t = tree_create("where", false, false, _where, NULL, $affectation, NULL);
                   tree_draw(t);
-                  $$ = t; //evaluate(t);
-                  //tree_draw($$);
+                  $$ = evaluate(t);
+                  tree_draw($$);
                 }
         ;
 
@@ -317,25 +317,27 @@ tree evaluate(tree t){
   return t;
 }
 */
-
-
-  
 /*
 //Etienne version a tester
 // TODO ne pas oublier de destroy les arbres après utilisation
-tree evaluate (tree t, tree father) {
-  if (!t)
+tree evaluate_r (tree t, tree father) {
+  if (t == NULL)
     return NULL;
 
   // Le premier fils est il une var ?
   while (tree_get_tp(t) == _var) { // Si on a remplacvé par une var faut aller voir
     tree_draw(var_get(tree_get_label(t)));
+    
     tree cp = tree_copy(var_get(tree_get_label(t)));
-    tree_set_daughters(father, cp);
+
+    if (father != NULL)
+      tree_set_daughters(father, cp);
+
     tree_add_right(cp, tree_get_right(t));
     tree_destroy(t); // On détruit le noeud var
     t = cp;
   }
+  tree_set_daughters(t, evaluate_r(tree_get_daughters(t), t));
   
   // Y a t'il une var dans la suite de rights ?
   tree left = t;
@@ -346,13 +348,24 @@ tree evaluate (tree t, tree father) {
       tree_add_right(cp, tree_get_right(act));
       tree_destroy(act);
     }
-    evaluate(tree_get_daughters(act), act);
+    tree_set_daughters(act, evaluate_r(tree_get_daughters(act), act));
   }
 
   return t;
 }
+
+tree evaluate(tree t) {
+  if (t == NULL)
+    return NULL;
+  
+
+
+
+tree evaluate(tree t) {
+  return evaluate_r(t, NULL);
+}
+
 */
-/*
 tree evaluate(tree t){
   if (!t)
     return NULL;
@@ -364,12 +377,15 @@ tree evaluate(tree t){
   }
 
   if (tree_get_tp(t) == _var){
-    tree cp = tree_copy(var_get(tree_get_label(act)));
+    tree cp = tree_copy(var_get(tree_get_label(t)));
     tree_set_daughters(t,cp);
   }
   
+  evaluate(tree_get_right(t));
+  evaluate(tree_get_daughters(t));
+return t;
 }
-*/
+
 
 void var_init(void) {}
 

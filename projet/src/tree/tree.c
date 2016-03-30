@@ -21,19 +21,6 @@ struct tree_t {
   tree right;       //frère droit
 };
 
-/*
-// TODO error ou assert il faut choisir
-// return exitfailure wtf exit(exit_failure) ou return true false
-
-static int error(bool cond, char* message){
-  if(!cond){
-    fprintf(stderr, "/!\\ ERROR: %s\n", message);
-    return EXIT_FAILURE;
-  }
-  return EXIT_SUCCESS;
-}
-*/
-
 static char* copy_string(char* s) {
   // char* new_s = malloc(sizeof(char) * strlen(s));
   return strdup(s);
