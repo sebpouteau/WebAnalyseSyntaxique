@@ -38,6 +38,10 @@ return IN;
   return WHERE;
 }
 
+<LET_MODE>"fun" {
+  printf("je passe dans FUN\n");
+  return FUN;
+ }
 
 <LET_MODE>{xml} {
   yylval.value = strdup(yytext);
@@ -68,8 +72,6 @@ return IN;
 }
 
 {xml} {}
-
-
 
 
 \"  {

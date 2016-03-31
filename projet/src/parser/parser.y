@@ -55,8 +55,8 @@ void create_file(char *name,tree t);
  };
 
 %type   <attributes_parser>  assign
-%type   <tree_parser>        container content attributes begin affectation keywords
-%token  <value> LABEL TEXT NAME LET EMIT IN WHERE AFFECT END_LET VAR VIRGULE
+%type   <tree_parser>        container content attributes begin affectation keywords in_affectation argument
+%token  <value> LABEL TEXT NAME LET EMIT IN WHERE AFFECT END_LET VAR VIRGULE FUN
 
 %%
 
@@ -73,10 +73,10 @@ start:          start begin '\n'
                 {
                   create_file($3,$4);
                 }
-        |	    start LET affectation END_LET '\n'
+        |       start LET affectation END_LET '\n'
                 {
-                  printf("var save\n");
-                  var_assign(tree_get_label(tree_get_daughters($affectation)), tree_get_right(tree_get_daughters($affectation)));
+                  //                  var_assign(tree_get_label(tree_get_daughters($affectation)), tree_get_right(tree_get_daughters($affectation)));
+
                 }
         |       start keywords '\n'
         |       start '\n'
@@ -105,22 +105,52 @@ keywords:       LET affectation IN begin
                 }
         ;
 
-affectation:	LABEL AFFECT begin
+affectation:	LABEL argument AFFECT in_affectation
 		{
-                  printf("coucou je suis ici j'ai bien trouvé ta variable\n");
-                  tree name = tree_create($LABEL, false, false, _word, NULL, NULL, $begin);
-                  $$ = tree_create("=", false, false, _affect, NULL, name, NULL);
-                  var_assign($1,$3);
-                  //printf("sauvegarde variable\n");
+                  tree arg = tree_create("argument", false,false, _arg, NULL,NULL,NULL);
+                  if ($argument != NULL){
+                    tree_add_daugthers(arg,$argument);
+                }
+                tree_add_right(arg,$in_affectation);
+                tree tete = tree_create($LABEL, false, false, _fun, NULL, arg, NULL);
+
+                printf("coucou je suis ici j'ai bien trouvé ta variable/ fonction\n");
+                
+                $$ = tete;
+                //var_assign(tete); // TODO refaire assign //
 		}
-	;
+                ;
 
+in_affectation: begin
+                {
+                  $$ = $begin;
+                }
+        |       FUN argument '-' '>' begin
+                {
+                  tree_add_right($argument, $begin);
+                  $$ = $argument;
+                }
+                ;
 
+argument:       argument LABEL
+                {
+                  tree t = tree_create($LABEL, true, false, _word, NULL, NULL, NULL);
+                  if ($1 == NULL)
+                    $$ = t;
+                  else{
+                    tree_add_right($1,t);
+                    $$=$1;
+                  }
+                }
+        |       /* empty */
+                {
+                  $$ = NULL;
+                }
+        ;
 
 begin:          LABEL '/'
                 {
                   $$ = tree_create($1, true, false, _tree, NULL, NULL, NULL);
-
                   //printf("state: begin | format: LABEL /\n");
                 }
         |       LABEL container
@@ -366,16 +396,50 @@ tree evaluate(tree t) {
 }
 
 */
+
+/*
+TODO evaluation des fonctions 
+tree evaluate_function(tree t){
+  tree current_right_t = tree_get_right(t);
+  tree daughter = tree_get_daughters(t);
+  bool variable = true;
+  while(daughter != NULL)
+  {
+    if (tree_get_tp(daughter) == _tree){
+      if (variable){
+        var_assign(tree_get_label(t),daughter);
+      }
+      else{
+        evaluate(daughter);
+      }
+    }
+    else if (tree_get_tp(daughter) == _arg){
+      tree son = tree_get_daughters(daughter);
+      while(son != NULL){
+        variable = false;
+        tree_add_daugthers(son,current_right_t);
+        current_right_t = tree_get_right(current_right_t);
+        son = tree_get_right(son);
+      }
+    }
+    daughter = tree_get_right(daughter);
+  }
+  
+  return t;
+}
+*/
+
 tree evaluate(tree t){
   if (!t)
     return NULL;
 
-  if(strcmp(tree_get_label(t),"=") == 0){
-    tree label = tree_get_daughters(t);
-    tree value = tree_get_right(label);
-    var_assign(label,value);
+  if(tree_get_tp(t) == _fun){
+    tree_draw(t);
+    // evaluate_function(t);
+    tree_draw(t);
   }
 
+ 
   if (tree_get_tp(t) == _var){
     tree cp = tree_copy(var_get(tree_get_label(t)));
     tree_set_daughters(t,cp);
@@ -383,6 +447,7 @@ tree evaluate(tree t){
   
   evaluate(tree_get_right(t));
   evaluate(tree_get_daughters(t));
+  
 return t;
 }
 

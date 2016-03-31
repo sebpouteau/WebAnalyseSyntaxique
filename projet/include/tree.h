@@ -8,10 +8,12 @@
 typedef enum type_t {
   _tree,
   _word,
-  _var,
+  _fun,
   _in,
   _where,
   _affect,
+  _arg,
+  _var,
   _none
 } type;
 
