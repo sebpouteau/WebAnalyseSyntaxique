@@ -397,8 +397,7 @@ tree evaluate(tree t) {
 
 */
 
-/*
-TODO evaluation des fonctions 
+
 tree evaluate_function(tree t){
   tree current_right_t = tree_get_right(t);
   tree daughter = tree_get_daughters(t);
@@ -427,7 +426,7 @@ tree evaluate_function(tree t){
   
   return t;
 }
-*/
+
 
 tree evaluate(tree t){
   if (!t)
@@ -435,7 +434,8 @@ tree evaluate(tree t){
 
   if(tree_get_tp(t) == _fun){
     tree_draw(t);
-    // evaluate_function(t);
+    printf("Debut arbre apres evalutation");
+    evaluate_function(t);
     tree_draw(t);
   }
 

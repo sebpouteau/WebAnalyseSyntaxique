@@ -33,7 +33,7 @@ yy_pop_state();
 return IN;
 }
 
-[[:space:]\n]*"where"[[:space:]\n]* {
+[[:blank:]]*"where"[[:space:]\n]* {
   yy_push_state(LET_MODE);
   return WHERE;
 }
