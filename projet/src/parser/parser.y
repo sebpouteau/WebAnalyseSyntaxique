@@ -63,7 +63,7 @@ void create_file(char *name,tree t);
 start:          start begin '\n'
                 {
                     add_head($2);
-                    tree_draw(head_tree);
+                    //tree_draw(head_tree);
                     depth_search(head_tree,0);
                     tree_destroy(head_tree);
                     head_tree=NULL;
@@ -93,14 +93,17 @@ keywords:       LET affectation IN begin
 
                   tree_set_right($affectation, $begin);
                   $$ = tree_create("in", false, false, _in, NULL, $affectation, NULL);
-                  tree_draw($$);
+                  //tree_draw($$);
                 }
         |       begin WHERE affectation
                 {
                   tree_set_right($affectation, $begin);
                   tree t = tree_create("where", false, false, _where, NULL, $affectation, NULL);
-                  tree_draw(t);
+                  //tree_draw(t);
                   $$ = evaluate(t);
+                  printf("============================\n");
+                  printf("=========TREE FINAL=========\n");
+                  printf("============================\n");
                   tree_draw($$);
                 }
         ;
@@ -115,7 +118,8 @@ affectation:	LABEL argument AFFECT in_affectation
                 tree tete = tree_create($LABEL, false, false, _fun, NULL, arg, NULL);
 
                 printf("coucou je suis ici j'ai bien trouvé ta variable/ fonction\n");
-                
+                printf("type : %d\n", tree_get_tp(tete));
+                tree_draw(tete);
                 $$ = tete;
                 //var_assign(tete); // TODO refaire assign //
 		}
@@ -123,11 +127,12 @@ affectation:	LABEL argument AFFECT in_affectation
 
 in_affectation: begin
                 {
-                  $$ = $begin;
+                  $$ = tree_create("body", false, false, _body, NULL, $begin, NULL);
                 }
         |       FUN argument '-' '>' begin
                 {
-                  tree_add_right($argument, $begin);
+                  tree body = tree_create("body", false, false, _body, NULL, $begin, NULL);
+                  tree_add_right($argument, body);
                   $$ = $argument;
                 }
                 ;
@@ -178,13 +183,14 @@ container:     '{' content '}'
                 }
         |       '{' content LABEL '}'
                 {
+                  printf("in content LABEL\n");
                   tree t =  tree_create($LABEL, false, false, _var, NULL, NULL, NULL);
                   if (!$content)
                     $$ = t;
                   else{
                     tree_add_right($content,t);
                     $$ = $content;
-                }
+                  }
                 }
                 ;
 
@@ -292,7 +298,8 @@ assign:         LABEL '=' TEXT assign
 
 
 %%
-                /*
+
+/*
 
 tree tree_create_text(char* text, tree right_tree){
   char *tmp;
@@ -315,7 +322,51 @@ tree tree_create_text(char* text, tree right_tree){
   tree_set_right(seconde, right_tree);
   return first;
 }
-                */
+
+*/
+
+
+tree evaluate(tree t)
+{
+  //t NULL -> quit
+  if(t == NULL)
+    return NULL;
+
+  printf("label de l'arbre : %s\n", tree_get_label(t));
+  
+  printf("===============\n");
+  tree_draw(t);
+  
+  if(tree_get_tp(t) == _var)
+  {
+    printf("in_var where label = %s\n\n", tree_get_label(t));
+    //ce tmp contient l'arbre décrivant la variable
+    tree tmp = tree_copy(var_get(tree_get_label(t)));
+    //On se donne comme fils la valeur de la variable
+    while(tree_get_tp(tmp) != _body){
+      tmp=tree_get_right(tmp);
+    }
+    tree_set_daughters(t, tree_get_daughters(tmp));
+  }
+  else if(tree_get_tp(t) == _fun)
+  {
+    //si c'est de type fun on créer une nouvelle "variable" contenant l'arbre décrivant la fonction
+    var_assign(tree_get_label(t), tree_get_daughters(t));
+  }
+  
+  printf("===============\n");
+  
+  evaluate(tree_get_right(t));
+  evaluate(tree_get_daughters(t));
+  return t;
+}
+
+tree evaluate_function(tree t){
+  tree body = tree_get_right(t);
+  tree arg = tree_get_daughters(t);
+  bool is_var = true;
+  return NULL;
+}
 
 void add_head(tree t){
   if (head_tree == NULL){
@@ -324,134 +375,9 @@ void add_head(tree t){
   }
   tree_add_right(head_tree, t);
 }
-/*
-tree evaluate(tree t){
-  tree son = tree_get_daughters(t);
-  while(son != NULL){
-    if(tree_get_tp(son) == _var){
-      //On récup l'arbre de la variable
-      variable var = var_lookup(tree_get_label(son));
-      //On remplace le fils actuel de notre arbre, par l'arbre de variable
-      tree_set_daughters(var->value, tree_get_daughters(son));
-      tree_set_right(var->value, tree_get_right(son));
-      tree_destroy(son);
-      tree_set_daughters(t, var->value);
-      son = var->value;
-    }
-    else {
-      son = tree_get_right(son);
-    }
-  }
-  evaluate(tree_get_right(t));
-  evaluate(tree_get_daughters(t));
-  return t;
-}
-*/
-/*
-//Etienne version a tester
-// TODO ne pas oublier de destroy les arbres après utilisation
-tree evaluate_r (tree t, tree father) {
-  if (t == NULL)
-    return NULL;
-
-  // Le premier fils est il une var ?
-  while (tree_get_tp(t) == _var) { // Si on a remplacvé par une var faut aller voir
-    tree_draw(var_get(tree_get_label(t)));
-    
-    tree cp = tree_copy(var_get(tree_get_label(t)));
-
-    if (father != NULL)
-      tree_set_daughters(father, cp);
-
-    tree_add_right(cp, tree_get_right(t));
-    tree_destroy(t); // On détruit le noeud var
-    t = cp;
-  }
-  tree_set_daughters(t, evaluate_r(tree_get_daughters(t), t));
-  
-  // Y a t'il une var dans la suite de rights ?
-  tree left = t;
-  for ( tree act = tree_get_right(t) ; act != NULL ; act = tree_get_right(act)) {
-    while (tree_get_tp(act) == _var) {
-      tree cp = tree_copy(var_get(tree_get_label(act)));
-      tree_set_right(left, cp);
-      tree_add_right(cp, tree_get_right(act));
-      tree_destroy(act);
-    }
-    tree_set_daughters(act, evaluate_r(tree_get_daughters(act), act));
-  }
-
-  return t;
-}
-
-tree evaluate(tree t) {
-  if (t == NULL)
-    return NULL;
-  
 
 
-
-tree evaluate(tree t) {
-  return evaluate_r(t, NULL);
-}
-
-*/
-
-
-tree evaluate_function(tree t){
-  tree current_right_t = tree_get_right(t);
-  tree daughter = tree_get_daughters(t);
-  bool variable = true;
-  while(daughter != NULL)
-  {
-    if (tree_get_tp(daughter) == _tree){
-      if (variable){
-        var_assign(tree_get_label(t),daughter);
-      }
-      else{
-        evaluate(daughter);
-      }
-    }
-    else if (tree_get_tp(daughter) == _arg){
-      tree son = tree_get_daughters(daughter);
-      while(son != NULL){
-        variable = false;
-        tree_add_daugthers(son,current_right_t);
-        current_right_t = tree_get_right(current_right_t);
-        son = tree_get_right(son);
-      }
-    }
-    daughter = tree_get_right(daughter);
-  }
-  
-  return t;
-}
-
-
-tree evaluate(tree t){
-  if (!t)
-    return NULL;
-
-  if(tree_get_tp(t) == _fun){
-    tree_draw(t);
-    printf("Debut arbre apres evalutation");
-    evaluate_function(t);
-    tree_draw(t);
-  }
-
- 
-  if (tree_get_tp(t) == _var){
-    tree cp = tree_copy(var_get(tree_get_label(t)));
-    tree_set_daughters(t,cp);
-  }
-  
-  evaluate(tree_get_right(t));
-  evaluate(tree_get_daughters(t));
-  
-return t;
-}
-
-
+//PEUT ETRE CREER UN FICHIER POUR TRAITER LES VARS ? RESSEMBLE A UNE INTERFACE
 void var_init(void) {}
 
 void var_quit(void) {

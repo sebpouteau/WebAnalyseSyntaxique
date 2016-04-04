@@ -10,6 +10,7 @@ typedef enum type_t {
   _word,
   _fun,
   _in,
+  _body,
   _where,
   _affect,
   _arg,
