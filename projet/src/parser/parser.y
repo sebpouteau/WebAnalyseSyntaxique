@@ -92,13 +92,13 @@ keywords:       LET affectation IN begin
                   printf("coucou je suis ici j'ai bien trouvé ton keyword\n");
 
                   tree_set_right($affectation, $begin);
-                  $$ = tree_create("in", false, false, _in, NULL, $affectation, NULL);
+                  $$ = tree_create("in", false, false, _local, NULL, $affectation, NULL);
                   //tree_draw($$);
                 }
         |       begin WHERE affectation
                 {
                   tree_set_right($affectation, $begin);
-                  tree t = tree_create("where", false, false, _where, NULL, $affectation, NULL);
+                  tree t = tree_create("where", false, false, _local, NULL, $affectation, NULL);
                   //tree_draw(t);
                   $$ = evaluate(t);
                   printf("============================\n");
@@ -115,7 +115,7 @@ affectation:	LABEL argument AFFECT in_affectation
                     tree_add_daugthers(arg,$argument);
                 }
                 tree_add_right(arg,$in_affectation);
-                tree tete = tree_create($LABEL, false, false, _fun, NULL, arg, NULL);
+                tree tete = tree_create($LABEL, false, false, _declaration, NULL, arg, NULL);
 
                 printf("coucou je suis ici j'ai bien trouvé ta variable/ fonction\n");
                 printf("type : %d\n", tree_get_tp(tete));
@@ -184,7 +184,7 @@ container:     '{' content '}'
         |       '{' content LABEL '}'
                 {
                   printf("in content LABEL\n");
-                  tree t =  tree_create($LABEL, false, false, _var, NULL, NULL, NULL);
+                  tree t =  tree_create($LABEL, false, false, _variable, NULL, NULL, NULL);
                   if (!$content)
                     $$ = t;
                   else{
@@ -250,7 +250,7 @@ content:        content TEXT
                 }
         |       content LABEL VIRGULE 
                 {
-                  tree t =  tree_create($2, false, false, _var, NULL, NULL, $1);
+                  tree t =  tree_create($2, false, false, _variable, NULL, NULL, $1);
                   if (!$1)
                     $$ = t;
                   else{
@@ -336,8 +336,8 @@ tree evaluate(tree t)
   
   printf("===============\n");
   tree_draw(t);
-  
-  if(tree_get_tp(t) == _var)
+
+  if(tree_get_tp(t) == _variable)
   {
     printf("in_var where label = %s\n\n", tree_get_label(t));
     //ce tmp contient l'arbre décrivant la variable
@@ -348,10 +348,15 @@ tree evaluate(tree t)
     }
     tree_set_daughters(t, tree_get_daughters(tmp));
   }
-  else if(tree_get_tp(t) == _fun)
+
+  else if(tree_get_tp(t) == _declaration)
   {
     //si c'est de type fun on créer une nouvelle "variable" contenant l'arbre décrivant la fonction
     var_assign(tree_get_label(t), tree_get_daughters(t));
+    if (tree_get_daughters(tree_get_daughters(t)) != NULL){ //je possede des arguments -> je suis une fonction
+
+    }
+    
   }
   
   printf("===============\n");
@@ -361,12 +366,13 @@ tree evaluate(tree t)
   return t;
 }
 
+
 tree evaluate_function(tree t){
-  tree body = tree_get_right(t);
-  tree arg = tree_get_daughters(t);
-  bool is_var = true;
-  return NULL;
+  
+
 }
+
+
 
 void add_head(tree t){
   if (head_tree == NULL){
