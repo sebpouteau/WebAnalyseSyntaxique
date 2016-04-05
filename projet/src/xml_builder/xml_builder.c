@@ -74,6 +74,7 @@ void depth_search(tree t, int cpt){
         indent_search(cpt+1);
       depth_search(tree_get_daughters(t), cpt+1);
       indent_search(cpt);
+     
       printf("</%s>\n", tree_get_label(t));
     }
     if (is_word(tree_get_right(t)))

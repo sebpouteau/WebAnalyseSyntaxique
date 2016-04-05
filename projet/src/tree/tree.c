@@ -28,7 +28,7 @@ static char* copy_string(char* s) {
 }
 
 tree tree_create_basic(char* label, type tp){
-  return tree_create(copy_string(label),false,false,tp,NULL,NULL,NULL);
+  return tree_create(label,false,false,tp,NULL,NULL,NULL);
 }
 
 tree tree_create_empty(){
@@ -282,8 +282,6 @@ tree tree_copy(tree t){
   attributes a = attr_copy(t->attr);
   tree daughters = tree_copy(t->daughters);
   tree right = tree_copy(t->right);
-
-  tree copy_t = tree_create(tree_get_label(t), tree_get_nullary(t), tree_get_space(t), tree_get_tp(t), a, daughters, right);
-  
+  tree copy_t = tree_create(tree_get_label(t), tree_get_nullary(t), tree_get_space(t), tree_get_tp(t), a, daughters, right);  
   return copy_t;
 }

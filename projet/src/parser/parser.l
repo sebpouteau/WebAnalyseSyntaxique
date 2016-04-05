@@ -1,9 +1,14 @@
 %{
 #include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include "parser.tab.h"
+#include <util_parser.h>
+  
 char* strdup(const char *);
 int fileno(FILE *);
+
+
 %}
 
 
@@ -78,8 +83,13 @@ return IN;
   yy_push_state(TEXT_MODE);
 } 
 
+<TEXT_MODE>([[:alnum:]._/:\-]+|\\\")/[[:space:]]+ {
+  yylval.n_text = text_create(yytext,true);
+  return TEXT;
+}
+
 <TEXT_MODE>[[:alnum:]._/:\-]+|\\\" { 
-  yylval.value = strdup(yytext);
+  yylval.n_text = text_create(yytext,false);;
   return TEXT;
 }
 

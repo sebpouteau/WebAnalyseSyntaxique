@@ -1,4 +1,4 @@
-LIBS=tree xml_builder parser
+LIBS=tree xml_builder  util  parser
 
 all:
 	for i in $(LIBS);do\

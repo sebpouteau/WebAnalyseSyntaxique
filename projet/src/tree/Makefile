@@ -10,7 +10,7 @@ PATH_BIN=../../bin
 
 all: $(PATH_LIB)/libtree.a 
  
-$(PATH_LIB)/libtree.a: tree.o
+$(PATH_LIB)/libtree.a: tree.o tree.c $(PATH_INCLUDE)/tree.h
 	ar -cr $(PATH_LIB)/libtree.a tree.o
 
 
