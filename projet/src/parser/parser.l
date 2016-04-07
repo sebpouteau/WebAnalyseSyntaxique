@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include "parser.tab.h"
+#include "parserGrammaireNew.tab.h"
 #include <util_parser.h>
   
 char* strdup(const char *);
@@ -14,109 +14,89 @@ int fileno(FILE *);
 
 label (_[[:alpha:]]|[[:alpha:]])[[:alnum:]._]*
 xml (i:xml)?({label})*
+mot ([[:alnum:]._/:\-\'!?]+|\\\")
+
+cond ("=="|"<"|">"|"<="|">="|"||"|"&&"|"!")
 
 %x TEXT_MODE
-%s TREE_MODE LET_MODE EMIT_MODE
+%s SPACE_MODE
 
 %option noyy_top_state
 %option noinput nounput stack
 
 %%
 
-"let"  {
-  yy_push_state(LET_MODE);
-  return LET;
-}
+"_" {return FILTER;}
 
-"emit" {
-  yy_push_state(EMIT_MODE);
-  return EMIT;
-}
+"_"/[[:blank:]] {return FILTER_SPACE;}
 
-"in"[[:space:]]+ {
-yy_pop_state();
-return IN;
-}
+"let"  {  return LET; }
 
-[[:blank:]]*"where"[[:space:]\n]* {
-  yy_push_state(LET_MODE);
-  return WHERE;
-}
+"emit" {  return EMIT; }
 
-<LET_MODE>"fun" {
-  printf("je passe dans FUN\n");
-  return FUN;
- }
+"in" {  return IN; }
 
-<LET_MODE>{xml} {
-  yylval.value = strdup(yytext);
+"where" {  return WHERE; }
+
+"fun" {  return FUN; }
+
+"->" {  return ARROW; }
+
+"if" {  return IF; }
+
+"then" {  return THEN; }
+
+"else" {  return ELSE; }
+
+"match" {  return MATCH; }
+
+"with" {  return WITH; }
+
+"end"  {return END_MATCH;}
+
+{cond}  {/*yylval.value = strdup(yytext);*/ return COND;}
+
+{label}  {
+  // yylval.value = strdup(yytext);
   return LABEL;
 }
 
-<TREE_MODE>{xml} {
-  yylval.value = strdup(yytext);
-  return LABEL;
+
+{xml} {
+  //yylval.value = strdup(yytext);
+  return XML;
 }
 
-<TREE_MODE>"," {
-  return VIRGULE;
-}
+[[:digit:]]+ {/*yylval.number = atoi(yytext);*/ return NB;}
 
-<INITIAL,LET_MODE>"=" {
-  return AFFECT;
-}
+\"  { BEGIN TEXT_MODE;}
 
-<LET_MODE>";"  {
-  yy_pop_state();
-  return END_LET;
- }
-
-{label}   {
-  yylval.value = strdup(yytext);
-  return LABEL;
-}
-
-{xml} {}
-
-
-\"  {
-  yy_push_state(TEXT_MODE);
-} 
-
-<TEXT_MODE>([[:alnum:]._/:\-]+|\\\")/[[:space:]]+ {
-  yylval.n_text = text_create(yytext,true);
+<TEXT_MODE>{mot}/[[:space:]]+ {
+  // yylval.n_text = text_create(yytext,true);
   return TEXT;
 }
 
-<TEXT_MODE>[[:alnum:]._/:\-]+|\\\" { 
-  yylval.n_text = text_create(yytext,false);;
+<TEXT_MODE>{mot} {
+  printf("mot\n");
+  // yylval.n_text = text_create(yytext,false);;
   return TEXT;
 }
 
-
-<TEXT_MODE>\" {
-  yy_pop_state();
- }
+<TEXT_MODE>\" { BEGIN INITIAL;}
 
 
 "["|"{"  {
-  yy_push_state (TREE_MODE);
+  BEGIN SPACE_MODE;
   return yytext[0];
  }
 
-
-
-<TREE_MODE>"]"|"}" {
-  yy_pop_state ();
+<SPACE_MODE>"]"|"}" {
+  BEGIN INITIAL;
   return yytext[0];
  }
 
+<TEXT_MODE,SPACE_MODE>[[:space:]\n] {}
 
-<TREE_MODE,TEXT_MODE,LET_MODE>[[:space:]\n] {}
+\n { return EOL; }
 
-<EMIT_MODE>\n {yy_pop_state(); return yytext[0];}
-<EMIT_MODE>[[:space:]] {}
-
-.|\n { return yytext[0];}
-
-%%
+. { return yytext[0]; }
