@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include "parserGrammaireNew.tab.h"
+#include "parser.tab.h"
 #include <util_parser.h>
   
 char* strdup(const char *);
@@ -12,14 +12,14 @@ int fileno(FILE *);
 %}
 
 
-label (_[[:alpha:]]|[[:alpha:]])[[:alnum:]._]*
+label ((_[[:alpha:]]|[[:alpha:]])[[:alnum:]._]*)
+
 xml (i:xml)?({label})*
-mot ([[:alnum:]._/:\-\'!?]+|\\\")
+mot ([[:alnum:]._/:\-\'!?;]+|\\\")
 
 cond ("=="|"<"|">"|"<="|">="|"||"|"&&"|"!")
 
 %x TEXT_MODE
-%s SPACE_MODE
 
 %option noyy_top_state
 %option noinput nounput stack
@@ -30,7 +30,7 @@ cond ("=="|"<"|">"|"<="|">="|"||"|"&&"|"!")
 
 "_"/[[:blank:]] {return FILTER_SPACE;}
 
-"let"  {  return LET; }
+"let"  {  printf("je passe dans let\n");return LET; }
 
 "emit" {  return EMIT; }
 
@@ -54,12 +54,23 @@ cond ("=="|"<"|">"|"<="|">="|"||"|"&&"|"!")
 
 "end"  {return END_MATCH;}
 
+
 {cond}  {/*yylval.value = strdup(yytext);*/ return COND;}
 
-{label}  {
+{label}/[/\[\{]  {
+  //printf("je passe dans LABEL\n");
   // yylval.value = strdup(yytext);
   return LABEL;
 }
+
+{label} {
+  //printf("je passe dans VAR\n");
+      
+  // yylval.value = strdup(yytext);
+  return VAR;
+}
+
+
 
 
 {xml} {
@@ -77,7 +88,7 @@ cond ("=="|"<"|">"|"<="|">="|"||"|"&&"|"!")
 }
 
 <TEXT_MODE>{mot} {
-  printf("mot\n");
+  // printf("mot\n");
   // yylval.n_text = text_create(yytext,false);;
   return TEXT;
 }
@@ -85,17 +96,7 @@ cond ("=="|"<"|">"|"<="|">="|"||"|"&&"|"!")
 <TEXT_MODE>\" { BEGIN INITIAL;}
 
 
-"["|"{"  {
-  BEGIN SPACE_MODE;
-  return yytext[0];
- }
-
-<SPACE_MODE>"]"|"}" {
-  BEGIN INITIAL;
-  return yytext[0];
- }
-
-<TEXT_MODE,SPACE_MODE>[[:space:]\n] {}
+<INITIAL,TEXT_MODE>[[:space:]\n] {}
 
 \n { return EOL; }
 

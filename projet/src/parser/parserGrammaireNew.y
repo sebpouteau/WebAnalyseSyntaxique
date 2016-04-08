@@ -1,7 +1,8 @@
 
 %token LABEL TEXT LET NB EMIT WHERE FUN ARROW IF THEN ELSE MATCH WITH END_MATCH COND BINARY REC EOL IN XML FILTER FILTER_SPACE
 
-%left COND WHERE
+
+                        
 %%
 
 start:          start block
@@ -20,10 +21,9 @@ block:          NB
                 ;
 
 
-local_affect:   LET declaration IN block
+local_affect:   LET declaration IN block 
         |       block WHERE declaration
         ;
-
 
 tag:            LABEL
         |       /* empty */
@@ -102,8 +102,6 @@ filter_options:
                 entete '{' filter '}'
         |       FILTER_SPACE 
                 ;
-
-
 
 
 separator:
