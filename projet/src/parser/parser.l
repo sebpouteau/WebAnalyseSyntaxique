@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include "parser.tab.h"
 #include <util_parser.h>
-  
+
 char* strdup(const char *);
 int fileno(FILE *);
 
@@ -21,8 +21,7 @@ cond ("=="|"<"|">"|"<="|">="|"||"|"&&"|"!")
 
 %x TEXT_MODE
 
-%option noyy_top_state
-%option noinput nounput stack
+%option noinput nounput 
 
 %%
 

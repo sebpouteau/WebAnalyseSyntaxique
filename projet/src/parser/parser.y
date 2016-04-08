@@ -1,4 +1,16 @@
+%{
+#include <string.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include <util_parser.h>
+#include <tree.h>
 
+int yylex(void);
+void yyerror(char *);
+int yyparse(void);
+
+%}
+                        
 %token LABEL TEXT LET NB EMIT WHERE FUN ARROW IF THEN ELSE MATCH WITH END_MATCH COND BINARY REC EOL IN XML FILTER FILTER_SPACE VAR
 
 %%
