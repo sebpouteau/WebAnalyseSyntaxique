@@ -1,0 +1,6 @@
+let rec cherche_auteur = fun arbre auteur ->
+    match arbre with
+      | {,} -> {}
+      | {film{x} /y/} ->
+        { ((cherche_auteur_du_film x) auteur), cherche_auteur y auteur}
+    end;

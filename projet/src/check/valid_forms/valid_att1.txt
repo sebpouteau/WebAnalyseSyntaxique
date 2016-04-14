@@ -1,0 +1,5 @@
+div[att1="v1"
+    att2="v2"]
+    {
+    "contenu..."
+    }

@@ -1,0 +1,3 @@
+{div1{"contenu1"} div{"contenu2"} 
+    a[xml_href="www.labri.fr"]{"LaBRI"}
+}
