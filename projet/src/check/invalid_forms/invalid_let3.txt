@@ -1,0 +1,1 @@
+let ubx = a[href="https://www.u-bordeaux.fr/"]{"Université de Bordeaux"} in ;

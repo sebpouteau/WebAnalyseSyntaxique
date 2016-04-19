@@ -1,0 +1,9 @@
+let rec cherche_auteur_du_film = fun film auteur ->
+    match film with
+     | {} -> {}
+     | {auteur{a} /_/} ->        
+      	    if a==auteur
+	    then get_titre x
+            else {}
+     | { _ /y/} -> chercher_auteur_du_film y auteur
+    end;

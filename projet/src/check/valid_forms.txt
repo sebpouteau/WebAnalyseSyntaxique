@@ -1,0 +1,95 @@
+div{
+    "Ceci est un lien qui vous conduira
+    au " a[href="www.labri.fr" id="lien"]{"LaBRI"} "
+    a Bordeaux."
+    br/
+}
+
+{div{"contenu1"} div{"contenu2"} 
+    a[href="www.labri.fr"]{"LaBRI"}
+}
+
+{div{"contenu1"} div{"contenu2"}
+   a[href="www.labri.fr"]{"LaBRI"}
+   p{"contenu3"}
+}
+
+div{
+"contenu..."
+}
+
+div[att1="v1"
+    att2="v2"]
+    {
+    "contenu..."
+    }
+
+div[att1="v1"
+   att2="v2"]/
+
+{"contenu ... " div[class="nb"]{"..."}
+ "suite ..."}
+
+div[class="nb"]/
+
+div[class="body"]{"contenu"}
+
+{"coucou" div[att="v1"]{"coucou2"}}
+
+div{
+"test"
+}
+
+foo/
+
+div[b="2"
+    b="5"]{}
+
+div{
+"contenu..."
+}
+
+div[att1="v1"
+    att2="v2"]
+    {
+    "contenu..."
+    }
+
+{"contenu ... "div[class="nb"]
+{
+"..."
+}
+"suite ..."}
+
+br[att1="v1"
+   att2="v2"]/
+
+
+{{div{"contenu1"} div{"contenu2"}}
+   a[href="www.labri.fr"]{"LaBRI"}
+   {{} {p{"contenu3"}}
+}}
+
+let bonjour = {"je suis la"};
+
+let LaBRI = a[href="www.labri.fr"]{"LaBRI"};
+let bdx = a[href="http://www.u-bordeaux.fr/"]{"Universite de Bordeaux"};
+let email= a[href="mailto:authorbdx.fr"]{"email"};
+
+div{"Le " LaBRI, " est un laboratoire de l'" bdx, "."}
+
+div{"Pour m'ecrire utilisez l'adresse " email, "."}
+
+let ubx = a[href="https://www.u-bordeaux.fr/"]{"Universite de Bordeaux"} in
+    div{"L'" ubx, " a ete creee en 1441 par le pape Pape Eugène IV a 
+                   l’initiative de Pey Berland - archeveque de Bordeaux de 
+                   1430 à 1456 - l’"
+             ubx, "comptait quatre facultes : art, medecine, 
+                   droit et theologie."}
+
+div{"L'" ubx, " a ete creee en 1441 par le pape Pape Eugène IV à 
+               l’initiative de Pey Berland - archeveque de Bordeaux de 
+               1430 à 1456 - l’"
+         ubx, "comptait quatre facultes : art, medecine, 
+               droit et theologie."}
+   where ubx = a[href="https://www.u-bordeaux.fr/"]{"Universite de Bordeaux"}

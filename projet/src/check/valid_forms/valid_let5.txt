@@ -1,0 +1,13 @@
+let root={
+film{ titre{"La Mort au trousses"} annee{"1959"} auteur{"Hitchcock"}}
+
+film{ titre{"Psychose"} auteur{"Hitchcock"} annee{"1960"}}
+
+film{ titre{"À bout de souffle"} auteur{"Godard"} annee{"1959"}}
+
+film{ titre{"Made in USA"} auteur{"Godard"} annee{"1966"}}
+
+film{ titre{"Pierrot le fou"} auteur{"Godard"} annee{"1965"}}
+
+film{ annee{"1963"} titre{"Les oiseaux"} auteur{"Hitchcock"}}
+};
