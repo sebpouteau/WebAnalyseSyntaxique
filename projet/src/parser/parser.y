@@ -33,7 +33,7 @@ struct ast* mk_comp_ast(char * str);
                         
 %%
 
-start:          start let end { add_head($let); }
+start:          start let end { add_head($let); draw(head); }
         |       /* empty */
                 ;
 
