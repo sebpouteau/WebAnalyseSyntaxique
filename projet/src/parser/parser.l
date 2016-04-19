@@ -30,7 +30,10 @@ binary ("||"|"&&")
 
 %%
 
-"_" { return T_FILTER; }
+"_"/"{" { yylval.str = strdup(yytext);return T_FILTER_ACC; }
+
+"_" { yylval.str = strdup(yytext);return T_FILTER; }
+
 
 "let"  { return T_LET; }
 
@@ -89,7 +92,8 @@ binary ("||"|"&&")
 
 [[:digit:]]+ {
   struct ast* nb = mk_integer(atof(yytext));
-  yylval.node = nb;
+  struct ast* tree = mk_tree("", true, false,false, NULL,nb);
+  yylval.node = tree;
   return T_NB;
 }
 
@@ -97,14 +101,14 @@ binary ("||"|"&&")
 
 <TEXT_MODE>{mot}/[[:space:]]+ {
   struct ast* word = mk_word(strdup(yytext));
-  struct ast* tree = mk_tree("",false,false,true,NULL,word);
+  struct ast* tree = mk_tree("",true,false,true,NULL,word);
   yylval.node = tree;
   return T_TEXT;
 }
 
 <TEXT_MODE>{mot} {
   struct ast* word = mk_word(convert_to_html(yytext));
-  struct ast* tree = mk_tree("", false,false,false,NULL,word);
+  struct ast* tree = mk_tree("", true,false,false,NULL,word);
   yylval.node = tree;
   return T_TEXT;
 }

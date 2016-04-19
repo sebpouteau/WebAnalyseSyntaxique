@@ -16,30 +16,33 @@ void add_head(struct ast* node);
 struct attributes* mk_attributes(struct ast* key, struct ast* value, struct attributes* next);
 struct ast* add_right(struct ast* frst, struct ast* element);
 struct ast* mk_comp_ast(char * str);
+struct patterns* mk_patterns(struct  pattern * pattern, struct ast * res, struct patterns * next);
+void add_patterns_right(struct patterns* filter, struct patterns* element);
+void add_pforest_right(struct pattern* filter, struct pattern* element);
 
+int cpt = 0;
 
 %}
 %union{
     struct ast* node;
     struct attributes* attr;
+    struct pattern* pat;
+    struct patterns* pats;
     char* str;
 };
                         
-%token T_LABEL T_TEXT T_LET T_NB T_EMIT T_WHERE T_FUN T_ARROW T_IF T_THEN T_ELSE T_MATCH T_WITH T_END_MATCH T_COMP T_BINARY T_REC T_IN T_FILTER T_FILTER_SPACE T_VAR T_END_ATTRIBUT T_ATTRIBUT T_ERROR
+%token T_LABEL T_TEXT T_LET T_NB T_EMIT T_WHERE T_FUN T_ARROW T_IF T_THEN T_ELSE T_MATCH T_WITH T_END_MATCH T_COMP T_BINARY T_REC T_IN T_FILTER T_FILTER_SPACE T_VAR T_END_ATTRIBUT T_ATTRIBUT T_ERROR T_FILTER_ACC
 
-%type   <attr>           assign
-%type   <node>          T_TEXT let block_where block_in condition binary negation comparaison op_plus_moins op_mult_div expression variable begin_tree loop  container content op op2 declare var  args loop_text T_NB attribute emit
-%type   <str>           T_LABEL T_BINARY T_COMP T_VAR T_ATTRIBUT T_EMIT
-                        
+%type   <attr>          assign
+%type   <node>          T_TEXT let block_where block_in condition binary negation comparaison op_plus_moins op_mult_div expression variable begin_tree loop  container content op op2 declare var  args loop_text T_NB attribute emit match recursive_match
+%type   <str>           T_LABEL T_BINARY T_COMP T_VAR T_ATTRIBUT T_EMIT T_FILTER tag3 tag4 entete T_FILTER_ACC
+%type   <pat>           filter_contenu filter_content filter
+%type   <pats>          extended_filter
 %%
 
-start:          start let end { add_head($let); }
+start:          start let end { add_head($let); printf("%d", cpt);}
         |       /* empty */
                 ;
-
-
- //declaration global
-
 
 
 
@@ -61,7 +64,7 @@ block_in:       T_LET recursive declare T_IN block_in               {printf("blo
 
 
  //condition
-condition:      T_IF condition T_THEN condition T_ELSE condition    {$$ = mk_cond($2,$4,$6);}
+condition:      T_IF condition T_THEN condition T_ELSE condition    {$$ = mk_cond($2,$4,$6); cpt++;}
         |       binary                                              {$$ = $binary;}
         ;
 
@@ -71,6 +74,7 @@ binary:         binary T_BINARY negation
                 {
                   struct ast * app = mk_app(mk_comp_ast($T_BINARY), $1);
                   $$ = mk_app(app, $negation);
+                  cpt++;
                 }
         |       negation                                          {$$ = $negation;}
                 ;
@@ -78,6 +82,7 @@ binary:         binary T_BINARY negation
 negation:       '!' negation
                 {
                   $$ = mk_app(mk_unaryop(NOT), $2);
+                  cpt++;
                 }              
         |       comparaison                               {$$ = $comparaison;}
                 ;
@@ -87,6 +92,7 @@ comparaison:    comparaison T_COMP op_plus_moins
                 {
                   struct ast * app = mk_app(mk_comp_ast($T_COMP), $1);
                   $$ = mk_app(app, $op_plus_moins);
+                  cpt++;
                 }
         |       op_plus_moins                        {$$ = $op_plus_moins;}
                 ;
@@ -97,6 +103,7 @@ op_plus_moins:  op_plus_moins op op_mult_div
                 {
                   struct ast * app = mk_app($op, $1);
                   $$ = mk_app(app, $op_mult_div);
+                  cpt++;
                 }
         |       op_mult_div                   {$$ = $op_mult_div;}
         ;
@@ -107,6 +114,7 @@ op_mult_div:
                 {
                   struct ast * app = mk_app($op2, $1);
                   $$ = mk_app(app, $expression);
+                  cpt++;
                 }
         |       expression                         {$$ = $expression;}
                 ;
@@ -117,6 +125,7 @@ expression:
                 {
                     add_right($1, $variable);
                     $$ = $1;
+                    cpt++;
                 }
         |       variable               {$$ = mk_forest(false,$variable,NULL);}
         ;
@@ -146,9 +155,11 @@ loop:
                  {
                    if ($1 == NULL){
                      $$ = mk_forest(false,$block_where, NULL);
+                     cpt++;
                 }else{
                      add_right($1, $block_where);
                      $$ = $1;
+                     cpt++;
                 }
                 }
         |       /* empty */          {$$ = NULL;}
@@ -156,10 +167,10 @@ loop:
 
 
 attribute:
-                T_LABEL '[' assign  T_END_ATTRIBUT      {$$ = mk_tree($T_LABEL,false,false,false,$assign,NULL);}
-        |       T_LABEL '[' assign ']'  container       {$$ = mk_tree($T_LABEL,false,false,false,$assign,$container);}
-        |       T_LABEL  container                      {$$ = mk_tree($T_LABEL,false,false,false,NULL,$container);}
-        |       T_LABEL '/'                             {$$ = mk_tree($T_LABEL,false,true,false,NULL,NULL);}
+                T_LABEL '[' assign  T_END_ATTRIBUT      {$$ = mk_tree($T_LABEL,false,false,false,$assign,NULL); cpt++;}
+        |       T_LABEL '[' assign ']'  container       {$$ = mk_tree($T_LABEL,false,false,false,$assign,$container);cpt++;}
+        |       T_LABEL  container                      {$$ = mk_tree($T_LABEL,false,false,false,NULL,$container);cpt++;}
+        |       T_LABEL '/'                             {$$ = mk_tree($T_LABEL,false,true,false,NULL,NULL);cpt++;}
                 ;
 
 
@@ -172,19 +183,24 @@ content:        content block_where
                 {
                   if ($1 == NULL){
                     $$ = mk_forest(false,$block_where, NULL);;
+                    cpt++;
                     }else{
                     add_right($1, $block_where);
                     $$ = $1;
+                    cpt++;
                   }
                 }
         |       content T_TEXT
                {
-                  
-                  if ($1 == NULL)
+                  cpt++;
+                  if ($1 == NULL){
                     $$ = mk_forest(false,$T_TEXT, NULL);
+                    
+                  }
                   else{
                     add_right($1,$T_TEXT);
-                    $$ = $1;   
+                    $$ = $1;
+                    
                 }
                 
                 }
@@ -193,43 +209,43 @@ content:        content block_where
                 ;
 
 
-emit:           T_EMIT T_TEXT variable        { struct ast * body = mk_forest(false,$T_TEXT, $variable); $$ = mk_forest(false,mk_fun($T_EMIT,body),NULL); } 
-        |       T_EMIT variable variable      { add_right($2, $3); $$ = mk_forest(false,mk_fun($T_EMIT,$2),NULL); }  
+emit:           T_EMIT T_TEXT variable        { cpt++; struct ast * body = mk_forest(false,$T_TEXT, $variable); $$ = mk_forest(false,mk_fun($T_EMIT,body),NULL); } 
+        |       T_EMIT variable variable      { cpt++; add_right($2, $3); $$ = mk_forest(false,mk_fun($T_EMIT,$2),NULL); }  
         ;
 end:            ';'
         |       /* empty */
                 ;
 
 
-op:             '+'       {$$ = mk_binop(PLUS);}
-        |       '-'       {$$ = mk_binop(MINUS);}
+op:             '+'       {$$ = mk_binop(PLUS);cpt++;}
+        |       '-'       {$$ = mk_binop(MINUS);cpt++;}
                 ;
 
 
-op2:            '*'       {$$ = mk_binop(MULT);}
-        |       '/'       {$$ = mk_binop(DIV);}
+op2:            '*'       {$$ = mk_binop(MULT);cpt++;}
+        |       '/'       {$$ = mk_binop(DIV);cpt++;}
         ;
 
 
 declare:        args '=' block_where       {printf("je passe dans le Declare\n");}
         ;
 
-var:            T_VAR                     {$$ =  mk_forest(false,mk_var($T_VAR),NULL);}
-        |       T_ATTRIBUT                {$$ =  mk_forest(false,mk_var($T_ATTRIBUT),NULL);}
+var:            T_VAR                     {$$ =  mk_forest(false,mk_var($T_VAR),NULL);cpt++;}
+        |       T_ATTRIBUT                {$$ =  mk_forest(false,mk_var($T_ATTRIBUT),NULL);cpt++;}
         ;
 
-assign:         T_ATTRIBUT '=' loop_text assign    { $$ = mk_attributes(mk_var($T_ATTRIBUT),$loop_text, $4); }
-        |       T_ATTRIBUT '=' loop_text           { $$ = mk_attributes(mk_var($T_ATTRIBUT),$loop_text, NULL); }
-        ;
-
-
-loop_text:      loop_text T_TEXT    {add_right($1,$T_TEXT); $$ = $1;}
-        |       T_TEXT              {$$ = mk_forest(false,$T_TEXT,NULL);}
+assign:         T_ATTRIBUT '=' loop_text assign    { $$ = mk_attributes(mk_var($T_ATTRIBUT),$loop_text, $4); cpt++;}
+        |       T_ATTRIBUT '=' loop_text           { $$ = mk_attributes(mk_var($T_ATTRIBUT),$loop_text, NULL); cpt++;}
         ;
 
 
-args:           args var            {add_right($1,$var); $$ = $1;}
-        |       var                 {$$ = mk_forest(false,$var, NULL);}
+loop_text:      loop_text T_TEXT    {add_right($1,$T_TEXT); $$ = $1;cpt++;}
+        |       T_TEXT              {$$ = mk_forest(false,$T_TEXT,NULL);cpt++;}
+        ;
+
+
+args:           args var            {add_right($1,$var); $$ = $1;cpt++;}
+        |       var                 {$$ = mk_forest(false,$var, NULL);cpt++;}
         ;
 
 recursive:      T_REC
@@ -240,55 +256,95 @@ recursive:      T_REC
    =============================== */
 
 
-match:          T_MATCH block_where T_WITH extended_filter  T_END_MATCH
+match:          T_MATCH block_where T_WITH extended_filter T_END_MATCH {$$ =  mk_match($block_where, $extended_filter);}
         ;
 
 
 extended_filter:
-                extended_filter '|' filter T_ARROW  recursive_match  {printf("extf1\n");}
-        |       '|' filter T_ARROW recursive_match                   {printf("extf2\n");}
+                extended_filter '|' filter T_ARROW  recursive_match  { struct patterns* p = mk_patterns($filter, $recursive_match, NULL); add_patterns_right($1,p); $$ = $1;}
+        |       '|'filter T_ARROW recursive_match                   { $$ = mk_patterns($filter, $recursive_match, NULL); }
                 ;
 
 
 recursive_match:
-                recursive_match block_where
-        |       block_where
+                  recursive_match block_where  { add_right($1,$2); $$=$1;}
+                  |       block_where    {$$ = mk_forest(false,$1, NULL);}
         ;
 
 
 filter:         entete '{' filter_content '}'
+                {
+                  if (! strcmp($entete, "_"))
+                    if ($filter_content == NULL)
+                      $$ = mk_anytree(true, NULL);
+                    else {
+                      $$ = mk_anytree(false, $filter_content);
+                  }
+                  else{
+                    if ($filter_content == NULL)
+                      $$ = mk_ptree($entete, true, NULL);
+                    else
+                      $$ = mk_ptree($entete, false, $filter_content);
+                 }
+               }  
         ;
 
 
 filter_content:
                 filter_content filter_contenu
-        |       filter_content begin_tree
-        |       /* empty */
+                {
+                  if ($1 == NULL)
+                    $$ = mk_pforest($1 , NULL);
+                  else {
+                    add_pforest_right($1, $2);
+                    $$ = $1;
+                }
+                }
+        |       /* empty */ {$$ = NULL;}
         ;
 
 
 entete:
-                T_FILTER
-        |       T_LABEL                 {printf("LABEL\n");}
-        |       /* empty */
+                T_FILTER_ACC
+        |       T_LABEL                
+        |       /* empty */   {$$ = NULL;}
         ;
 
 tag3:           T_FILTER
-        |       var
+        |       T_ATTRIBUT
+        |       T_VAR
         ;
 
-tag4:           T_FILTER
+tag4:           T_FILTER  
         |       T_LABEL
-        |       var
+        |       T_ATTRIBUT
+        |       T_VAR
         ;
 
 filter_contenu: 
-                '*' tag3 '*'
+                  '*' tag3 '*'
+                {
+                  if (! strcmp($tag3,"_"))
+                    $$ = mk_wildcard(ANYSTRING);
+                  else
+                    $$ = mk_pattern_var($tag3, STRINGVAR);
+                }
         |       '/' tag4 '/'
+                {
+                  if (! strcmp($tag4, "_"))
+                    $$ = mk_wildcard(ANYFOREST);
+                  else
+                    $$ = mk_pattern_var($tag4, FORESTVAR);
+                } 
         |       tag3
+                 {
+                  if (! strcmp($tag3, "_"))
+                    $$ = mk_wildcard(ANY);
+                  else
+                    $$ = mk_pattern_var($tag3, TREEVAR);
+                }
+        |       filter {$$ = $1;}
         ;
-
-
 
 %%
                
@@ -307,7 +363,24 @@ void add_head(struct ast* node){
     t->tail = f;
   }
 }
-        
+
+void add_pforest_right(struct pattern* filter, struct pattern* element){
+  struct pforest* forest = (struct pforest*) filter;
+  while (forest->tail != NULL){
+    forest = (struct pforest*) forest->tail;
+  }
+  struct pattern* f = mk_pforest(element, NULL);
+  forest->tail = f;
+}
+
+void add_patterns_right(struct patterns* filter, struct patterns* element){
+  while (filter->next != NULL){
+    filter =  filter->next;
+  }
+ 
+  filter->next = element;
+}
+  
                           
 struct ast* mk_comp_ast(char * str){
   if(! strcmp(str, "==")){
@@ -356,4 +429,12 @@ struct attributes* mk_attributes(struct ast* key, struct ast* value, struct attr
   return a;
 }
 
+
+struct patterns* mk_patterns(struct  pattern * pattern, struct ast * res, struct patterns * next)   {
+  struct patterns *pat = malloc(sizeof(struct patterns));
+  pat->next = next;
+  pat->res = res;
+  pat->pattern = pattern;
+  return pat;
+}
 
