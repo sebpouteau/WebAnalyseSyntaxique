@@ -1,0 +1,4 @@
+Compilation:
+	dot -Tpng fichier.dot -o fichier.png
+Ouverture du PNG:
+	xdg-open fichier.png
