@@ -1,1 +1,0 @@
-let auteurs={auteur{"Godard"} auteur{"Hitchcock"}};

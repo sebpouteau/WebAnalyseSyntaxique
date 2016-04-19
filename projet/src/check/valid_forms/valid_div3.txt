@@ -1,2 +1,0 @@
-{"contenu ... " div[class="nb"]{a[href="www.google.fr"]}
- "suite ..."}

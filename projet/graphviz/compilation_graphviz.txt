@@ -1,1 +1,0 @@
-gcc -std=c99 ast.c graphviz.c -o graphviz

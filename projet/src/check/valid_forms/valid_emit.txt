@@ -1,1 +1,0 @@
-emit "index.html" {html{header{} body{h1{"Nouvelle Page"}}}}

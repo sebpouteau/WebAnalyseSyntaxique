@@ -1,5 +1,0 @@
-let rec get_titre = fun film ->
-    match film with
-      | {titre{z} /b/} -> z
-      | {a /b/} -> get_titre b
-    end;
