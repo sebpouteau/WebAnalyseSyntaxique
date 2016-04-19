@@ -40,7 +40,7 @@ int cpt = 0;
 %type   <pats>          extended_filter
 %%
 
-start:          start let end { add_head($let); printf("%d", cpt);}
+start:          start let end { add_head($let); draw(head); printf("%d", cpt); }
         |       /* empty */
                 ;
 
