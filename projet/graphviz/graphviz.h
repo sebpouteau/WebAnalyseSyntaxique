@@ -5,7 +5,15 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "ast.h"
 
+
+ast_type find_ast_type(char *name);
+char *name_ast_type(ast_type id);
+binop find_ast_type(char *name);
+char *name_ast_type(binop id);
+
+  
 void draw(struct ast* a);
 void draw_ast(FILE * fd, struct ast* a);
 void draw_tree(FILE * fd, struct tree* t);
@@ -17,6 +25,7 @@ void draw_pattern(FILE * fd, struct pattern* p);
 void draw_app(FILE * fd, struct app* a);
 void draw_forest(FILE * fd, struct forest* f);
 void draw_attributes(FILE * fd, struct attributes * a);
+
 
 #endif
 

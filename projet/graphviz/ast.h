@@ -17,10 +17,12 @@ enum ast_type {
     FUN,      // L'expression est une fonction
     MATCH,    // L'expression est un filtre
     COND,      // L'expression est une conditionnelle 
-    DECLREC   // Déclarations récursives (let rec ... where rec ...)
+    DECLREC,   // Déclarations récursives (let rec ... where rec ...)
 };
 
+
 enum binop{PLUS, MINUS, MULT, DIV, LEQ, LE, GEQ, GE, EQ, OR, AND};
+
 
 enum unaryop {NOT};
 

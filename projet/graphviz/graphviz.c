@@ -1,72 +1,146 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include "ast.h"
 #include "graphviz.h"
 
+struct {
+  char *name;
+  int id;
+} conv_ast_type[DECLREC+1] =
+  {
+    {"INTEGER", INTEGER},
+    {"BINOP", BINOP},
+    {"UNARYOP", UNARYOP},
+    {"VAR", VAR},
+    {"IMPORT", IMPORT},
+    {"APP", APP},
+    {"WORD", WORD},
+    {"TREE", TREE},
+    {"FOREST", FOREST},
+    {"FUN", FUN},
+    {"MATCH", MATCH},
+    {"COND", COND},
+    {"DECLREC", DECLREC}
+  };
+
+
+ast_type find_ast_type(char *name){
+  for (int i = 0; i < DECLREC; i++)
+    if (strcmp(name, conv_ast_type[i].name) == 0)
+      return conv_ast_type[i].id;
+  return DECLREC;
+}
+
+
+char *name_ast_type(ast_type id){
+  if (id < DECLREC)
+    return conv_ast_type[id].name;
+  return conv_ast_type[DECLREC].name;
+}
+
+
+struct {
+  char *name;
+  int id;
+} conv_binop[AND+1] =
+  {
+    {"PLUS", PLUS},
+    {"MINUS", MINUS},
+    {"MULT", MULT},
+    {"DIV", DIV},
+    {"LEQ", LEQ},
+    {"LE", LE},
+    {"GEQ", GEQ},
+    {"GE", GE},
+    {"EQ", EQ},
+    {"OR", OR},
+    {"AND", AND}
+  };
+
+
+binop find_ast_type(char *name){
+  for (int i = 0; i < AND; i++)
+    if (strcmp(name, conv_binop[i].name) == 0)
+      return conv_binop[i].id;
+  return AND;
+}
+
+
+char *name_ast_type(binop id){
+  if (id < AND)
+    return conv_ast_type[id].name;
+  return conv_ast_type[AND].name;
+}
+
+
+
+
+int cpt(){
+  static int cpt = -1;
+  cpt++;
+  return cpt;
+}
 
 void draw_ast (FILE * fd, struct ast* a){
   if (a == NULL){
-    return;
+    fprintf(fd, "NULL;\n");
   }
   
   switch(a->type){
     case INTEGER:
-      printf ("INTEGER : %d\n", a->node->num);
-      fprintf(fd, "%d;\n", a->node->num);
+      printf ("\"INTEGER : %d\n", a->node->num);
+      fprintf(fd, "\"%d (%d)\";\n", a->node->num, cpt());
       break;
     case BINOP:
       printf ("BINOP : %d\n", a->node->binop);
-      fprintf(fd, "%d;\n", a->node->binop);
+      fprintf(fd, "\"%d (%d)\";\n", a->node->binop, cpt());
       break;
     case UNARYOP:
       printf ("UNARYOP: %d\n", a->node->unaryop);
-      fprintf(fd, "%d;\n", a->node->unaryop);
+      fprintf(fd, "\"%d (%d)\";\n", a->node->unaryop, cpt());
       break;
     case VAR:
       printf ("VAR\n");
-      fprintf(fd, "\"%s\";\n", a->node->str);
+      fprintf(fd, "\"%s (%d)\";\n", a->node->str, cpt());
       break;
     case IMPORT:
-      printf ("IMPORT\n");
+      printf ("\"IMPORT (%d)\"\n", cpt());
       // === a voir === //
       break;
     case APP:
       printf ("APP\n");
-      fprintf(fd, "APP -> \n");
+      fprintf(fd, "\"APP (%d)\"-> \n", cpt());
       draw_app(fd, a->node->app);
       break;
     case WORD:
       printf ("WORD\n");
-      fprintf(fd, "\"%s\";\n", a->node->str);
+      fprintf(fd, "\"%s (%d)\";\n", a->node->str, cpt());
       break;
     case TREE:
       printf ("TREE\n");
-      fprintf(fd, "\"%s\" -> ", a->node->tree->label);
+      fprintf(fd, "\"%s (%d)\" -> ", a->node->tree->label, cpt());
       draw_tree(fd, a->node->tree);
       break;
     case FOREST:
       printf ("FOREST\n");
-      fprintf(fd, "FOREST -> ");
+      fprintf(fd, "\"FOREST (%d)\" -> ", cpt());
       draw_forest(fd, a->node->forest);
       break;
     case FUN:
       printf ("FUN\n");
-      fprintf(fd, "FUN -> ");
+      fprintf(fd, "\"FUN (%d)\" -> ", cpt());
       draw_fun(fd, a->node->fun);
       break;
     case MATCH:
       printf ("MATCH\n");
-      fprintf(fd, "MATCH -> ");
+      fprintf(fd, "\"MATCH (%d)\" -> ", cpt());
       draw_match(fd, a->node->match);
       break;
     case COND:
       printf ("COND\n");
-      fprintf(fd, "COND -> ");
+      fprintf(fd, "\"COND (%d)\" -> ", cpt());
       draw_cond(fd, a->node->cond);
       break;
     case DECLREC:
       printf ("DECLREC\n");
-      fprintf(fd, "DECLREC -> ");
+      fprintf(fd, "\"DECLREC (%d)\" -> ", cpt());
       draw_fun(fd, a->node->fun);
       break;
     default:
@@ -76,7 +150,7 @@ void draw_ast (FILE * fd, struct ast* a){
 
 void draw_app(FILE * fd, struct app* a){
   if (a == NULL){
-    return;
+    fprintf(fd, "NULL;\n");
   }
   
   draw_ast(fd, a->fun);
@@ -85,7 +159,7 @@ void draw_app(FILE * fd, struct app* a){
 
 void draw_attributes(FILE * fd, struct attributes* a){
   if (a == NULL){
-    return;
+    fprintf(fd, "NULL;\n");
   }
   
   draw_ast(fd, a->key);
@@ -95,7 +169,7 @@ void draw_attributes(FILE * fd, struct attributes* a){
 
 void draw_tree(FILE * fd, struct tree* t){
   if (t == NULL){
-    return;
+    fprintf(fd, "NULL;\n");
   }
   
   printf("label: %s\n", t->label);
@@ -108,7 +182,7 @@ void draw_tree(FILE * fd, struct tree* t){
 
 void draw_forest(FILE * fd, struct forest* f){
   if (f == NULL){
-    return;
+    fprintf(fd, "NULL;\n");
   }
   
   printf("is_value: %d\n", f->is_value);
@@ -137,7 +211,7 @@ void draw_patterns(FILE * fd, struct patterns* p){
 
 void draw_match(FILE * fd, struct match* m){
   if (m == NULL){
-    return;
+    fprintf(fd, "NULL;\n");
   }
   
   draw_ast(fd, m->ast);
@@ -146,7 +220,7 @@ void draw_match(FILE * fd, struct match* m){
 
 void draw_cond(FILE * fd, struct cond *c){
   if (c == NULL){
-    return;
+    fprintf(fd, "NULL;\n");
   }
   draw_ast(fd, c->cond);
   draw_ast(fd, c->then_br);
@@ -155,7 +229,7 @@ void draw_cond(FILE * fd, struct cond *c){
 
 void draw_pattern(FILE * fd, struct pattern* p){
   if (p == NULL){
-    return;
+    fprintf(fd, "NULL;\n");
   }
   //printf("pattern_type %s\n", p->ptype);
   //printf("pnode %s\n", p->pnode);
@@ -166,7 +240,7 @@ void draw_pattern(FILE * fd, struct pattern* p){
 void draw(struct ast* a){
   FILE *fd = fopen("fichier.dot", "w+");
   if (fd == NULL) {
-    fprintf(stderr, "\"fichier.dot\": nom de fichier incorrect ou ouverture en ecriture impossible.");
+    fprintf(stderr, "\"fichier.dot\": erreur ouverture fichier.");
     exit(EXIT_FAILURE);
   }
   
@@ -181,10 +255,10 @@ int main(int argc, char *argv[]){
   struct ast *a = mk_integer(5);
   struct ast *b = mk_binop(MINUS);
   struct ast *c = mk_forest(true, a, b);
-  //struct ast *d = mk_var("a, b");
+  struct ast *d = mk_var("a, b");
   struct ast *e = mk_word("a, b");
 
   printf("a\n");
-  draw(e);
+  draw(b);
   return 0;
 }
