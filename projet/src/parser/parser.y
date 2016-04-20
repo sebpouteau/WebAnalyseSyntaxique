@@ -20,7 +20,7 @@ struct patterns* mk_patterns(struct  pattern * pattern, struct ast * res, struct
 void add_patterns_right(struct patterns* filter, struct patterns* element);
 void add_pforest_right(struct pattern* filter, struct pattern* element);
 
-int cpt = 0;
+int compteur = 0;
 
 %}
 %union{
@@ -40,7 +40,7 @@ int cpt = 0;
 %type   <pats>          extended_filter
 %%
 
-start:          start let end { add_head($let); draw(head); printf("%d", cpt); }
+start:          start let end { add_head($let); draw(head); printf("%d", compteur); }
         |       /* empty */
                 ;
 
@@ -64,7 +64,7 @@ block_in:       T_LET recursive declare T_IN block_in               {printf("blo
 
 
  //condition
-condition:      T_IF condition T_THEN condition T_ELSE condition    {$$ = mk_cond($2,$4,$6); cpt++;}
+condition:      T_IF condition T_THEN condition T_ELSE condition    {$$ = mk_cond($2,$4,$6); compteur++;}
         |       binary                                              {$$ = $binary;}
         ;
 
@@ -74,7 +74,7 @@ binary:         binary T_BINARY negation
                 {
                   struct ast * app = mk_app(mk_comp_ast($T_BINARY), $1);
                   $$ = mk_app(app, $negation);
-                  cpt++;
+                  compteur++;
                 }
         |       negation                                          {$$ = $negation;}
                 ;
@@ -82,7 +82,7 @@ binary:         binary T_BINARY negation
 negation:       '!' negation
                 {
                   $$ = mk_app(mk_unaryop(NOT), $2);
-                  cpt++;
+                  compteur++;
                 }              
         |       comparaison                               {$$ = $comparaison;}
                 ;
@@ -92,7 +92,7 @@ comparaison:    comparaison T_COMP op_plus_moins
                 {
                   struct ast * app = mk_app(mk_comp_ast($T_COMP), $1);
                   $$ = mk_app(app, $op_plus_moins);
-                  cpt++;
+                  compteur++;
                 }
         |       op_plus_moins                        {$$ = $op_plus_moins;}
                 ;
@@ -103,7 +103,7 @@ op_plus_moins:  op_plus_moins op op_mult_div
                 {
                   struct ast * app = mk_app($op, $1);
                   $$ = mk_app(app, $op_mult_div);
-                  cpt++;
+                  compteur++;
                 }
         |       op_mult_div                   {$$ = $op_mult_div;}
         ;
@@ -114,7 +114,7 @@ op_mult_div:
                 {
                   struct ast * app = mk_app($op2, $1);
                   $$ = mk_app(app, $expression);
-                  cpt++;
+                  compteur++;
                 }
         |       expression                         {$$ = $expression;}
                 ;
@@ -125,14 +125,14 @@ expression:
                 {
                     add_right($1, $variable);
                     $$ = $1;
-                    cpt++;
+                    compteur++;
                 }
         |       variable               {$$ = mk_forest(false,$variable,NULL);}
         ;
 
 
 variable:      
-                var                  {$$ = $var;}
+                var                 {$$ = $var;}
         |       begin_tree           {$$ = $begin_tree;}
         ;
 
@@ -155,11 +155,11 @@ loop:
                  {
                    if ($1 == NULL){
                      $$ = mk_forest(false,$block_where, NULL);
-                     cpt++;
+                     compteur++;
                 }else{
                      add_right($1, $block_where);
                      $$ = $1;
-                     cpt++;
+                     compteur++;
                 }
                 }
         |       /* empty */          {$$ = NULL;}
@@ -167,10 +167,10 @@ loop:
 
 
 attribute:
-                T_LABEL '[' assign  T_END_ATTRIBUT      {$$ = mk_tree($T_LABEL,false,false,false,$assign,NULL); cpt++;}
-        |       T_LABEL '[' assign ']'  container       {$$ = mk_tree($T_LABEL,false,false,false,$assign,$container);cpt++;}
-        |       T_LABEL  container                      {$$ = mk_tree($T_LABEL,false,false,false,NULL,$container);cpt++;}
-        |       T_LABEL '/'                             {$$ = mk_tree($T_LABEL,false,true,false,NULL,NULL);cpt++;}
+                T_LABEL '[' assign  T_END_ATTRIBUT      {$$ = mk_tree($T_LABEL,false,false,false,$assign,NULL); compteur++;}
+        |       T_LABEL '[' assign ']'  container       {$$ = mk_tree($T_LABEL,false,false,false,$assign,$container);compteur++;}
+        |       T_LABEL  container                      {$$ = mk_tree($T_LABEL,false,false,false,NULL,$container);compteur++;}
+        |       T_LABEL '/'                             {$$ = mk_tree($T_LABEL,false,true,false,NULL,NULL);compteur++;}
                 ;
 
 
@@ -183,16 +183,16 @@ content:        content block_where
                 {
                   if ($1 == NULL){
                     $$ = mk_forest(false,$block_where, NULL);;
-                    cpt++;
+                    compteur++;
                     }else{
                     add_right($1, $block_where);
                     $$ = $1;
-                    cpt++;
+                    compteur++;
                   }
                 }
         |       content T_TEXT
                {
-                  cpt++;
+                  compteur++;
                   if ($1 == NULL){
                     $$ = mk_forest(false,$T_TEXT, NULL);
                     
@@ -209,43 +209,43 @@ content:        content block_where
                 ;
 
 
-emit:           T_EMIT T_TEXT variable        { cpt++; struct ast * body = mk_forest(false,$T_TEXT, $variable); $$ = mk_forest(false,mk_fun($T_EMIT,body),NULL); } 
-        |       T_EMIT variable variable      { cpt++; add_right($2, $3); $$ = mk_forest(false,mk_fun($T_EMIT,$2),NULL); }  
+emit:           T_EMIT T_TEXT variable        { compteur++; struct ast * body = mk_forest(false,$T_TEXT, $variable); $$ = mk_forest(false,mk_fun($T_EMIT,body),NULL); } 
+        |       T_EMIT variable variable      { compteur++; add_right($2, $3); $$ = mk_forest(false,mk_fun($T_EMIT,$2),NULL); }  
         ;
 end:            ';'
         |       /* empty */
                 ;
 
 
-op:             '+'       {$$ = mk_binop(PLUS);cpt++;}
-        |       '-'       {$$ = mk_binop(MINUS);cpt++;}
+op:             '+'       {$$ = mk_binop(PLUS);compteur++;}
+        |       '-'       {$$ = mk_binop(MINUS);compteur++;}
                 ;
 
 
-op2:            '*'       {$$ = mk_binop(MULT);cpt++;}
-        |       '/'       {$$ = mk_binop(DIV);cpt++;}
+op2:            '*'       {$$ = mk_binop(MULT);compteur++;}
+        |       '/'       {$$ = mk_binop(DIV);compteur++;}
         ;
 
 
 declare:        args '=' block_where       {printf("je passe dans le Declare\n");}
         ;
 
-var:            T_VAR                     {$$ =  mk_forest(false,mk_var($T_VAR),NULL);cpt++;}
-        |       T_ATTRIBUT                {$$ =  mk_forest(false,mk_var($T_ATTRIBUT),NULL);cpt++;}
+var:            T_VAR                     {$$ =  mk_forest(false,mk_var($T_VAR),NULL);compteur++;}
+        |       T_ATTRIBUT                {$$ =  mk_forest(false,mk_var($T_ATTRIBUT),NULL);compteur++;}
         ;
 
-assign:         T_ATTRIBUT '=' loop_text assign    { $$ = mk_attributes(mk_var($T_ATTRIBUT),$loop_text, $4); cpt++;}
-        |       T_ATTRIBUT '=' loop_text           { $$ = mk_attributes(mk_var($T_ATTRIBUT),$loop_text, NULL); cpt++;}
-        ;
-
-
-loop_text:      loop_text T_TEXT    {add_right($1,$T_TEXT); $$ = $1;cpt++;}
-        |       T_TEXT              {$$ = mk_forest(false,$T_TEXT,NULL);cpt++;}
+assign:         T_ATTRIBUT '=' loop_text assign    { $$ = mk_attributes(mk_var($T_ATTRIBUT),$loop_text, $4); compteur++;}
+        |       T_ATTRIBUT '=' loop_text           { $$ = mk_attributes(mk_var($T_ATTRIBUT),$loop_text, NULL); compteur++;}
         ;
 
 
-args:           args var            {add_right($1,$var); $$ = $1;cpt++;}
-        |       var                 {$$ = mk_forest(false,$var, NULL);cpt++;}
+loop_text:      loop_text T_TEXT    {add_right($1,$T_TEXT); $$ = $1;compteur++;}
+        |       T_TEXT              {$$ = mk_forest(false,$T_TEXT,NULL);compteur++;}
+        ;
+
+
+args:           args var            {add_right($1,$var); $$ = $1;compteur++;}
+        |       var                 {$$ = mk_forest(false,$var, NULL);compteur++;}
         ;
 
 recursive:      T_REC
