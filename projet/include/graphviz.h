@@ -15,6 +15,8 @@ enum binop find_binop(char *name);
 char* name_binop(enum binop id);
 
 void draw(struct ast* a);
+void draw_import(FILE * fd, struct ast * a, char * name_parent);
+void draw_dir(FILE * fd, struct dir * d, char * name_parent);
 void draw_ast(FILE * fd, struct ast* a, char* name_parent);
 void draw_tree(FILE * fd, struct tree* t, char* name_parent);
 void draw_match(FILE * fd, struct match* m, char* name_parent);
