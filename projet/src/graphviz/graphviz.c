@@ -15,15 +15,14 @@ void str_parent(FILE * fd, char *name_parent){
 }
 
 
-
 void str_null(FILE * fd){
   char name[1000];
   sprintf(name, "\"NULL (%d)\"", cpt());
   fprintf(fd, "%s;\n%s [label=\"NULL\"];\n", name, name);  
 }
 
+
 void draw_ast (FILE * fd, struct ast* a, char* name_parent){
-  
   if (a == NULL){
     str_parent(fd, name_parent);
     str_null(fd);
@@ -65,48 +64,59 @@ void draw_ast (FILE * fd, struct ast* a, char* name_parent){
       fprintf(fd, "%s;\n%s [label=\"%s\"];\n", name, name, a->node->str);
       
       break;
+    case WORD:
+      printf ("WORD\n");
+
+      str_parent(fd, name_parent);
+      sprintf(name, "\"%s (%d)\"", a->node->str, cpt());
+      fprintf(fd, "%s;\n%s [label=\"%s\"];\n", name, name, a->node->str);
+            
+      break;
     case IMPORT:
       printf ("\"IMPORT (%d)\"\n", cpt());
 
       str_parent(fd, name_parent);
       sprintf(name, "\"IMPORT (%d)\"", cpt());
       fprintf(fd, "%s;\n%s [label=\"IMPORT\"];\n", name, name);
-
+      
+      draw_import(fd, a, name);
+      
       break;
     case APP:
       printf ("APP\n");
       
       str_parent(fd, name_parent);
-
       sprintf(name, "\"APP (%d)\"", cpt());
-      
+      fprintf(fd, "%s;\n%s [label=\"APP\"];\n", name, name);
+            
       draw_app(fd, a->node->app, name);
       break;
-    case WORD:
-      printf ("WORD\n");
-      
-      str_parent(fd, name_parent);
 
-      fprintf(fd, "\"%s (%d)\";\n", a->node->str, cpt());
-      break;
     case TREE:
       printf ("TREE\n");
-      str_parent(fd, name_parent);
 
+      str_parent(fd, name_parent);
+      sprintf(name, "\"TREE (%d)\"", cpt());
+      fprintf(fd, "%s;\n%s [label=\"TREE\"];\n", name, name);
+      
+      str_parent(fd, name);
+      memset(name, 0, sizeof(*name));
       sprintf(name, "\"%s (%d)\"", a->node->tree->label, cpt());
+      
       draw_tree(fd, a->node->tree, name);
       break;
     case FOREST:
       printf ("FOREST\n");
-      
-      sprintf(name, "\"FOREST (%d)\"", cpt());
-      fprintf(fd, "%s  [label=\"FOREST\"];\n", name);
+
       str_parent(fd, name_parent);
+      sprintf(name, "\"FOREST (%d)\"", cpt());
+      fprintf(fd, "%s;\n%s [label=\"FOREST\"];\n", name, name);
       
       draw_forest(fd, a->node->forest, name);
       break;
     case FUN:
       printf ("FUN\n");
+      
       sprintf(name, "\"FUN (%d)\"", cpt());
       draw_fun(fd, a->node->fun, name);
       break;
@@ -130,9 +140,63 @@ void draw_ast (FILE * fd, struct ast* a, char* name_parent){
   }
 }
 
+
+draw_import(FILE * fd, struct ast * a, char * name_parent){
+  if (a == NULL){
+    str_parent(fd, name_parent);
+    str_null(fd);
+    return;
+  }
+
+  char name[1000];
+
+  str_parent(fd, name_parent);
+
+  for (int i = 0; i < a->node->chemin->n; i++){
+    sprintf(name, "\"../ (%d)\"", cpt());
+    fprintf(fd, "%s;\n%s [label=\"../\"];\n", name, name);
+    if (i < a->node->chemin->n - 1){
+      str_parent(fd, name);
+    }
+  }
+  
+  draw_dir(fd, a->node->chemin->dir, name);
+}
+
+
+void draw_dir(FILE * fd, struct dir * d, char * name_parent){
+  if (d == NULL){
+    str_parent(fd, name_parent);
+    str_null(fd);
+    return;
+  }
+  
+  char name[1000];
+  
+  switch(d->descr){
+    case DIR:
+      sprintf(name, "\"dir: %s (%d)\"", d->str, cpt());
+      break;
+    case FILENAME:
+      sprintf(name, "\"file: %s (%d)\"", d->str, cpt());
+      break;
+    case DECLNAME:
+      sprintf(name, "\"func: %s (%d)\"", d->str, cpt());
+      break;
+    default:
+      break;
+  }
+  
+  str_parent(fd, name_parent);
+  fprintf(fd, "%s;\n%s [label=\"%s\"];\n", name, name, d->str);
+  draw_dir(fd, d->dir, name);
+}
+
+
 void draw_app(FILE * fd, struct app * a, char* name_parent){
   if (a == NULL){
-     str_null(fd);
+    str_parent(fd, name_parent);
+    str_null(fd);
     return;
   }
 
@@ -141,10 +205,9 @@ void draw_app(FILE * fd, struct app * a, char* name_parent){
   draw_ast(fd, a->arg, name_parent);
 }
 
-void draw_attributes(FILE * fd, struct attributes * a, char* name_parent){
-  return;
-  
+void draw_attributes(FILE * fd, struct attributes * a, char* name_parent){  
   if (a == NULL){
+    str_parent(fd, name_parent);
     str_null(fd);
     return;
   }
@@ -154,11 +217,11 @@ void draw_attributes(FILE * fd, struct attributes * a, char* name_parent){
   draw_ast(fd, a->value, name_parent);
   
   draw_attributes(fd, a->next, name_parent);
-    
 }
 
 void draw_tree(FILE * fd, struct tree * t, char* name_parent){
   if (t == NULL){
+    str_parent(fd, name_parent);
     str_null(fd);
     return;
   }
@@ -167,17 +230,16 @@ void draw_tree(FILE * fd, struct tree * t, char* name_parent){
   printf("is_value: %d\n", t->is_value);
   printf("nullary: %d\n", t->nullary);
   printf("space: %d\n", t->space);
-  
-    draw_attributes(fd, t->attributes, name_parent);
-  
 
-  
+  draw_attributes(fd, t->attributes, name_parent);
+
   draw_ast(fd, t->daughters, name_parent);
  
 }
 
 void draw_forest(FILE * fd, struct forest * f, char* name_parent){
   if (f == NULL){
+    str_parent(fd, name_parent);
     str_null(fd);
     return;
   }
@@ -192,6 +254,7 @@ void draw_forest(FILE * fd, struct forest * f, char* name_parent){
 
 void draw_fun(FILE * fd, struct fun * f, char* name_parent){
   if (f == NULL){
+    str_parent(fd, name_parent);        
     str_null(fd);
     return;
   }
@@ -203,6 +266,7 @@ void draw_fun(FILE * fd, struct fun * f, char* name_parent){
 
 void draw_patterns(FILE * fd, struct patterns * p, char* name_parent){
   if (p == NULL){
+    str_parent(fd, name_parent);
     str_null(fd);
     return;
   }
@@ -214,8 +278,10 @@ void draw_patterns(FILE * fd, struct patterns * p, char* name_parent){
   draw_patterns(fd, p->next, name_parent);
 }
 
-void draw_match(FILE * fd, struct match * m, char* name_parent){
+
+void draw_match(FILE * fd, struct match * m, char * name_parent){
   if (m == NULL){
+    str_parent(fd, name_parent);
     str_null(fd);
     return;
   }
@@ -225,8 +291,10 @@ void draw_match(FILE * fd, struct match * m, char* name_parent){
   draw_patterns(fd, m->patterns, name_parent);
 }
 
-void draw_cond(FILE * fd, struct cond * c, char* name_parent){
+
+void draw_cond(FILE * fd, struct cond * c, char * name_parent){
   if (c == NULL){
+    str_parent(fd, name_parent);
     str_null(fd);
     return;
   }
@@ -238,11 +306,15 @@ void draw_cond(FILE * fd, struct cond * c, char* name_parent){
   draw_ast(fd, c->else_br, name_parent);
 }
 
+
 void draw_pattern(FILE * fd, struct pattern * p, char* name_parent){
   if (p == NULL){
+    str_parent(fd, name_parent);
     str_null(fd);
     return;
   }
+  printf("pattern !");
+  
   //printf("pattern_type %s\n", p->ptype);
   //printf("pnode %s\n", p->pnode);
   // === a voir === //
