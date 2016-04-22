@@ -31,22 +31,24 @@ int compteur = 0;
     char* str;
 };
                         
-%token T_LABEL T_TEXT T_LET T_NB T_EMIT T_WHERE T_FUN T_ARROW T_IF T_THEN T_ELSE T_MATCH T_WITH T_END_MATCH T_COMP T_BINARY T_REC T_IN T_FILTER T_FILTER_SPACE T_VAR T_END_ATTRIBUT T_ATTRIBUT T_ERROR T_FILTER_ACC
+%token T_LABEL T_TEXT T_LET T_NB T_EMIT T_WHERE T_FUN T_ARROW T_IF T_THEN T_ELSE T_MATCH T_WITH T_END_MATCH T_COMP T_BINARY T_REC T_IN T_FILTER T_FILTER_SPACE T_VAR T_END_ATTRIBUT T_ATTRIBUT T_ERROR T_FILTER_ACC PATH
 
-%type   <attr>          assign
-%type   <node>          T_TEXT let block_where block_in condition binary negation comparaison op_plus_moins op_mult_div expression variable begin_tree loop  container content op op2 declare var  args loop_text T_NB attribute emit match recursive_match
-%type   <str>           T_LABEL T_BINARY T_COMP T_VAR T_ATTRIBUT T_EMIT T_FILTER tag3 tag4 entete T_FILTER_ACC
+%type   <attr>           assign
+%type   <node>          T_TEXT let block_where block_in condition binary negation comparaison op_plus_moins op_mult_div expression  begin_tree loop  container content op op2 declare var  args loop_text T_NB attribute emit func match PATH
+%type   <str>           T_LABEL T_BINARY T_COMP T_VAR T_ATTRIBUT T_EMIT entete T_FILTER T_FILTER_ACC tag3 tag4
 %type   <pat>           filter_contenu filter_content filter
-%type   <pats>          extended_filter
+
+%type   <pats>          extended_filter                       
 %%
 
-start:          start let end { add_head($let); draw(head); printf("%d", compteur); }
+start:          start let ';' { add_head($let); draw(head); }
+                  |       start begin_tree { add_head($begin_tree); draw(head); }
         |       /* empty */
                 ;
 
 
 
-let:            T_LET recursive declare ';'                 {printf("exp0\n");}
+let:            T_LET recursive declare                  {printf("exp0\n");}
         |       block_where                                 {$$ = $block_where;}
         ;
 
@@ -58,7 +60,7 @@ block_where:    block_in  T_WHERE declare      {printf("where\n");}
 
 
 block_in:       T_LET recursive declare T_IN block_in               {printf("block_in\n");}
-        |       T_FUN args T_ARROW block_in                         
+        |       T_FUN args T_ARROW block_in                         {$$ =$4;}
         |       condition                                           {$$ = $condition;}
                 ;
 
@@ -121,37 +123,41 @@ op_mult_div:
 
 // variable et appel de fonction
 expression:
-               expression  variable
+               func
                 {
-                    add_right($1, $variable);
                     $$ = $1;
                     compteur++;
                 }
-        |       variable               {$$ = mk_forest(false,$variable,NULL);}
+        |       begin_tree               {$$ = $1;}
         ;
 
 
-variable:      
-                var                 {$$ = $var;}
-        |       begin_tree           {$$ = $begin_tree;}
-        ;
+
+
+func:      
+                func begin_tree                  {$$ = $2;}
+        |       func var                          {$$ =$1;}
+        |       var                              {$$ =$1;}
+                ;
+
 
 
 
  //debut arbre
 begin_tree:     
                 attribute            {printf("begin_tree\n");}
-        |       match                {$$ = mk_var("MATCH");}
+        |       match                {$$ = $match;}
         |       '(' loop ')'         {$$ = $loop;}
         |       T_NB                 {$$ = $T_NB;}
         |       emit                 {$$ = $emit;}
         |       container            {$$ = $container;}
+        |       PATH                 {$$ = $PATH;}
         |       T_ERROR              {yyerror("invalid xml syntax");return EXIT_FAILURE;}
         ;
 
 
 loop:
-                loop block_where
+                 block_where
                  {
                    if ($1 == NULL){
                      $$ = mk_forest(false,$block_where, NULL);
@@ -160,7 +166,7 @@ loop:
                      add_right($1, $block_where);
                      $$ = $1;
                      compteur++;
-                }
+                 }
                 }
         |       /* empty */          {$$ = NULL;}
                 ;
@@ -176,16 +182,18 @@ attribute:
 
 // container
 container:      '{' content '}'      {$$ = $content;}
+        |       '{' content func '}'      {$$ = $content;}
                 ;
 
 
-content:        content block_where
+content:        content func ','
+        |       content begin_tree
                 {
                   if ($1 == NULL){
-                    $$ = mk_forest(false,$block_where, NULL);;
-                    compteur++;
+                    $$ = mk_forest(false,$begin_tree, NULL);;
+
                     }else{
-                    add_right($1, $block_where);
+                    add_right($1, $begin_tree);
                     $$ = $1;
                     compteur++;
                   }
@@ -202,19 +210,15 @@ content:        content block_where
                     $$ = $1;
                     
                 }
-                
                 }
-        |       content ','          {$$ = $1;}
         |       /* empty */          {$$ = NULL;}
                 ;
 
 
-emit:           T_EMIT T_TEXT variable        { compteur++; struct ast * body = mk_forest(false,$T_TEXT, $variable); $$ = mk_forest(false,mk_fun($T_EMIT,body),NULL); } 
-        |       T_EMIT variable variable      { compteur++; add_right($2, $3); $$ = mk_forest(false,mk_fun($T_EMIT,$2),NULL); }  
+
+emit:           T_EMIT T_TEXT begin_tree        { struct ast * body = mk_forest(false,$T_TEXT, $3); $$ = mk_forest(false,mk_fun($T_EMIT,body),NULL); } 
+        |       T_EMIT begin_tree begin_tree      { add_right($2, $3); $$ = mk_forest(false,mk_fun($T_EMIT,$2),NULL); }  
         ;
-end:            ';'
-        |       /* empty */
-                ;
 
 
 op:             '+'       {$$ = mk_binop(PLUS);compteur++;}
@@ -245,7 +249,7 @@ loop_text:      loop_text T_TEXT    {add_right($1,$T_TEXT); $$ = $1;compteur++;}
 
 
 args:           args var            {add_right($1,$var); $$ = $1;compteur++;}
-        |       var                 {$$ = mk_forest(false,$var, NULL);compteur++;}
+        |       var                 {$$ = $var;compteur++;}
         ;
 
 recursive:      T_REC
@@ -261,31 +265,37 @@ match:          T_MATCH block_where T_WITH extended_filter T_END_MATCH {$$ =  mk
 
 
 extended_filter:
-                extended_filter '|' filter T_ARROW  recursive_match  { struct patterns* p = mk_patterns($filter, $recursive_match, NULL); add_patterns_right($1,p); $$ = $1;}
-        |       '|'filter T_ARROW recursive_match                   { $$ = mk_patterns($filter, $recursive_match, NULL); }
+
+                extended_filter '|' filter T_ARROW  block_where  { struct patterns* p = mk_patterns($filter, $block_where, NULL); add_patterns_right($1,p); $$ = $1;}
+        |       '|' filter T_ARROW block_where                 { $$ = mk_patterns($filter, $4, NULL); }
                 ;
 
 
-recursive_match:
-                  recursive_match block_where  { add_right($1,$2); $$=$1;}
-                  |       block_where    {$$ = mk_forest(false,$1, NULL);}
-        ;
 
 
 filter:         entete '{' filter_content '}'
                 {
-                  if (! strcmp($entete, "_"))
-                    if ($filter_content == NULL)
-                      $$ = mk_anytree(true, NULL);
-                    else {
-                      $$ = mk_anytree(false, $filter_content);
-                  }
+                  if($entete!=NULL){
+                    if (! strcmp($entete, "_"))
+                      if ($filter_content == NULL)
+                        $$ = mk_anytree(true, NULL);
+                      else {
+                        $$ = mk_anytree(false, $filter_content);
+                      }
+                  
                   else{
                     if ($filter_content == NULL)
                       $$ = mk_ptree($entete, true, NULL);
                     else
                       $$ = mk_ptree($entete, false, $filter_content);
                  }
+                }else {
+                    if ($filter_content == NULL)
+                      $$ = mk_ptree(NULL, true, NULL);
+                    else
+                      $$ = $filter_content;
+                }
+                
                }  
         ;
 
@@ -305,20 +315,20 @@ filter_content:
 
 
 entete:
-                T_FILTER_ACC
-        |       T_LABEL                
+                T_FILTER_ACC  {$$ =$1;}
+        |       T_LABEL       {$$ =$1;}         
         |       /* empty */   {$$ = NULL;}
         ;
 
-tag3:           T_FILTER
-        |       T_ATTRIBUT
-        |       T_VAR
+tag3:           T_FILTER      {$$ =$1;}
+        |       T_ATTRIBUT     {$$ =$1;}
+        |       T_VAR          {$$ =$1;}
         ;
 
-tag4:           T_FILTER  
-        |       T_LABEL
-        |       T_ATTRIBUT
-        |       T_VAR
+tag4:           T_FILTER       {$$ =$1;}
+        |       T_LABEL         {$$ =$1;}
+        |       T_ATTRIBUT        {$$ =$1;}
+        |       T_VAR            {$$ =$1;}
         ;
 
 filter_contenu: 

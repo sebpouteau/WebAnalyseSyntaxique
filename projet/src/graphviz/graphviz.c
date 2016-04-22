@@ -14,14 +14,18 @@ void str_parent(FILE * fd, char *name_parent){
   }
 }
 
+
+
 void str_null(FILE * fd){
-  fprintf(fd, "\"NULL (%d)\";\n", cpt());
+  char name[1000];
+  sprintf(name, "\"NULL (%d)\"", cpt());
+  fprintf(fd, "%s;\n%s [label=\"NULL\"];\n", name, name);  
 }
 
 void draw_ast (FILE * fd, struct ast* a, char* name_parent){
-  str_parent(fd, name_parent);
-
+  
   if (a == NULL){
+    str_parent(fd, name_parent);
     str_null(fd);
     return;
   }
@@ -31,41 +35,74 @@ void draw_ast (FILE * fd, struct ast* a, char* name_parent){
   switch(a->type){
     case INTEGER:
       printf ("\"INTEGER : %d\n", a->node->num);
-      fprintf(fd, "\"%d (%d)\";\n", a->node->num, cpt());
+      
+      str_parent(fd, name_parent);
+      sprintf(name, "\"%d (%d)\"", a->node->num, cpt());
+      fprintf(fd, "%s;\n%s [label=\"%d\"];\n", name, name, a->node->num);
+
       break;
     case BINOP:
-      printf ("BINOP : %d\n", a->node->binop);
-      fprintf(fd, "\"%d (%d)\";\n", a->node->binop, cpt());
+      printf ("BINOP : %s\n", name_binop(a->node->binop));
+
+      str_parent(fd, name_parent);
+      sprintf(name, "\"%s (%d)\"", name_binop(a->node->binop), cpt());
+      fprintf(fd, "%s;\n%s [label=\"%s\"];\n", name, name, name_binop(a->node->binop));
+      
       break;
     case UNARYOP:
-      printf ("UNARYOP: %d\n", a->node->unaryop);
-      fprintf(fd, "\"%d (%d)\";\n", a->node->unaryop, cpt());
+      printf ("UNARYOP: NOT\n");
+
+      str_parent(fd, name_parent);
+      sprintf(name, "\"NOT (%d)\"", cpt());
+      fprintf(fd, "%s;\n%s [label=\"NOT\"];\n", name, name);
+      
       break;
     case VAR:
-      printf ("VAR\n");
-      fprintf(fd, "\"%s (%d)\";\n", a->node->str, cpt());
+      printf ("VAR : %s\n", a->node->str);
+
+      str_parent(fd, name_parent);
+      sprintf(name, "\"%s (%d)\"", a->node->str, cpt());
+      fprintf(fd, "%s;\n%s [label=\"%s\"];\n", name, name, a->node->str);
+      
       break;
     case IMPORT:
       printf ("\"IMPORT (%d)\"\n", cpt());
-      // === a voir === //
+
+      str_parent(fd, name_parent);
+      sprintf(name, "\"IMPORT (%d)\"", cpt());
+      fprintf(fd, "%s;\n%s [label=\"IMPORT\"];\n", name, name);
+
       break;
     case APP:
       printf ("APP\n");
+      
+      str_parent(fd, name_parent);
+
       sprintf(name, "\"APP (%d)\"", cpt());
+      
       draw_app(fd, a->node->app, name);
       break;
     case WORD:
       printf ("WORD\n");
+      
+      str_parent(fd, name_parent);
+
       fprintf(fd, "\"%s (%d)\";\n", a->node->str, cpt());
       break;
     case TREE:
       printf ("TREE\n");
+      str_parent(fd, name_parent);
+
       sprintf(name, "\"%s (%d)\"", a->node->tree->label, cpt());
       draw_tree(fd, a->node->tree, name);
       break;
     case FOREST:
       printf ("FOREST\n");
+      
       sprintf(name, "\"FOREST (%d)\"", cpt());
+      fprintf(fd, "%s  [label=\"FOREST\"];\n", name);
+      str_parent(fd, name_parent);
+      
       draw_forest(fd, a->node->forest, name);
       break;
     case FUN:
@@ -130,9 +167,11 @@ void draw_tree(FILE * fd, struct tree * t, char* name_parent){
   printf("is_value: %d\n", t->is_value);
   printf("nullary: %d\n", t->nullary);
   printf("space: %d\n", t->space);
+  
+    draw_attributes(fd, t->attributes, name_parent);
+  
 
-  draw_attributes(fd, t->attributes, name_parent);
-
+  
   draw_ast(fd, t->daughters, name_parent);
  
 }
@@ -212,14 +251,15 @@ void draw_pattern(FILE * fd, struct pattern * p, char* name_parent){
 
 void draw(struct ast* a){
   FILE *fd = fopen("fichier.dot", "w+");
+  
   if (fd == NULL) {
     fprintf(stderr, "\"fichier.dot\": erreur ouverture fichier.");
     exit(EXIT_FAILURE);
   }
   
-  fprintf(fd, "digraph{\n");
+  fprintf(fd, "digraph {\n");
   draw_ast(fd, a, NULL);
-  fprintf(fd, "}");
+  fprintf(fd, "}\n");
   
   fclose(fd);
 }
