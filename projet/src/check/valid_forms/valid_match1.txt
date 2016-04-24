@@ -1,0 +1,3 @@
+match {"salut les amis !"} with
+      | {} -> {"je suis bien là ! "}
+      end

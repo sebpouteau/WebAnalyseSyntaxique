@@ -18,7 +18,7 @@ static void str_parent(FILE * fd, char *name_parent){
 static void str_null(FILE * fd){
   char name[1000];
   sprintf(name, "\"NULL (%d)\"", cpt());
-  fprintf(fd, "%s;\n%s [label=\"NULL\"];\n", name, name);  
+  fprintf(fd, "%s [color=\"red:orange:yellow:green:cyan:blue:purple;0.14\"];\n%s [label=\"NULL\" color=\"red\"];\n", name, name);  
 }
 
 
@@ -37,7 +37,7 @@ void draw_ast (FILE * fd, struct ast* a, char* name_parent){
 
       str_parent(fd, name_parent);
       sprintf(name, "\"INTEGER (%d)\"", cpt());
-      fprintf(fd, "%s;\n%s [label=\"INTEGER\"];\n", name, name);
+      fprintf(fd, "%s;\n%s [label=\"INTEGER\" color=\"gray\"];\n", name, name);
       
       str_parent(fd, name);
       memset(name, 0, sizeof(*name));
@@ -50,7 +50,7 @@ void draw_ast (FILE * fd, struct ast* a, char* name_parent){
 
       str_parent(fd, name_parent);
       sprintf(name, "\"BINOP (%d)\"", cpt());
-      fprintf(fd, "%s;\n%s [label=\"BINOP\"];\n", name, name);
+      fprintf(fd, "%s;\n%s [label=\"BINOP\" color=\"gray\"];\n", name, name);
       
       str_parent(fd, name);
       memset(name, 0, sizeof(*name));
@@ -63,7 +63,7 @@ void draw_ast (FILE * fd, struct ast* a, char* name_parent){
 
       str_parent(fd, name_parent);
       sprintf(name, "\"UNARYOP (%d)\"", cpt());
-      fprintf(fd, "%s;\n%s [label=\"UNARYOP\"];\n", name, name);
+      fprintf(fd, "%s;\n%s [label=\"UNARYOP\" color=\"gray\"];\n", name, name);
       str_parent(fd, name);
       memset(name, 0, sizeof(*name));
       
@@ -76,7 +76,7 @@ void draw_ast (FILE * fd, struct ast* a, char* name_parent){
 
       str_parent(fd, name_parent);
       sprintf(name, "\"VAR (%d)\"", cpt());
-      fprintf(fd, "%s;\n%s [label=\"VAR\"];\n", name, name);
+      fprintf(fd, "%s;\n%s [label=\"VAR\" color=\"gray\"];\n", name, name);
       
       str_parent(fd, name);
       memset(name, 0, sizeof(*name));
@@ -89,7 +89,7 @@ void draw_ast (FILE * fd, struct ast* a, char* name_parent){
 
       str_parent(fd, name_parent);
       sprintf(name, "\"WORD (%d)\"", cpt());
-      fprintf(fd, "%s;\n%s [label=\"WORD\"];\n", name, name);
+      fprintf(fd, "%s;\n%s [label=\"WORD\" color=\"gray\"];\n", name, name);
       
       str_parent(fd, name);
       memset(name, 0, sizeof(*name));
@@ -122,7 +122,7 @@ void draw_ast (FILE * fd, struct ast* a, char* name_parent){
 
       str_parent(fd, name_parent);
       sprintf(name, "\"TREE (%d)\"", cpt());
-      fprintf(fd, "%s;\n%s [label=\"TREE\"];\n", name, name);
+      fprintf(fd, "%s;\n%s [label=\"TREE\" color=\"#C37501\"];\n", name, name);
       
       draw_tree(fd, a->node->tree, name);
       break;
@@ -131,7 +131,7 @@ void draw_ast (FILE * fd, struct ast* a, char* name_parent){
 
       str_parent(fd, name_parent);
       sprintf(name, "\"FOREST (%d)\"", cpt());
-      fprintf(fd, "%s;\n%s [label=\"FOREST\"];\n", name, name);
+      fprintf(fd, "%s;\n%s [label=\"FOREST\" color=\"#00CC00\"];\n", name, name);
       
       draw_forest(fd, a->node->forest, name);
       break;
@@ -140,7 +140,7 @@ void draw_ast (FILE * fd, struct ast* a, char* name_parent){
       
       str_parent(fd, name_parent);
       sprintf(name, "\"FUN (%d)\"", cpt());
-      fprintf(fd, "%s;\n%s [label=\"FUN\"];\n", name, name);
+      fprintf(fd, "%s;\n%s [label=\"FUN\" color=\"blue\"];\n", name, name);
 
       draw_fun(fd, a->node->fun, name);
       break;
@@ -149,7 +149,7 @@ void draw_ast (FILE * fd, struct ast* a, char* name_parent){
       
       str_parent(fd, name_parent);
       sprintf(name, "\"MATCH (%d)\"", cpt());
-      fprintf(fd, "%s;\n%s [label=\"MATCH\"];\n", name, name);
+      fprintf(fd, "%s;\n%s [label=\"MATCH\" color=\"purple\"];\n", name, name);
       
       draw_match(fd, a->node->match, name);
       break;
@@ -158,7 +158,7 @@ void draw_ast (FILE * fd, struct ast* a, char* name_parent){
 
       str_parent(fd, name_parent);
       sprintf(name, "\"COND (%d)\"", cpt());
-      fprintf(fd, "%s;\n%s [label=\"COND\"];\n", name, name);
+      fprintf(fd, "%s;\n%s [label=\"COND\" color=\"orange\"];\n", name, name);
       
       draw_cond(fd, a->node->cond, name);
       break;
