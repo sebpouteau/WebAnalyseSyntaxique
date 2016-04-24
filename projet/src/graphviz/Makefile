@@ -17,13 +17,13 @@ $(PATH_LIB)/libgraphviz.a: graphviz.o graphviz.c $(PATH_INCLUDE)/graphviz.h
 
 graphviz: main.c $(PATH_LIB)/libgraphviz.a
 	gcc $(CFLAGS) main.c graphviz.o $(LDLIBS) -o graphviz
-	./graphviz
+	./graphviz > execute.txt
 	dot -Tpng fichier.dot -o fichier.png
 
 
 .PHONY: clean
 clean:
-	rm -f dep *.o *~ *.g* graphviz fichier.dot fichier.png
+	rm -f dep *.o *~ *.g* graphviz fichier.dot fichier.png execute.txt
 
 
 

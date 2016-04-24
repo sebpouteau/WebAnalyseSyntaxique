@@ -2,8 +2,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include <util_parser.h>
-#include <tree.h>
 #include <ast.h>
 #include <graphviz.h>
 
@@ -41,8 +39,8 @@ int compteur = 0;
 %type   <pats>          extended_filter                       
 %%
 
-start:          start let ';' { add_head($let); draw(head); }
-                  |       start begin_tree { add_head($begin_tree); draw(head); }
+start:          start let ';' { add_head($let);draw(head); }
+                  |       start begin_tree { }
         |       /* empty */
                 ;
 
@@ -360,24 +358,23 @@ filter_contenu:
                
 
 void add_head(struct ast* node){
-  struct forest* t = (struct forest *)head;
-
   if ( head == NULL){
     head = mk_forest(false, node, NULL);
+    return;
   }
-  else{
-    while (t->tail != NULL){
+
+  struct forest* t = head->node->forest;
+  while (t->tail != NULL){
       t = (struct forest*) t->tail;
-    }
-    struct ast* f = mk_forest(false, node, NULL);
-    t->tail = f;
   }
+  struct ast* f = mk_forest(false, node, NULL);
+  t->tail = f; 
 }
 
 void add_pforest_right(struct pattern* filter, struct pattern* element){
-  struct pforest* forest = (struct pforest*) filter;
+  struct pforest* forest = filter->pnode->pforest;
   while (forest->tail != NULL){
-    forest = (struct pforest*) forest->tail;
+    forest =  forest->tail->pnode->pforest;
   }
   struct pattern* f = mk_pforest(element, NULL);
   forest->tail = f;
@@ -422,12 +419,12 @@ struct ast* add_right(struct ast* frst, struct ast* element){
  if (frst == NULL)
     return mk_forest(false,element, NULL);
 
-  struct forest* f = (struct forest*)frst;
+  struct forest* f = frst->node->forest;
   while (f->tail != NULL){
-    f=(struct forest*)f->tail;
+    f=f->tail->node->forest;
   }
   struct ast* new = mk_forest(false,element, NULL);
-  f->tail = new;
+  f->tail = new; 
   return frst;
 }
 

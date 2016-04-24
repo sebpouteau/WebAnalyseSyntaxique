@@ -8,14 +8,14 @@ int cpt(void){
   return cpt;
 }
 
-void str_parent(FILE * fd, char *name_parent){
+static void str_parent(FILE * fd, char *name_parent){
   if (name_parent != NULL){
     fprintf(fd, "%s -> ", name_parent);
   }
 }
 
 
-void str_null(FILE * fd){
+static void str_null(FILE * fd){
   char name[1000];
   sprintf(name, "\"NULL (%d)\"", cpt());
   fprintf(fd, "%s;\n%s [label=\"NULL\"];\n", name, name);  
