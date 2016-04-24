@@ -40,7 +40,7 @@ int compteur = 0;
 %%
 
 start:          start let ';' { add_head($let);draw(head); }
-                  |       start begin_tree { }
+                  |       start begin_tree { add_head($begin_tree);draw(head); }
         |       /* empty */
                 ;
 
