@@ -23,9 +23,9 @@ enum ast_type {
     DECLREC   // Déclarations récursives (let rec ... where rec ...)
 };
 
-enum binop{PLUS, MINUS, MULT, DIV, LEQ, LE, GEQ, GE, EQ, OR, AND};
+enum binop{PLUS, MINUS, MULT, DIV, LEQ, LE, GEQ, GE, EQ, NEQ, OR, AND, EMIT};
 
-enum unaryop {NOT};
+enum unaryop {NOT, NEG};
 
 struct ast;
 
@@ -36,9 +36,10 @@ struct app{
 };
 
 struct attributes{
-    struct ast * key;
-    struct ast * value;
-    struct attributes * next;
+  bool is_value;
+  struct ast * key;
+  struct ast * value;
+  struct attributes * next;
 };
 
 struct tree{

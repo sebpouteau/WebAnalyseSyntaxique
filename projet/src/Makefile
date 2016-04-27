@@ -1,4 +1,4 @@
-LIBS= abstract  graphviz parser
+LIBS= abstract  virtual graphviz parser
 
 all:
 	for i in $(LIBS);do\
