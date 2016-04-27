@@ -1,13 +1,35 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 #include <import.h>
 
+
 char * from_path_to_name(struct path * chemin){
-    fprintf(stderr,"Fonction à implémenter");
-    exit(1);
-    return "";
+  for (int i = 0; i < chemin->n; i++) {
+    chdir("..");
+  }
+  
+  struct dir* cur_dir = chemin->dir;
+  
+  while (cur_dir != NULL) {
+    if (cur_dir->descr == FILENAME ||
+        cur_dir->descr == DECLNAME){
+      break;
+    }
+
+    if (open(cur_dir->str) == NULL) {
+      fprintf(stderr,"cannot open directory: %s\n", cur_dir->str);
+      return NULL;
+    }
+    
+    chdir(cur_dir->str);
+    cur_dir = cur_dir->dir;
+  }
+  
+  return get_current_dir_name();
 }
+
 
 struct closure * retreive_tree(struct path * chemin,struct files * f){
     char * name = from_path_to_name(chemin);
