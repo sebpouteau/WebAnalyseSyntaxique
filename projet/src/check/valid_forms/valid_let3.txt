@@ -1,5 +1,5 @@
 let create_page = fun auteur ->
-    emit auteur + ".html"
+    emit (auteur + {".html"})
     	 {
 	  html{
 	   header{}

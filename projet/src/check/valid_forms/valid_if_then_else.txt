@@ -1,1 +1,1 @@
-(if (4 > 3) then a[href="www.google.fr"]{"Google"} else div{"content" a[href="www.labri.fr"]{"LaBRI"}))
+(if (4 > 3) then a[href="www.google.fr"]{"Google"} else div{"content" a[href="www.labri.fr"]{"LaBRI"}})

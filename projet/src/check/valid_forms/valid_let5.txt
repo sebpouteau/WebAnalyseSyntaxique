@@ -10,3 +10,4 @@ film{ titre{"Made in USA"} auteur{"Godard"} annee{"1966"}}
 film{ titre{"Pierrot le fou"} auteur{"Godard"} annee{"1965"}}
 
 film{ annee{"1963"} titre{"Les oiseaux"} auteur{"Hitchcock"}}
+};

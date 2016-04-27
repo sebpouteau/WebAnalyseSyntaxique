@@ -1,3 +1,6 @@
+#ifndef AST_H
+#define AST_H
+
 #include <stdbool.h>
 #include "chemin.h"
 #include "pattern.h"
@@ -20,9 +23,9 @@ enum ast_type {
     DECLREC   // Déclarations récursives (let rec ... where rec ...)
 };
 
-enum binop{PLUS, MINUS, MULT, DIV, LEQ, LE, GEQ, GE, EQ, OR, AND};
+enum binop{PLUS, MINUS, MULT, DIV, LEQ, LE, GEQ, GE, EQ, NEQ, OR, AND, EMIT};
 
-enum unaryop {NOT};
+enum unaryop {NOT, NEG};
 
 struct ast;
 
@@ -33,9 +36,10 @@ struct app{
 };
 
 struct attributes{
-    struct ast * key;
-    struct ast * value;
-    struct ast * next;
+  bool is_value;
+  struct ast * key;
+  struct ast * value;
+  struct attributes * next;
 };
 
 struct tree{
@@ -114,3 +118,5 @@ struct ast * mk_fun(char * id, struct ast * body);
 struct ast * mk_match(struct ast * ast, struct patterns * patterns);
 struct ast * mk_cond(struct ast * cond, struct ast * then_br, struct ast * else_br);
 struct ast * mk_declrec(char * id, struct ast * body);
+
+#endif

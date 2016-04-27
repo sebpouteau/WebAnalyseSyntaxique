@@ -2,6 +2,5 @@ int yyparse(void);
 
 int main(void)
 {
-  yyparse();
-  return 0;
+  return yyparse();
 }

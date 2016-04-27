@@ -1,4 +1,6 @@
 LIBS= src
+TESTS=$(wildcard src/check/valid_forms/*.txt)
+TESTS2=$(wildcard src/check/invalid_forms/*.txt)
 
 all:
 	if [ ! -d "bin" ];then mkdir bin; fi
@@ -8,7 +10,29 @@ all:
 
 
 check:all
-	valgrind ./bin/parser.out < src/check/valid_forms.txt
+	echo "\n\n\033[32mVALIDE FORME\033[0m"
+	for i in $(TESTS); do \
+		echo -n  "$$i ... "; \
+		eval "./bin/parser.out <$$i" > log 2>&1; \
+		if test $$? -eq 0; then \
+			echo "\033[32mPASS\033[0m"; \
+		else \
+			echo "\033[31mFAIL\033[0m" && echo "" && cat log && echo ""; \
+		fi \
+	done
+
+	echo "\n\n\033[31mINVALIDE FORME\033[0m"
+	for i in $(TESTS2); do \
+		echo -n  "$$i ... "; \
+		eval "./bin/parser.out <$$i" > log 2>&1; \
+		if test $$? -eq 0; then \
+			echo "\033[32mPASS\033[0m" && echo "" && cat log && echo ""; \
+		else \
+			echo "\033[31mFAIL\033[0m"; \
+		fi \
+	done
+
+#	valgrind ./bin/parser.out < src/check/valid_forms.txt
 	gcov src/tree/tree.c
 	gcov src/xml_builder/xml_builder.c
 

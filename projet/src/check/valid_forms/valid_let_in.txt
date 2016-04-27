@@ -3,4 +3,4 @@ let ubx = a[href="https://www.u-bordeaux.fr/"]{"Université de Bordeaux"} in
                    l’initiative de Pey Berland - archevêque de Bordeaux de 
                    1430 à 1456 - l’"
              ubx, "comptait quatre facultés : art, médecine, 
-                   droit et théologie."}
+                   droit et théologie."};
