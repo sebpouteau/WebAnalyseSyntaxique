@@ -1,44 +1,20 @@
 #ifndef XML_BUILDER_H
 #define XML_BUILDER_H
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include "tree.h"
+#include <tree.h>
+#include <string.h>
 
+void build_xml(struct ast* a);
 
-void build_xml(tree t);
+void xml_indent(int depth_indent);
 
-/**
- * Affiche l'attributs "a" ainsi que ses "next"
- */
-void attributes_to_xml(attributes a);
+void xml_ast (FILE * fd, struct ast* a, int depth_indent);
 
-void describe_tree(tree t);
+void xml_attributes(FILE* fd, struct attributes* a);
 
-void describe_word(tree t);
+void xml_tree(FILE* fd, struct tree* t, int depth_indent);
 
-/**
- * Affiche le label du tree passé en paramètre
- */
-void print_label(tree t);
+void xml_forest(FILE* fd, struct forest* f, int depth_indent);
 
-/**
- * Gére l'indentation du fichier selon le "depth" passé en paramètre
- * depth = correspond à la profondeur de l'indentation
- */
-void indent_search(int depth);
-
-/**
- * Retourne true si t est de type _word
- */
-bool is_word(tree t);
-
-/**
- * Affiche le xml en fonction du tree passé en paramètre
- * tree = arbre que l'on souhaite afficher en xml
- * depth = profondeur de l'indentation
- */
-void depth_search(tree t, int depth);
 
 #endif

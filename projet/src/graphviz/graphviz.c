@@ -123,6 +123,12 @@ void draw_ast (FILE * fd, struct ast* a, char* name_parent){
       str_parent(fd, name_parent);
       sprintf(name, "\"TREE (%d)\"", cpt());
       fprintf(fd, "%s;\n%s [label=\"TREE\" color=\"#C37501\"];\n", name, name);
+
+      if (strcmp(a->node->tree->label, "word") != 0){
+        str_parent(fd, name);
+        sprintf(name, "\"%s (%d)\"", a->node->tree->label, cpt());
+        fprintf(fd, "%s;\n%s [label=\"%s\" color=\"#C37501\"];\n", name, name, a->node->tree->label);
+      }
       
       draw_tree(fd, a->node->tree, name);
       break;

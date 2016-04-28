@@ -1,49 +1,124 @@
 #include <xml_builder.h>
-#include <tree.h>
 
-void build_xml(tree t){
-  int fd;
-  if((fd = open("god.xml",O_CREAT|O_RDWR)) == -1){
-    fprintf(stderr, "failed to open file\n");
+
+void xml_indent(int depth_indent){
+  for (int i = 0; i < cpt; i++){
+    fprintf(fd, "   ");
+  }
+}
+
+
+void xml_ast (FILE * fd, struct ast* a, int depth_indent){
+  if (a == NULL){
+    return;
+  }
+    
+  switch(a->type){
+    case INTEGER:
+      fprintf(fd,  " %d ", a->node->num);
+      break;
+    case BINOP:
+      break;
+    case UNARYOP:
+      break;
+    case VAR:      
+      break;
+    case WORD:
+      fprintf(fd, " %s ", a->node->str);
+      break;
+    case IMPORT:
+      break;
+    case APP:
+      break;
+    case TREE:
+      xml_tree(fd, a->node->tree, cpt);
+      break;
+    case FOREST:
+      xml_forest(fd, a->node->forest, cpt);
+      break;
+    case FUN:
+      break;
+    case MATCH:
+      break;
+    case COND:
+      break;
+    case DECLREC:
+      break;
+    default:
+      break;
+  }
+}
+
+
+void xml_attributes(FILE* fd, struct attributes* a){  
+  if (a == NULL){
+    return;
+  }
+
+  fprintf(fd, " ");
+  xml_ast(fd, a->key);
+  fprintf(fd, "=\"");
+  xml_ast(fd, a->value);
+  fprintf(fd, "\"");
+
+  xml_attributes(fd, a->next);
+}
+
+
+void xml_tree(FILE* fd, struct tree* t, int depth_indent){
+  if (t == NULL){
+    return;
+  }
+
+  if (t->nullary){
+    fprintf(fd, "<%s/>", t->label);
+    return;
+  }
+  
+  xml_indent(cpt);
+  fprintf(fd, "<%s", t->label);
+  xml_attributes(fd, t->attributes);
+  fprintf(fd, ">\n");
+  
+  xml_ast(fd, t->daughters, cpt+1);
+  xml_indent(cpt);
+  fprintf(fd, "</%s>\n", t->label);
+}
+
+
+void xml_forest(FILE* fd, struct forest* f, int depth_indent){
+  if (f == NULL){
+    return;
+  }
+    
+  xml_ast(fd, f->head, cpt);
+  
+  xml_ast(fd, f->tail, cpt);
+}
+
+void build_xml(struct ast* a){
+  FILE *fd = fopen("fichier.xml", "w+");
+  
+  if (fd == NULL) {
+    fprintf(stderr, "\"fichier.xml\": erreur ouverture fichier.");
     exit(EXIT_FAILURE);
   }
-  depth_search(t,0);
+  
+  fprintf(fd, "<!DOCTYPE html>");
+  xml_ast(fd, a, 0);
+  
+  fclose(fd);
 }
 
-void attributes_to_xml(attributes a){
-  if (a == NULL)
-    return;
-  
-  printf(" ");
-  while(a != NULL){
-    printf("%s=\"%s\"", attr_get_key(a), attr_get_value(a));
-    a = attr_get_next(a);
-    if(a != NULL){
-      printf(" ");
-    }
-  }
-}
 
-/*
-void describe_tree(tree t){
-  
-}
 
-void describe_word(tree t){
-  
-}
-*/
+// =================================================
+
 
 void print_label(tree t){
   printf("%s", tree_get_label(t));
   if (tree_get_space(t)) {
     printf(" ");
-  }
-}
-
-void indent_search(int cpt){
-  for (int i = 0; i < cpt; i++){
-    printf("   ");
   }
 }
 
@@ -61,20 +136,24 @@ void depth_search(tree t, int cpt){
     print_label(t);
     if (!is_word(tree_get_right(t)))
       printf("\n");
-  } else {
+  }
+  else {
     indent_search(cpt);
     printf("<");
     print_label(t);
-    if (tree_get_nullary(t)) {
+    if (tree_get_nullary(t))
+    {
       printf("/>\n");
-    } else {
+    }
+    else
+    {
       attributes_to_xml(tree_get_attributes(t));
       printf(">\n");
       if (is_word(tree_get_daughters(t)))
         indent_search(cpt+1);
       depth_search(tree_get_daughters(t), cpt+1);
       indent_search(cpt);
-     
+      
       printf("</%s>\n", tree_get_label(t));
     }
     if (is_word(tree_get_right(t)))
@@ -82,34 +161,3 @@ void depth_search(tree t, int cpt){
   }
   depth_search(tree_get_right(t), cpt);
 }
-
-
-
-/*
-  int main(void){
-  attributes a = attr_create("href", "www.google.fr", NULL);
-  attributes a1 = attr_create("color", "blue", NULL);
-  attributes a2 = attr_create("bold", "false", NULL);
-  attr_set_next(a, a1);
-  attr_set_next(a1, a2);
-
-  tree t = NULL;
-  tree t2 = NULL;
-  tree t3 = NULL;
-  tree t4 = NULL;
-  tree t5 = NULL;
-  tree t6 = NULL;
-  tree t7 = NULL;
-  t7 = tree_create("list", true, false, _word, NULL, NULL, NULL);
-  t3 = tree_create("Bonjour", true, false, _word, NULL, NULL, NULL);
-  t6 = tree_create("ul", false, false, _tree, NULL, t7, NULL);
-  t2 = tree_create("Hello", true, true, _word, NULL, NULL, t6);
-  
-  t4 = tree_create("a", false, false, _tree, a, t3, NULL);
-  t5 = tree_create("div", false, false, _tree, a2, t4, t2);
-
-  t = tree_create("span", false, false, _tree, NULL, t5, NULL);
-  
-  depth_search(t,0);
-  }
-*/
