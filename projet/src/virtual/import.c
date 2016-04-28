@@ -29,11 +29,13 @@ char * from_path_to_name(struct path * chemin){
   }
   char* p = malloc (300 * sizeof(char));
   getcwd(p, 300);
+  strcat(p, "/");
+  strcat(p, cur_dir->str);
   return p;
 }
 
 
-struct closure * retrieve_tree(struct path * chemin,struct files * f){
+struct closure * retrieve_tree(struct path * chemin, struct files * f){
     char * name = from_path_to_name(chemin);
     struct files * tmp = f;
     while(tmp!=NULL){
@@ -48,20 +50,18 @@ struct closure * retrieve_tree(struct path * chemin,struct files * f){
 }
 
 struct closure * retrieve_name(struct path * chemin, char * name, struct files * f){
-    struct closure * cl = retrieve_tree(chemin,f);
-    printf("nom : %s\n",name );
-    struct env * e = cl->env;
-    while(e!=NULL){
-        if(!strcmp(name,e->var)){
-            return  e->value;
-        }
-        else{
-            e=e->next;
-        }
+    struct closure * cl = retrieve_tree(chemin, f);
+    struct env* e;
+    e = cl->env;
+    while(e != NULL){
+      if(!strcmp(name, e->var)){
+        return  e->value;
+      }
+      else{
+        e = e->next;
+      }
     }
-    fprintf(stderr,
-            "Variable %s du fichier %s non trouvée",
-            name, from_path_to_name(chemin));
+    fprintf(stderr, "Variable %s du fichier %s non trouvée",name, from_path_to_name(chemin));
     exit(1);
 }
 
@@ -104,7 +104,7 @@ struct closure * process_content(struct ast * a, struct env * e){
 struct files * add_file(struct path * chemin, struct closure * cl, struct files * f){
     struct files * res = malloc(sizeof(struct files));
     res->file_name = from_path_to_name(chemin);
-    res ->cl = cl;
+    res->cl = cl;
     res->next = f;
     return res;
 }
