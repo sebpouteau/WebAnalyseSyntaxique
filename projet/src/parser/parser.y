@@ -181,11 +181,11 @@ func:
 
  //debut arbre
 begin_tree:     
-                attribute            {printf("begin_tree\n");}
+                attribute            {$$ = $attribute;}
         |       match                {$$ = $match;}
         |       '(' loop ')'         {$$ = $loop;}
         |       T_NB                 {$$ = $T_NB;}
-|       emit                 {process_instruction($1,e);$$ = NULL ;} 
+        |       emit                 {process_instruction($1,e);$$ = NULL ;} 
         |       container            {$$ = $container;}
         |       PATH                 {$$ = $PATH;}
         |       T_ERROR              {yyerror("invalid xml syntax");return EXIT_FAILURE;}
@@ -266,7 +266,7 @@ content:        content func ','
 
 
 
-emit:           T_EMIT T_TEXT begin_tree        { struct ast * emit = mk_app(mk_binop(EMIT),$T_TEXT->node->tree->daughters); $$ = mk_app(emit,$begin_tree); } 
+emit:           T_EMIT T_TEXT begin_tree        { struct ast * emit = mk_app(mk_binop(EMIT),$T_TEXT->node->tree->daughters); struct closure* c = process_content($begin_tree, e); $$ = mk_app(emit,mk_forest(true,c->value, NULL)); } 
         ;
 
 
