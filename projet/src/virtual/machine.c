@@ -1,4 +1,3 @@
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -8,10 +7,9 @@
 #include <import.h>
 #include <xml_builder.h>
 
-
 void emit( char * file, struct ast * ast){
     assert(file!=NULL && (ast ==NULL || ast!= NULL));
-    build_xml(file, ast);
+    //build_xml(file, ast);
     return;
 }
 
@@ -780,39 +778,47 @@ static char * find_declname(struct dir* d){
   if(d == NULL)
     return NULL;
   if(d->descr == DECLNAME){
-    printf("nom variable : %s\n", d->str);
     return d->str;
   }
   return find_declname(d->dir);
 }
 
+static void print_queue_state(struct files* file_list){
+  printf("=========\nQUEUE STATE:\n");
+  struct files* tmp = file_list;
+  while(tmp != NULL){
+    printf("The file %s is loaded\n", tmp->file_name);
+    tmp = tmp->next;
+  }
+  printf("=========\n");
+}
+
 void on_import(struct machine * m){
     assert(m!=NULL);
-    printf("je suis la\n");
     struct path * p = m->closure->value->node->chemin;
-    struct files * f = malloc(sizeof(struct files));
-    f->file_name = from_path_to_name(p);
-    f->cl = m->closure;
-    f->next = NULL;
-    printf("avant\n");
-    struct closure * cl = retrieve_tree(p, f);
-    printf("apres\n");
-    if(cl == NULL){
-      add_file(p, m->closure, f);
+    printf("\nPATH: %s\n", from_path_to_name(p));
+    char* func_name = find_declname(p->dir);
+    if(func_name != NULL){
+      printf("FUNC: %s\n", func_name);
+    } else {
+      printf("Have to load full file, no var name specified\n");
     }
-    char * fonc = find_declname(p->dir);
-    printf("apres fonc %s\n",fonc );        
-    if(fonc != NULL){
-      printf("je suis pas n\n");
-      struct closure * closure2 = retrieve_name(p, fonc, f);
-      if (closure2 != NULL)
-        process_binding_instruction(fonc, closure2->value, closure2->env);
+
+    struct files* file_list = NULL;    
+    //Apres avoir récup le nom de ma variable (ou non) je dois la trouver
+    if(retrieve_tree(p, file_list) == NULL){//Si le fichier n'est pas chargé
+      printf("The file %s wasn't loaded\n", from_path_to_name(p));
+      file_list = add_file(p, m->closure, file_list); //On le charge
     }
-    free(f);
-    
-    /* fprintf(stderr, */
-    /*          "Import de fichier à implémenter"); */
-    /* exit(1);     */
+    print_queue_state(file_list);
+    //Calculer les arbres des fichiers pour pouvoir avoir les fonctions etc  
+    if(func_name != NULL){
+      printf("Function is not empty\n");
+      struct closure* tmp_cl = retrieve_name(p, func_name, file_list);
+      if(tmp_cl != NULL){
+        printf("Found the function %s in %s GG!\n", from_path_to_name(p), func_name);
+      }
+    }
 }
 
 void on_app(struct machine * m){
