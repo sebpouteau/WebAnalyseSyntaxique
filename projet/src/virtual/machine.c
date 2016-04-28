@@ -665,6 +665,7 @@ void on_binop(struct machine * m){
                             (tp2==FOREST || tp2 == TREE) &&
                             m->closure->value->node->binop==EMIT
                         ){
+                      printf("je suis dans emit \n");
                         emit(m->stack->top->item->closure->value->node->str,
                              m->stack->next->top->item->closure->value);
                         pop_stack(m);
