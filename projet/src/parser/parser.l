@@ -73,7 +73,7 @@ binary ("||"|"&&")
   return T_BINARY;
 }
 
-\$\.*.+  { struct path* p = split_path(yytext); yylval.node = mk_import(p); return PATH; }
+\$\.*.+/";"  { struct path* p = split_path(yytext); yylval.node = mk_import(p); return PATH; }
 
 {xml} {
   yylval.str = strdup(yytext);
@@ -219,6 +219,9 @@ struct path* split_path(char * str){
       j+=2;
       break;
     } else {
+      if(dir_name[j] == ';'){
+        break;
+      }
       file_name[count] = dir_name[j];
       count++;
     }
@@ -229,7 +232,7 @@ struct path* split_path(char * str){
   count = 0;
   
   for( ; j < strlen(dir_name); j++){
-    if (dir_name[j] == ';' || dir_name[j] == ' ')
+    if (dir_name[j] == ';')
       break;
     file_name[count] = dir_name[j];
     count++;
