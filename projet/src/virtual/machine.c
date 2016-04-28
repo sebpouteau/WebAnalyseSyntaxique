@@ -364,14 +364,15 @@ void pop_match(struct machine * m){
            m->stack->top->type == MATCHCOMP);
     struct env * e=m->stack->top->item->match->env;
     struct patterns * pats = m->stack->top->item->match->patterns;
-    while(pats!=NULL){
-        if(match(pats,m->closure->value,&res,&e)){
-            m->closure = mk_closure(res,e);
-            pop_stack(m);
-            compute(m);
-            return;
-        }
+    
+    if(match(pats,m->closure->value,&res,&e)){
+      m->closure = mk_closure(res,e);
+      pop_stack(m);
+      compute(m);
+      return;
     }
+    pats = pats->next;
+    
     fprintf(stderr,"Filtrage non-exhaustif, calcul interrompu.");
     exit(1);
 }
@@ -871,6 +872,7 @@ void on_tree(struct machine * m){
                 pop_match(m);
                 break;
             default:
+             
                 fprintf(stderr,"Erreur de typage, un arbre ne peut être utilisé que comme argument d'une fonction, la tête d'une forêt, ou dans une expression de filtrage (match)");
                 exit(1);
                 break;
@@ -954,6 +956,7 @@ void on_forest(struct machine * m){
                 pop_function(m);
                 break;
             default:
+              printf("%d\n", m->stack->top->type);
                 fprintf(stderr,"Erreur de typage, une forêt peut être utilisée dans la construction d'une autre forêt ou alors dans celle d'un arbre, ou encore comme argument de fonction.");
                 exit(1);
                 break;
@@ -1003,6 +1006,7 @@ void on_fun(struct machine * m){
 }
 
 void on_match(struct machine * m){
+  printf("je suis dans on_match\n");
     struct match_computation * mc = malloc(sizeof(struct match_computation));
     mc->patterns = m->closure->value->node->match->patterns;
     mc->env = m->closure->env;
@@ -1011,7 +1015,11 @@ void on_match(struct machine * m){
     push_stack(it, MATCHCOMP, m);
     m->closure = mk_closure(m->closure->value->node->match->ast,
                             m->closure->env);
+      printf("je suis dansavan comp  on_match\n");
+
     compute(m);
+
+    
 }
 
 void on_cond(struct machine * m){
@@ -1052,6 +1060,7 @@ void compute(struct machine * m){
         on_unaryop(m);
         break;
     case VAR:
+      printf("je suis la\n");
         on_var(m);
         break;
     case IMPORT:
@@ -1073,6 +1082,7 @@ void compute(struct machine * m){
         on_fun(m);
         break;
     case MATCH:
+      printf("je suis la dans match\n");
         on_match(m);
         break;
     case COND:
