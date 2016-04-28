@@ -5,6 +5,8 @@
 #include <assert.h>
 #include <machine.h>
 #include <pattern_matching.h>
+#include <insert.h>
+
 
 
 void emit( char * file, struct ast * ast){
@@ -785,11 +787,36 @@ void on_var(struct machine * m){
     exit(1);
 }
 
+char * find_declname(struct dir* d){
+  if(d == NULL)
+    return NULL;
+  if(d->descr == DECLNAME)
+    return d->str;
+  return find_declname(d->dir);
+}
+
 void on_import(struct machine * m){
     assert(m!=NULL);
-    fprintf(stderr,
-            "Import de fichier à implémenter");
-    exit(1);    
+    path * p = m->closure->ast->node->path;
+    struct files * f = malloc(sizeof(struct files));
+    f->file_name = from_path_to_name(p);
+    f->closure = m->closure;
+    f->files = NULL;
+    struct closure * closure = retreive_tree(p, f);
+    if(closure == NULL){
+      add_file(p, m->closure, f);
+    }
+    char * fonc = find_declname(p->dir);
+    if(fonc != NULL){
+      struct closure * closure2 = retreive_name(p, f->file_name, f);
+      push_closure(closure2->ast,closure2->env,FUNCTION,m); 
+    }
+    
+    free(f);
+    
+    /* fprintf(stderr, */
+    /*         "Import de fichier à implémenter"); */
+    /* exit(1);     */
 }
 
 void on_app(struct machine * m){
@@ -1051,48 +1078,46 @@ void compute(struct machine * m){
     enum ast_type tp = get_ast_type(m->closure->value);
     switch(tp){
     case INTEGER:
-        on_integer(m);
-        break;
+      on_integer(m);
+      break;
     case BINOP:
-        on_binop(m);
-        break;
+      on_binop(m);
+      break;
     case UNARYOP:
-        on_unaryop(m);
-        break;
+      on_unaryop(m);
+      break;
     case VAR:
-      printf("je suis la\n");
-        on_var(m);
-        break;
+      on_var(m);
+      break;
     case IMPORT:
-        on_import(m);
-        break;
+      on_import(m);
+      break;
     case APP:
-        on_app(m);
-        break;
+      on_app(m);
+      break;
     case WORD:
-        on_word(m);
-        break;
+      on_word(m);
+      break;
     case TREE:
-        on_tree(m);
-        break;
+      on_tree(m);
+      break;
     case FOREST:
-        on_forest(m);
-        break;
+      on_forest(m);
+      break;
     case FUN:
-        on_fun(m);
-        break;
+      on_fun(m);
+      break;
     case MATCH:
-      printf("je suis la dans match\n");
-        on_match(m);
-        break;
+      on_match(m);
+      break;
     case COND:
-        on_cond(m);
-        break;
+      on_cond(m);
+      break;
     case DECLREC:
-        on_decl_rec(m);
-        break;
+      on_decl_rec(m);
+      break;
     default:
-        break;
+      break;
     }
     return;
 }

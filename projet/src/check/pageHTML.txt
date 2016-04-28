@@ -1,0 +1,30 @@
+let tree =
+html{
+    head{title{"ProjetAS"}}
+    body[bgcolor="FFFAAA"]{
+	h1{"Page Web Test"}
+	p{b{"Je suis gras"}}
+	p{i{"Je suis italic"}}
+	p{u{"Je suis sousligné"}}
+	br/
+	a[href="www.google.com"]{"Google"}
+	p{"je suis norm" b{i{"je suis bold/italic"}}}
+	p{"some math with fun foo" let a = (if (85743%3 == 0)
+		      	       then 10 else 0) in
+		      foo a,
+		      "-> answer"
+  	}
+	where foo n = 4*n
+	br/
+	br/
+	match p{"bonjour"} with
+ 	| p{z} -> h1{z}
+	| b{i} -> {i}
+	end
+    }
+	
+};
+
+emit "test.html" {tree};
+
+
