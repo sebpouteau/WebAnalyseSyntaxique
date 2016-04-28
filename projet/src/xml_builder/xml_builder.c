@@ -105,6 +105,7 @@ void build_xml(char * file,struct ast* a){
   }
   
   fprintf(fd, "<!DOCTYPE html>");
+  
   xml_ast(fd, a, 0);
   
   fclose(fd);

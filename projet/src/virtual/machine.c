@@ -9,7 +9,7 @@
 
 void emit( char * file, struct ast * ast){
     assert(file!=NULL && (ast ==NULL || ast!= NULL));
-    //build_xml(file, ast);
+    build_xml(file, ast);
     return;
 }
 
@@ -537,11 +537,14 @@ void on_binop(struct machine * m){
     struct ast * ast;
     struct ast * f1, *f2;
     if(m->stack->top != NULL){
-        if(m->stack->top->type==CLOSURE){
-            if(m->stack->next!=NULL){
-                if(m->stack->top->type==CLOSURE){
+      if(m->stack->top->type==CLOSURE){
+        
+        if(m->stack->next!=NULL){
+        
+            if(m->stack->top->type==CLOSURE){
                     tp1 = get_ast_type(m->stack->top->item->closure->value);
                     tp2 = get_ast_type(m->stack->next->top->item->closure->value);
+        
                     if(tp1 == INTEGER && tp2 == INTEGER){
                         switch(m->closure->value->node->binop){
                         case PLUS:
@@ -663,8 +666,7 @@ void on_binop(struct machine * m){
                             (tp2==FOREST || tp2 == TREE) &&
                             m->closure->value->node->binop==EMIT
                         ){
-                      printf("je suis dans emit \n");
-                        emit(m->stack->top->item->closure->value->node->str,
+                      emit(m->stack->top->item->closure->value->node->str,
                              m->stack->next->top->item->closure->value);
                         pop_stack(m);
                         pop_stack(m);

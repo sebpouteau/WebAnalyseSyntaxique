@@ -72,7 +72,7 @@ struct env * process_binding_instruction(char * name, struct ast * a, struct env
     m->closure = mk_closure(a,e);
     m->stack=NULL;
     compute(m);
-    free(m);
+    //free(m);
     //should free stack...
     return mk_env(name,m->closure,e);
 }
@@ -92,7 +92,7 @@ struct closure * process_content(struct ast * a, struct env * e){
     m->stack=NULL;
     compute(m);
     if(m->closure->value->type==TREE || m->closure->value->type==FOREST){
-      free(m);
+      //free(m);
       return m->closure;
     }
     else{

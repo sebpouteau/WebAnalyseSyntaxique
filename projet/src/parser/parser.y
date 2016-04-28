@@ -66,6 +66,7 @@ void print_env(struct env* e);
 start:          start let ';' {  }
                   |       start block_where ';' { if ($block_where != NULL){struct closure* c = process_content($block_where, e);add_head(c->value);draw(head);} }
         |       start begin_tree      { if ($begin_tree != NULL){struct closure* c = process_content($begin_tree, e);add_head(c->value);draw(head);} }
+        |       start PATH ';'       {process_instruction($2,e);} 
         |       /*empty */
                 ;
 
@@ -77,7 +78,7 @@ let:            T_LET recursive declare
                    queue_pop($declare->args);
                    struct ast* args = create_args($declare, name, $recursive);
                    e = process_binding_instruction(name , args, e);
-                   printf("\n name function: %s\n", name);
+                   //printf("\n name function: %s\n", name);
                    //print_env(e);
                 }
         ;
@@ -187,7 +188,6 @@ begin_tree:
         |       T_NB                 {$$ = $T_NB;}
         |       emit                 {process_instruction($1,e);$$ = NULL ;} 
         |       container            {$$ = $container;}
-        |       PATH                 {$$ = $PATH;}
         |       T_ERROR              {yyerror("invalid xml syntax");return EXIT_FAILURE;}
         ;
 
@@ -266,7 +266,7 @@ content:        content func ','
 
 
 
-emit:           T_EMIT T_TEXT begin_tree        { struct ast * emit = mk_app(mk_binop(EMIT),$T_TEXT->node->tree->daughters); struct closure* c = process_content($begin_tree, e); $$ = mk_app(emit,mk_forest(true,c->value, NULL)); } 
+emit:           T_EMIT T_TEXT begin_tree        { struct ast * em = mk_app(mk_binop(EMIT),$T_TEXT->node->tree->daughters); $$ = mk_app(em,mk_forest(false,$begin_tree, NULL)); } 
         ;
 
 

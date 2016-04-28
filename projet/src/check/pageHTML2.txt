@@ -27,4 +27,4 @@ let e = html[lang="fr"]{
    }
 };
 
-emit "index" (e);
+emit "index" {e};
