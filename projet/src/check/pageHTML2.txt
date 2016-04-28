@@ -1,6 +1,6 @@
 
 
-html[lang="fr"]{
+let e = html[lang="fr"]{
    head{
       meta[charset="utf-8"]/
       link[rel="stylesheet" href="style.css"]/
@@ -26,3 +26,5 @@ html[lang="fr"]{
       }
    }
 };
+
+emit "index" (e);

@@ -14,7 +14,7 @@ struct dir* mk_dir(char* name, enum descr type, struct dir* next);
 struct path* split_path(char * str);
 struct dir* add_dir_right(struct dir* src, struct dir* next);
 struct path* mk_path(int srep, struct dir* d);
-
+bool is_emit = false;
 %}
 
 
@@ -40,7 +40,7 @@ binary ("||"|"&&")
 
 "let"  { return T_LET; }
 
-"emit" { yylval.str = strdup(yytext); return T_EMIT; }
+"emit" { is_emit = true; yylval.str = strdup(yytext); return T_EMIT; }
 
 "in" {  return T_IN; }
 
@@ -133,6 +133,10 @@ binary ("||"|"&&")
 
 
 char* convert_to_html(char* string){
+  if (is_emit){
+    is_emit = false;
+    return strdup(string);
+  }
   char * base = "&#x";
   char final_string[MAX_SIZE];
   int j=0;

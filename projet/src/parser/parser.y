@@ -64,8 +64,8 @@ void print_env(struct env* e);
 %%
 
 start:          start let ';' {  }
-        |       start block_where ';' { struct closure* c = process_content($block_where, e);add_head(c->value);draw(head); }
-        |       start begin_tree      { struct closure* c = process_content($begin_tree, e);add_head(c->value);draw(head); }
+                  |       start block_where ';' { if ($block_where != NULL){struct closure* c = process_content($block_where, e);add_head(c->value);draw(head);} }
+        |       start begin_tree      { if ($begin_tree != NULL){struct closure* c = process_content($begin_tree, e);add_head(c->value);draw(head);} }
         |       /*empty */
                 ;
 
@@ -185,7 +185,7 @@ begin_tree:
         |       match                {$$ = $match;}
         |       '(' loop ')'         {$$ = $loop;}
         |       T_NB                 {$$ = $T_NB;}
-        |       emit                 {$$ = mk_forest(false,$1,NULL);} 
+|       emit                 {process_instruction($1,e);$$ = NULL ;} 
         |       container            {$$ = $container;}
         |       PATH                 {$$ = $PATH;}
         |       T_ERROR              {yyerror("invalid xml syntax");return EXIT_FAILURE;}
@@ -195,12 +195,8 @@ begin_tree:
 loop:
                  block_where
                  {
-                   if ($1 == NULL){
                      $$ = mk_forest(false,$block_where, NULL);
-                }else{
-                     add_right($1, $block_where);
-                     $$ = $1;
-                 }
+              
                 }
         |       /* empty */          {$$ = NULL;}
                 ;
