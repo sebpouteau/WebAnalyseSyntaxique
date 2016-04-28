@@ -5,7 +5,7 @@
 #include <assert.h>
 #include <machine.h>
 #include <pattern_matching.h>
-#include <insert.h>
+#include <import.h>
 
 
 
@@ -787,7 +787,7 @@ void on_var(struct machine * m){
     exit(1);
 }
 
-char * find_declname(struct dir* d){
+static char * find_declname(struct dir* d){
   if(d == NULL)
     return NULL;
   if(d->descr == DECLNAME)
@@ -797,11 +797,11 @@ char * find_declname(struct dir* d){
 
 void on_import(struct machine * m){
     assert(m!=NULL);
-    path * p = m->closure->ast->node->path;
+    struct path * p = m->closure->value->node->chemin;
     struct files * f = malloc(sizeof(struct files));
     f->file_name = from_path_to_name(p);
-    f->closure = m->closure;
-    f->files = NULL;
+    f->cl = m->closure;
+    f->next = NULL;
     struct closure * closure = retreive_tree(p, f);
     if(closure == NULL){
       add_file(p, m->closure, f);
@@ -809,13 +809,13 @@ void on_import(struct machine * m){
     char * fonc = find_declname(p->dir);
     if(fonc != NULL){
       struct closure * closure2 = retreive_name(p, f->file_name, f);
-      push_closure(closure2->ast,closure2->env,FUNCTION,m); 
+      push_closure(closure2->value,closure2->env,FUNCTION,m); 
     }
     
     free(f);
     
     /* fprintf(stderr, */
-    /*         "Import de fichier à implémenter"); */
+    /*          "Import de fichier à implémenter"); */
     /* exit(1);     */
 }
 
