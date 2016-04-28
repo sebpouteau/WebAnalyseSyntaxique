@@ -106,6 +106,7 @@ struct ast * to_forest(struct ast * t);
 // Constructeurs et destructeurs
 struct env * mk_env(char * var, struct closure * value, struct env * next);
 void push_env(char * var, struct closure * value, struct env ** e);
+
 struct closure * mk_closure(struct ast * prog, struct env * env);
 
 struct machine * mk_machine(struct closure * cl, struct stack * stack);

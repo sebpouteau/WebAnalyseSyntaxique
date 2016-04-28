@@ -8,11 +8,12 @@ PATH_INCLUDE=../../include
 PATH_LIB=../../lib
 PATH_BIN=../../bin
 
-all: $(PATH_LIB)/libutil.a 
+all:  $(PATH_LIB)/libqueue.a 
 
  
-$(PATH_LIB)/libutil.a: util_parser.o $(PATH_INCLUDE)/util_parser.h util_parser.c
-	ar -cr $(PATH_LIB)/libutil.a util_parser.o
+
+$(PATH_LIB)/libqueue.a: queue.o $(PATH_INCLUDE)/queue.h queue.c
+	ar -cr $(PATH_LIB)/libqueue.a queue.o
 
 
 .PHONY: clean

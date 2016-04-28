@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void build_xml(struct ast* a);
+void build_xml(char* file, struct ast* a);
 
 void xml_indent(FILE * fd, int depth_indent);
 

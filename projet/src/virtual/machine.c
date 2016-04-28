@@ -6,12 +6,12 @@
 #include <machine.h>
 #include <pattern_matching.h>
 #include <import.h>
-
+#include <xml_builder.h>
 
 
 void emit( char * file, struct ast * ast){
     assert(file!=NULL && (ast ==NULL || ast!= NULL));
-    fprintf(stderr,"Vous devez implémenter la fonction emit");
+    build_xml(file, ast);
     return;
 }
 
@@ -292,7 +292,6 @@ void reconstruct_forest(struct machine * m, struct ast * tail){
             break;
         }   
         default: {
-          // fprintf(stderr,"reconstruct_forest_error: %d",print_type(tp));
             exit(1);
         }   
         }
@@ -304,16 +303,14 @@ void reconstruct_forest(struct machine * m, struct ast * tail){
 }
 
 void pop_forestcomphead(struct machine * m){
-    char * c;
+
     struct ast * head;
     struct ast * tail;
     struct env * env;
     enum ast_type tp = get_ast_type(m->closure->value);
     switch(tp){
     case INTEGER:
-        c=malloc(21*sizeof(char));
-        sprintf(c,"%d",m->closure->value->node->num);
-        head= mk_word(c);
+        head= mk_word(string_of_int(m->closure->value->node->num));
         break;
     case TREE:
     case WORD:
@@ -366,15 +363,15 @@ void pop_match(struct machine * m){
            m->stack->top->type == MATCHCOMP);
     struct env * e=m->stack->top->item->match->env;
     struct patterns * pats = m->stack->top->item->match->patterns;
-    
-    if(match(pats,m->closure->value,&res,&e)){
-      m->closure = mk_closure(res,e);
-      pop_stack(m);
-      compute(m);
-      return;
+    while(pats!=NULL){
+      if(match(pats,m->closure->value,&res,&e)){
+        m->closure = mk_closure(res,e);
+        pop_stack(m);
+        compute(m);
+        return;
+      }
+      pats = pats->next;
     }
-    pats = pats->next;
-    
     fprintf(stderr,"Filtrage non-exhaustif, calcul interrompu.");
     exit(1);
 }
@@ -403,7 +400,6 @@ void pop_cond(struct machine * m){
 }
 
 void pop_forestcomptail(struct machine * m){
-    printf("START: pop_forestcomptail\n");
     enum ast_type tp = get_ast_type(m->closure->value);
     struct ast * forest;
     switch(tp){
@@ -429,7 +425,6 @@ void pop_forestcomptail(struct machine * m){
     m->closure = mk_closure(clone_concat_forest(m->stack->top->item->closure->value,forest),NULL);
     pop_stack(m);
     compute(m);
-    printf("END: pop_forestcomptail\n");
 }
 
 void pop_treecompforest(struct machine * m){
@@ -456,10 +451,6 @@ void pop_treecompforest(struct machine * m){
         fprintf(stderr,"Erreur de typage: un forêt ne peut être construite qu'à partir d'une forêt, d'un arbre, d'un mot ou d'un entier");
         exit(1);
     }
-    if(m->stack->top->item->tree_forest->attributes==NULL){
-        printf("NULL\n");
-    }
-    else{printf("not NULL\n");}
     m->closure = mk_closure(mk_tree(
         m->stack->top->item->tree_forest->label,
         true,
@@ -484,8 +475,7 @@ void on_integer(struct machine * m){
             exit(1);
             break;
         case TREECOMPFOREST:
-            fprintf(stderr,"Erreur de typage, un entier ne peut constituer une forêt.");
-            exit(1);
+            pop_treecompforest(m);
             break;
         case ATTCOMPKEY:
             fprintf(stderr,"Erreur de typage, un entier ne peut être la clé d'un attribut.");
@@ -502,8 +492,7 @@ void on_integer(struct machine * m){
             pop_forestcomphead(m);
             break;
         case FORESTCOMPTAIL:
-            fprintf(stderr,"Erreur de typage, un entier ne peut être utilisé comme forêt.");
-            exit(1);
+            pop_forestcomptail(m);
             break;
         case FUNCTION:
             pop_function(m);
@@ -699,7 +688,7 @@ void on_binop(struct machine * m){
                             compute(m);
                         }
                         else{
-                            fprintf(stderr,"Erreur de typage, le seul opérateur possible entreforêts est +"); 
+                            fprintf(stderr,"Erreur de typage, le seul opérateur possible entre forêts est +\n"); 
                         }                
                     }
 
@@ -790,28 +779,35 @@ void on_var(struct machine * m){
 static char * find_declname(struct dir* d){
   if(d == NULL)
     return NULL;
-  if(d->descr == DECLNAME)
+  if(d->descr == DECLNAME){
+    printf("nom variable : %s\n", d->str);
     return d->str;
+  }
   return find_declname(d->dir);
 }
 
 void on_import(struct machine * m){
     assert(m!=NULL);
+    printf("je suis la\n");
     struct path * p = m->closure->value->node->chemin;
     struct files * f = malloc(sizeof(struct files));
     f->file_name = from_path_to_name(p);
     f->cl = m->closure;
     f->next = NULL;
-    struct closure * closure = retreive_tree(p, f);
-    if(closure == NULL){
+    printf("avant\n");
+    struct closure * cl = retrieve_tree(p, f);
+    printf("apres\n");
+    if(cl == NULL){
       add_file(p, m->closure, f);
     }
     char * fonc = find_declname(p->dir);
+    printf("apres fonc %s\n",fonc );        
     if(fonc != NULL){
-      struct closure * closure2 = retreive_name(p, f->file_name, f);
-      push_closure(closure2->value,closure2->env,FUNCTION,m); 
+      printf("je suis pas n\n");
+      struct closure * closure2 = retrieve_name(p, fonc, f);
+      if (closure2 != NULL)
+        process_binding_instruction(fonc, closure2->value, closure2->env);
     }
-    
     free(f);
     
     /* fprintf(stderr, */
@@ -839,8 +835,7 @@ void on_word(struct machine * m){
             exit(1);
             break;
         case TREECOMPFOREST:
-            fprintf(stderr,"Erreur de typage, un mot ne peut constituer une forêt.");
-            exit(1);
+            pop_treecompforest(m);
             break;
         case ATTCOMPKEY:
             pop_attcompkey(m);
@@ -862,7 +857,7 @@ void on_word(struct machine * m){
             pop_function(m);
             break;
         case MATCHCOMP:
-            pop_match(m);
+          pop_match(m);
             break;
         case CONDCOMP:
             pop_cond(m);  
@@ -872,7 +867,7 @@ void on_word(struct machine * m){
 }
 
 void on_tree(struct machine * m){
-  struct tree_computation_att * tree_att;
+    struct tree_computation_att * tree_att;
     struct tree_computation_forest * tree_forest;
     struct attributes_computation_key * att_key;
     union item * it1, * it2;
@@ -889,6 +884,9 @@ void on_tree(struct machine * m){
             case FUNCTION:
                 pop_function(m);
                 break;
+            case TREECOMPFOREST:
+                pop_treecompforest(m);
+                break;
             case FORESTCOMPHEAD:
                 pop_forestcomphead(m);
                 break;
@@ -899,7 +897,6 @@ void on_tree(struct machine * m){
                 pop_match(m);
                 break;
             default:
-             
                 fprintf(stderr,"Erreur de typage, un arbre ne peut être utilisé que comme argument d'une fonction, la tête d'une forêt, ou dans une expression de filtrage (match)");
                 exit(1);
                 break;
@@ -983,7 +980,6 @@ void on_forest(struct machine * m){
                 pop_function(m);
                 break;
             default:
-              printf("%d\n", m->stack->top->type);
                 fprintf(stderr,"Erreur de typage, une forêt peut être utilisée dans la construction d'une autre forêt ou alors dans celle d'un arbre, ou encore comme argument de fonction.");
                 exit(1);
                 break;
@@ -1033,7 +1029,6 @@ void on_fun(struct machine * m){
 }
 
 void on_match(struct machine * m){
-  printf("je suis dans on_match\n");
     struct match_computation * mc = malloc(sizeof(struct match_computation));
     mc->patterns = m->closure->value->node->match->patterns;
     mc->env = m->closure->env;
@@ -1042,11 +1037,7 @@ void on_match(struct machine * m){
     push_stack(it, MATCHCOMP, m);
     m->closure = mk_closure(m->closure->value->node->match->ast,
                             m->closure->env);
-      printf("je suis dansavan comp  on_match\n");
-
-    compute(m);
-
-    
+    compute(m);   
 }
 
 void on_cond(struct machine * m){

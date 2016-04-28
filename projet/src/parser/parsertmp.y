@@ -1,41 +1,24 @@
 %{
-#define _GNU_SOURCE
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <ast.h>
 #include <graphviz.h>
-#include <queue.h>
-#include <import.h>
 
 int yylex(void);
 void yyerror(char *);
 int yyparse(void);
 
-struct declare{
-  struct queue_t* args;
-  struct ast* body;
-};
-
 struct ast* head = NULL;
 void add_head(struct ast* node);
-
 struct attributes* mk_attributes(struct ast* key, struct ast* value, struct attributes* next);
 struct ast* add_right(struct ast* frst, struct ast* element);
 struct ast* mk_comp_ast(char * str);
 struct patterns* mk_patterns(struct  pattern * pattern, struct ast * res, struct patterns * next);
-
 void add_patterns_right(struct patterns* filter, struct patterns* element);
 void add_pforest_right(struct pattern* filter, struct pattern* element);
 
-struct ast* create_args(struct declare* decl, char*name, bool is_rec);
-struct ast* create_ast_in(struct ast* body, struct declare* decl, bool is_rec);
-
-struct declare*  mk_declare(struct queue_t* q, struct ast* a);
-
-struct env * e = NULL;
 int compteur = 0;
-void print_env(struct env* e);
 
 %}
 %union{
@@ -43,63 +26,43 @@ void print_env(struct env* e);
     struct attributes* attr;
     struct pattern* pat;
     struct patterns* pats;
-    struct queue_t* file;
-    struct ast* ast;
-    struct declare* decl;
-    bool boolean;
     char* str;
 };
                         
 %token T_LABEL T_TEXT T_LET T_NB T_EMIT T_WHERE T_FUN T_ARROW T_IF T_THEN T_ELSE T_MATCH T_WITH T_END_MATCH T_COMP T_BINARY T_REC T_IN T_FILTER T_FILTER_SPACE T_VAR T_END_ATTRIBUT T_ATTRIBUT T_ERROR T_FILTER_ACC PATH
 
 %type   <attr>           assign
-%type   <node>          T_TEXT  block_where block_in condition binary negation comparaison op_plus_moins op_mult_div expression  begin_tree loop  container content op op2  loop_text T_NB attribute emit func match PATH assignation
-%type   <str>           T_LABEL T_BINARY T_COMP T_VAR T_ATTRIBUT T_EMIT entete T_FILTER T_FILTER_ACC tag3 tag4 var
+%type   <node>          T_TEXT let block_where block_in condition binary negation comparaison op_plus_moins op_mult_div expression  begin_tree loop  container content op op2 declare var  args loop_text T_NB attribute emit func match PATH
+%type   <str>           T_LABEL T_BINARY T_COMP T_VAR T_ATTRIBUT T_EMIT entete T_FILTER T_FILTER_ACC tag3 tag4
 %type   <pat>           filter_contenu filter_content filter
 
-%type   <pats>          extended_filter
-%type   <boolean>       recursive
-%type   <decl>          declare
-%type   <file>          args
+%type   <pats>          extended_filter                       
 %%
 
-start:          start let ';' {  }
-        |       start block_where ';' { struct closure* c = process_content($block_where, e);add_head(c->value);draw(head); }
-        |       start begin_tree      { struct closure* c = process_content($begin_tree, e);add_head(c->value);draw(head); }
-        |       /*empty */
+start:          start let ';' { add_head($let);draw(head); }
+                  |       start begin_tree { add_head($begin_tree);draw(head); }
+        |       /* empty */
                 ;
 
 
 
-let:            T_LET recursive declare 
-                 {
-                   char* name = queue_front($declare->args);
-                   queue_pop($declare->args);
-                   struct ast* args = create_args($declare, name, $recursive);
-                   e = process_binding_instruction(name , args, e);
-                   printf("\n name function: %s\n", name);
-                   //print_env(e);
-                }
+let:            T_LET recursive declare                  {printf("exp0\n");}
+        |       block_where                                 {$$ = $block_where;}
         ;
 
 
-block_where:    block_in  T_WHERE recursive declare      {$$ = create_ast_in($1, $declare, $recursive);}
+block_where:    block_in  T_WHERE declare      {printf("where\n");}
         |       block_in                       {$$ = $block_in;}
                 ;
 
 
-block_in:       T_LET recursive declare T_IN block_in               { $$ = create_ast_in($5, $declare, $recursive);}
-        |       T_FUN args T_ARROW block_in
-                {
-                  struct declare* d = mk_declare($args,$4);
-                  $$ = create_args(d,NULL,false);
-                }
+
+block_in:       T_LET recursive declare T_IN block_in               {printf("block_in\n");}
+        |       T_FUN args T_ARROW block_in                         {$$ =$4;}
         |       condition                                           {$$ = $condition;}
                 ;
 
 
-
-  
  //condition
 condition:      T_IF condition T_THEN condition T_ELSE condition    {$$ = mk_cond($2,$4,$6); compteur++;}
         |       binary                                              {$$ = $binary;}
@@ -123,7 +86,6 @@ negation:       '!' negation
                 }              
         |       comparaison                               {$$ = $comparaison;}
                 ;
-
 
 // operation comparaison
 comparaison:    comparaison T_COMP op_plus_moins
@@ -171,9 +133,9 @@ expression:
 
 
 func:      
-                func begin_tree                  {$$ = mk_app($1,$begin_tree);}
-        |       func var                         {$$ = mk_app($1,mk_var($var));}
-        |       var                              {$$ = mk_var($1);}
+                func begin_tree                  {$$ = $2;}
+        |       func var                          {$$ =$1;}
+        |       var                              {$$ =$1;}
                 ;
 
 
@@ -185,7 +147,7 @@ begin_tree:
         |       match                {$$ = $match;}
         |       '(' loop ')'         {$$ = $loop;}
         |       T_NB                 {$$ = $T_NB;}
-        |       emit                 {$$ = mk_forest(false,$1,NULL);} 
+        |       emit                 {$$ = $emit;}
         |       container            {$$ = $container;}
         |       PATH                 {$$ = $PATH;}
         |       T_ERROR              {yyerror("invalid xml syntax");return EXIT_FAILURE;}
@@ -197,9 +159,11 @@ loop:
                  {
                    if ($1 == NULL){
                      $$ = mk_forest(false,$block_where, NULL);
+                     compteur++;
                 }else{
                      add_right($1, $block_where);
                      $$ = $1;
+                     compteur++;
                  }
                 }
         |       /* empty */          {$$ = NULL;}
@@ -216,32 +180,11 @@ attribute:
 
 // container
 container:      '{' content '}'      {$$ = $content;}
-        |       '{' content func '}'
-                {
-                  if ($2 == NULL){
-                    $$ = mk_forest(false, $func, NULL);
-                  }
-                else{
-                  add_right($2,$func);
-                  $$ = $2;
-                    
-                }
-                }
+        |       '{' content func '}'      {$$ = $content;}
                 ;
 
 
 content:        content func ','
-                {
-                  if ($1 == NULL){
-                    $$ = mk_forest(false, $func, NULL);
-                    
-                }
-                else{
-                  add_right($1,$func);
-                  $$ = $1;
-                    
-                }
-                }
         |       content begin_tree
                 {
                   if ($1 == NULL){
@@ -255,6 +198,7 @@ content:        content func ','
                 }
         |       content T_TEXT
                {
+                  compteur++;
                   if ($1 == NULL){
                     $$ = mk_forest(false,$T_TEXT, NULL);
                     
@@ -270,7 +214,8 @@ content:        content func ','
 
 
 
-emit:           T_EMIT T_TEXT begin_tree        { struct ast * emit = mk_app(mk_binop(EMIT),$T_TEXT->node->tree->daughters); $$ = mk_app(emit,$begin_tree); } 
+emit:           T_EMIT T_TEXT begin_tree        { struct ast * body = mk_forest(false,$T_TEXT, $3); $$ = mk_forest(false,mk_fun($T_EMIT,body),NULL); } 
+        |       T_EMIT begin_tree begin_tree      { add_right($2, $3); $$ = mk_forest(false,mk_fun($T_EMIT,$2),NULL); }  
         ;
 
 
@@ -284,33 +229,30 @@ op2:            '*'       {$$ = mk_binop(MULT);compteur++;}
         ;
 
 
-declare:        args '=' block_where       {struct declare* d = mk_declare($args, $block_where); $$ = d;}
+declare:        args '=' block_where       {printf("je passe dans le Declare\n");}
         ;
 
-var:            T_VAR                     {$$ =  $T_VAR;}
-        |       T_ATTRIBUT                {$$ =  $T_ATTRIBUT;}
+var:            T_VAR                     {$$ =  mk_forest(false,mk_var($T_VAR),NULL);compteur++;}
+        |       T_ATTRIBUT                {$$ =  mk_forest(false,mk_var($T_ATTRIBUT),NULL);compteur++;}
         ;
 
-assign:         T_ATTRIBUT '=' assignation assign    { $$ = mk_attributes(mk_word($T_ATTRIBUT),$assignation, $4); compteur++;}
-        |       T_ATTRIBUT '=' assignation           { $$ = mk_attributes(mk_word($T_ATTRIBUT),$assignation, NULL); compteur++;}
+assign:         T_ATTRIBUT '=' loop_text assign    { $$ = mk_attributes(mk_var($T_ATTRIBUT),$loop_text, $4); compteur++;}
+        |       T_ATTRIBUT '=' loop_text           { $$ = mk_attributes(mk_var($T_ATTRIBUT),$loop_text, NULL); compteur++;}
         ;
 
-assignation:    loop_text {$$=$1;}
-        |       T_NB        {$$ = $1;}
-        ;
+
 loop_text:      loop_text T_TEXT    {add_right($1,$T_TEXT); $$ = $1;compteur++;}
-        |       T_TEXT              {$$ = mk_forest(true,$T_TEXT,NULL);compteur++;}
+        |       T_TEXT              {$$ = mk_forest(false,$T_TEXT,NULL);compteur++;}
         ;
 
 
-args:           args var            {queue_push($1, $var); $$ = $1;}
-        |       var                 {struct queue_t * q = mk_queue(); queue_push(q,$var); $$ = q;}
+args:           args var            {add_right($1,$var); $$ = $1;compteur++;}
+        |       var                 {$$ = $var;compteur++;}
         ;
 
-recursive:      T_REC      {$$ = true;}
-        |       /*empty */ {$$ = false;}
+recursive:      T_REC
+        |       /*empty */
                 ;
-
 /* ===============================
           MATCH
    =============================== */
@@ -321,9 +263,12 @@ match:          T_MATCH block_where T_WITH extended_filter T_END_MATCH {$$ =  mk
 
 
 extended_filter:
+
                 extended_filter '|' filter T_ARROW  block_where  { struct patterns* p = mk_patterns($filter, $block_where, NULL); add_patterns_right($1,p); $$ = $1;}
-        |       '|' filter T_ARROW block_where                 { $$ = mk_patterns($filter, $block_where, NULL); }
+        |       '|' filter T_ARROW block_where                 { $$ = mk_patterns($filter, $4, NULL); }
                 ;
+
+
 
 
 filter:         entete '{' filter_content '}'
@@ -344,7 +289,7 @@ filter:         entete '{' filter_content '}'
                  }
                 }else {
                     if ($filter_content == NULL)
-                      $$ = NULL;// mk_ptree(NULL, true, NULL);
+                      $$ = mk_ptree(NULL, true, NULL);
                     else
                       $$ = $filter_content;
                 }
@@ -356,9 +301,8 @@ filter:         entete '{' filter_content '}'
 filter_content:
                 filter_content filter_contenu
                 {
-                  if ($1 == NULL){
-                    $$ = mk_pforest($2 , NULL);
-                    }
+                  if ($1 == NULL)
+                    $$ = mk_pforest($1 , NULL);
                   else {
                     add_pforest_right($1, $2);
                     $$ = $1;
@@ -404,12 +348,9 @@ filter_contenu:
                  {
                   if (! strcmp($tag3, "_"))
                     $$ = mk_wildcard(ANY);
-                  else{
-                    printf("je passe dans fi\n");
+                  else
                     $$ = mk_pattern_var($tag3, TREEVAR);
-                    }
                 }
-        |       T_TEXT  {$$ = mk_pstring($1->node->tree->daughters->node->str);} 
         |       filter {$$ = $1;}
         ;
 
@@ -424,7 +365,7 @@ void add_head(struct ast* node){
 
   struct forest* t = head->node->forest;
   while (t->tail != NULL){
-      t = (struct forest*) t->tail;
+      t =  t->tail->node->forest;
   }
   struct ast* f = mk_forest(false, node, NULL);
   t->tail = f; 
@@ -435,10 +376,8 @@ void add_pforest_right(struct pattern* filter, struct pattern* element){
   while (forest->tail != NULL){
     forest =  forest->tail->pnode->pforest;
   }
-  if(element != NULL){
-    struct pattern* f = mk_pforest(element, NULL);
-    forest->tail = f;
-  }
+  struct pattern* f = mk_pforest(element, NULL);
+  forest->tail = f;
 }
 
 void add_patterns_right(struct patterns* filter, struct patterns* element){
@@ -453,9 +392,6 @@ void add_patterns_right(struct patterns* filter, struct patterns* element){
 struct ast* mk_comp_ast(char * str){
   if(! strcmp(str, "==")){
     return mk_binop(EQ);
-  }
-  if(! strcmp(str, "!=")){
-    return mk_binop(NEQ);
   }
   if(! strcmp(str, "<=")){
     return mk_binop(LEQ);
@@ -494,7 +430,6 @@ struct ast* add_right(struct ast* frst, struct ast* element){
 
 struct attributes* mk_attributes(struct ast* key, struct ast* value, struct attributes* next){
   struct attributes * a = malloc(sizeof(*a));
-  a->is_value = true;
   a->key = key;
   a->value = value;
   a->next = next;
@@ -510,41 +445,3 @@ struct patterns* mk_patterns(struct  pattern * pattern, struct ast * res, struct
   return pat;
 }
 
-struct ast* create_ast_in(struct ast* body, struct declare* decl, bool is_rec){
-  char* name = queue_front(decl->args);
-  queue_pop(decl->args);
-  
-  struct ast* fun = mk_fun(name, body);
-  struct ast* args = create_args(decl, name, is_rec);
- 
-  struct ast* a = mk_app(fun,args);
-  a = mk_forest(false, a, NULL);
-  return a;
-}
-
-struct ast* create_args(struct declare* decl, char*name, bool is_rec){
-  if(queue_empty(decl->args)){
-    return decl->body;
-  }
-  char * n =(char *) queue_front(decl->args);
-  queue_pop(decl->args);
-  struct ast* a = mk_fun(n , create_args(decl, n, false));
-  if (is_rec)
-    a = mk_declrec(name, a);
-  return a;
-}
-
-struct declare*  mk_declare(struct queue_t* q, struct ast* a){
-  struct declare * d = malloc(sizeof(*d));
-  d->args = q;
-  d->body = a;
-  return d;
-}
-
-
-void print_env(struct env* en){
-  while (en != NULL){
-    printf("%s\n", en->var);
-    en= en->next;
-  }
-}

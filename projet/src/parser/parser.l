@@ -23,7 +23,7 @@ xml (?i:xml){label}*
 
 mot (([^\"[:space:]]|\\\")+)
 
-comparaison ("=="|"<"|">"|"<="|">=")
+comparaison ("=="|"<"|">"|"<="|">="|"!=")
 
 binary ("||"|"&&")
 
@@ -62,6 +62,7 @@ binary ("||"|"&&")
 
 "end"  { return T_END_MATCH; }
 
+"rec"  { return T_REC; }
 {comparaison}  {
   yylval.str = strdup(yytext);
   return T_COMP;
@@ -96,15 +97,15 @@ binary ("||"|"&&")
 
 [[:digit:]]+ {
   struct ast* nb = mk_integer(atof(yytext));
-  struct ast* tree = mk_tree("digit", true, false,false, NULL,nb);
-  yylval.node = tree;
+  //struct ast* tree = mk_tree("digit", true, false,false, NULL,nb);
+  yylval.node = nb;
   return T_NB;
 }
 
 \"  { BEGIN TEXT_MODE;}
 
 <TEXT_MODE>{mot}/[[:space:]]+ {
-  struct ast* word = mk_word(strdup(yytext));
+  struct ast* word = mk_word(convert_to_html(yytext));
   struct ast* tree = mk_tree("word",true,false,true,NULL,word);
   yylval.node = tree;
   return T_TEXT;
@@ -125,7 +126,7 @@ binary ("||"|"&&")
 
 "]/"  {return T_END_ATTRIBUT;}
 
-. { printf("%c",yytext[0]);return yytext[0]; }
+. { return yytext[0]; }
 
 
 %%
@@ -136,7 +137,7 @@ char* convert_to_html(char* string){
   char final_string[MAX_SIZE];
   int j=0;
   for(unsigned long i = 0 ; i < strlen(string) ; i++){
-    if((65 < string[i] && string[i] < 90) || (97 < string[i] && string[i] < 122)){ //Char entre a-z ou A-Z
+    if((65 <= string[i] && string[i] <= 90) || (97 <= string[i] && string[i] <= 122) || ( 48 <=string[i] && string[i] <= 57) ){ //Char entre a-z ou A-Z
       final_string[j] = string[i];
       j++;
     }
@@ -186,7 +187,7 @@ struct path* split_path(char * str){
   int srep = 0;
   char* dir_name = malloc(200*sizeof(char));
   int count = 0;
-  unsigned long i = 0;
+  unsigned long i = 1;
   
   //on compte le nombre de retour
   while(str[i] == '.'){
@@ -224,12 +225,16 @@ struct path* split_path(char * str){
   count = 0;
   
   for( ; j < strlen(dir_name); j++){
+    if (dir_name[j] == ';' || dir_name[j] == ' ')
+      break;
     file_name[count] = dir_name[j];
     count++;
+    
   }
   
   if(count != 0){
     src = add_dir_right(src, mk_dir(strdup(file_name), DECLNAME, NULL));
+    printf("je suis la et ma variable est : %s", file_name);
   }
 
   struct path* p = mk_path(srep, src);

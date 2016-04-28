@@ -1,13 +1,3 @@
-let create_page = fun auteur ->
-    emit (auteur + {".html"})
-    	 {
-	  html{
-	   header{}
-	   body{
-	    h1{
-	     "films de l'auteur:" auteur }
-	    contenu
-	   }
-	  }
-	 }
-	 where contenu = cherche_auteur root auteur;
+let rec f x y = if y == 0 then {"result = " x} else f (x+y) (y-1);
+
+f 0 5;

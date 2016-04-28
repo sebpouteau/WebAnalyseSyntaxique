@@ -96,11 +96,11 @@ void xml_forest(FILE* fd, struct forest* f, int depth_indent){
   xml_ast(fd, f->tail, depth_indent);
 }
 
-void build_xml(struct ast* a){
-  FILE *fd = fopen("fichier.xml", "w+");
+void build_xml(char * file,struct ast* a){
+  FILE *fd = fopen(file, "w+");
   
   if (fd == NULL) {
-    fprintf(stderr, "\"fichier.xml\": erreur ouverture fichier.");
+    fprintf(stderr, "\"%s\": erreur ouverture fichier.", file);
     exit(EXIT_FAILURE);
   }
   

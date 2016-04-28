@@ -1,18 +1,9 @@
 #include<stdio.h>
 #include<stdlib.h>
-#include "queue.h"
+#include <queue.h>
 
-typedef struct cell_t* cell;
 
-struct cell_t{
-  cell pred;
-  void* value;
-};
 
-struct queue_t{
-  cell head;
-  cell tail;
-};
 
 cell mk_cell(){
   cell c = malloc(sizeof(*c));

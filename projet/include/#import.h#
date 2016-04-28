@@ -13,9 +13,9 @@ struct files {
 //d'un fichier avec sa désignation à partir de la structure chemin
 char * from_path_to_name(struct path * chemin);
 
-struct closure * retrieve_tree(struct path * chemin,struct files * f);
+struct closure * retreive_tree(struct path * chemin,struct files * f);
 
-struct closure * retrieve_name(struct path * chemin, char * name, struct files * f);
+struct closure * retreive_name(struct path * chemin, char * name, struct files * f);
 
 struct env * initial_env;
 

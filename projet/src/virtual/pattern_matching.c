@@ -290,7 +290,7 @@ bool match_ind(struct pattern * pat, struct ast ** ast, struct env ** e){
             return match_null(pat,e);
         }
         if ((*ast)->type!=TREE && (*ast)->type!=FOREST && (*ast)->type!=WORD) {
-            printf("Matching a something that is not a tree nor a forest!\n");
+            printf("Matching a something that is not a tree or a forest!\n");
             return 0;
         }
         switch (pat->ptype) {

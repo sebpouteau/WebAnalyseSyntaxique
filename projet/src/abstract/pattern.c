@@ -31,7 +31,8 @@ struct pattern * mk_pforest(struct pattern * head, struct pattern * tail){
     e->ptype = PFOREST;
     e->pnode->pforest=malloc(sizeof(struct pforest));
     e->pnode->pforest->head = head;
-    e->pnode->pforest->head = tail;
+    e->pnode->pforest->tail = tail;
+
     return e;
 }
 

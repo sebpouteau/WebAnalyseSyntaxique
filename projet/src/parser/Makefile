@@ -11,7 +11,7 @@ PATH_LIB=../../lib
 PATH_BIN=../../bin
 
 CFLAGS=-std=c99 -g -pedantic -Wall -Wextra -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes -ftest-coverage -fprofile-arcs -I../../include 
-LDLIBS= -ltree -lxml -L../../lib/
+LDLIBS= -ltree -lxml -limport -lqueue -L../../lib/
 
 all: $(PATH_BIN)/$(FILE) 
 

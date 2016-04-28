@@ -1,4 +1,4 @@
-LIBS= abstract  virtual graphviz parser
+LIBS= abstract xml_builder  util virtual graphviz parser
 
 all:
 	for i in $(LIBS);do\
