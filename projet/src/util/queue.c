@@ -3,9 +3,9 @@
 #include <queue.h>
 
 
+static cell mk_cell(void);
 
-
-cell mk_cell(){
+static cell mk_cell(){
   cell c = malloc(sizeof(*c));
   c->pred = NULL;
   c->value = NULL;
