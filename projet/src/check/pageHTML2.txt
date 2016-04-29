@@ -1,6 +1,6 @@
 
-
-let e = html[lang="fr"]{
+let tree =
+html[lang="fr"]{
    head{
       meta[charset="utf-8"]/
       link[rel="stylesheet" href="style.css"]/
@@ -27,4 +27,4 @@ let e = html[lang="fr"]{
    }
 };
 
-emit "index" {e};
+emit "index.html" {tree};
