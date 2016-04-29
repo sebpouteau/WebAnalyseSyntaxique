@@ -1,0 +1,34 @@
+
+let tree = html[lang="fr"]{
+   head{
+      meta[charset="utf-8"]/
+      img[src="logo-universite-de-bordeaux.png" align="center"]/
+      br/ br/ br/
+      title{h1[align="center"]{"Analyse Syntaxique et Projet de Programmation"}}
+      h2[align="center"]{"Jimmy GOURAUD, Yordan KIROV, Nicolas PALARD, Sébastien POUTEAU, Etienne ROBERT"}
+      br/
+      h3[align="center"]{"30 avril 2016, Année 2015-2016"}
+   }
+     body{
+	h2{"Introduction"}
+	p{"Le but final de ce projet est d'implémenter un compilateur de site web en créant un langage de programmation qui nous permettra de décrire des pages web."}
+
+	p{"Pour ce faire, nous allons utiliser tout au long de ce projet " b{"Lex/Yacc (Bison)"} " et le langage " b{"C"} "."}
+
+	p{b{"Lex"} " nous servira d'analyseur lexical pour reconnaître les mots-clés de notre langage de programmation."}
+
+	p{b{"Yacc (Bison)"} " quant à lui, nous servira d'analyseur grammaticale, nous permettant ainsi d'établir la grammaire de notre langage de programmation, ou autrement dit, il va nous permettre de déceler les expressions/formes valides de celles qui ne le sont pas."}
+
+	p{b{"Lex"} " et " b{"Yacc (Bison)"} " s'utilise avec le langage " b{"C"} ", celui-ci nous sera utile pour toutes les fonctions annexes permettant la liaison et l'interprétation de la grammaire générée."}
+
+	p{"Ce langage que nous créons doit être capable de manipuler deux types de données :"
+	ul{
+	   li{"Le type C : " b{"int"} " appelé type numérique."}
+	   li{"Le type " b{"document"} " qui sera représenté par des arbres, ou plutôt des forêts d'arbres."}
+	   }
+	}
+    }
+
+};
+
+emit "introduction.html" {tree};

@@ -69,7 +69,7 @@ void xml_tree(FILE* fd, struct tree* t, int depth_indent){
   if (strcmp(t->label, "word") == 0){
     xml_ast(fd, t->daughters, depth_indent+1);
     if (t->space){
-      fprintf(fd, " ", t->label);
+      fprintf(fd, " ",NULL);
     }
     return;
   }
@@ -81,7 +81,7 @@ void xml_tree(FILE* fd, struct tree* t, int depth_indent){
 
   xml_ast(fd, t->daughters, depth_indent+1);
   
-  fprintf(fd, "\n", t->label);
+  fprintf(fd, "\n", NULL);
   xml_indent(fd, depth_indent);
   fprintf(fd, "</%s>\n", t->label);
 }

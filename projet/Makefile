@@ -31,10 +31,12 @@ check:all
 			echo "\033[31mFAIL\033[0m"; \
 		fi \
 	done
-
-#	valgrind ./bin/parser.out < src/check/valid_forms.txt
-	gcov src/tree/tree.c
+	gcov src/graphviz/graphviz.c
+	gcov src/util/util.c
+	gcov src/util/queue.c
 	gcov src/xml_builder/xml_builder.c
+	gcov src/virtual/machine.c
+	gcov src/abstract/ast.c
 
 draw:all
 	$(MAKE) -C $(LIBS) draw

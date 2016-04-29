@@ -1,3 +1,7 @@
-let rec f x y = if y == 0 then {"result = " x} else f (x+y) (y-1);
+let rec f x =
+    match x with
+    | div{/t/} -> f t
+    | {/t/} -> t
+    end;
 
-f 0 5;
+f div{ div{"bonjour je suis la"}};

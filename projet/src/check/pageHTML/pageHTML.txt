@@ -5,16 +5,11 @@ html{
 	h1{"Page Web Test"}
 	p{b{"Je suis gras"}}
 	p{i{"Je suis italic"}}
-	p{u{"Je suis sousligné"}}
+	p{u{"Je suis sousligne"}}
 	br/
-	a[href="www.google.com"]{"Google"}
+	a[href="http://www.google.com"]{"Google"}
 	p{"je suis norm" b{i{"je suis bold/italic"}}}
-	p{"some math with fun foo" let a = (if (85743%3 == 0)
-		      	       then 10 else 0) in
-		      foo a,
-		      "-> answer"
-  	}
-	where foo n = 4*n
+	p{"some math with fun foo"}
 	br/
 	br/
 	match p{"bonjour"} with
@@ -25,6 +20,6 @@ html{
 	
 };
 
-emit "test.html" {tree};
+emit "pageHTML.html" {tree};
 
 

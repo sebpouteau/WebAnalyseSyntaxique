@@ -1,6 +1,6 @@
 let rec pages_auteur = fun liste_auteurs ->
     match liste_auteurs with
-      | {auteur{x} /y/} -> {create_page x, pages_auteur y}
+      | {auteur{/x/} /y/} -> {create_page x, pages_auteur y}
       | {} -> {}
-    end
-    in pages_auteur root;
+    end;
+    

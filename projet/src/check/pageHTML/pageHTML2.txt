@@ -1,0 +1,30 @@
+
+let tree =
+html[lang="fr"]{
+   head{
+      meta[charset="utf-8"]/
+      link[rel="stylesheet" href="style.css"]/
+      title{"Une page pas comme les autres..."}
+   }
+
+   body{
+      div[id="Projet"]{
+        h1{"Notre projet"}
+	
+      	h2{"Autheur"}
+	ul{
+	   li{
+	      a[href="http://mono-blog.com/wp-content/uploads/2015/02/pinguin.jpg"]{"Jimmy Gouraud"}
+	      }
+	   li{"Yordan Kirov"}
+	   li{"Nicolas Palard"}
+	   li{"Sebastien Pouteau"}
+	   li{"Etienne Robert"}
+	}
+	p{"Pour reussir ce projet, nous avons du faire preuve de courage et d'acharnement, a traquer la moindre petit erreur que les profs avaient caches dans leur code. Bien entendu, lorsqu'il s'agit de dire ce qui n'est pas bien de faire, il y a du monde, mais pour appliquer les choses dites, il n'y a plus personne !"}
+	
+      }
+   }
+};
+
+emit "pageHTML2.html" {tree};
