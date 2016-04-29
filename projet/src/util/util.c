@@ -1,6 +1,7 @@
-
+#define  _BSD_SOURCE 
 #include <string.h>
 #include <stdio.h>
+
 #include <stdbool.h>
 #include <ast.h>
 #include <graphviz.h>
