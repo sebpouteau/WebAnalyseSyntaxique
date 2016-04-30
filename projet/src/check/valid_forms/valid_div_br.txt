@@ -1,6 +1,6 @@
-div{
+emit "valid_div_br.html" div{
     "Ceci est un lien qui vous conduira
     au " a[href="www.labri.fr" id="lien"]{"LaBRI"} "
     à Bordeaux."
     br/
-   }
+   };

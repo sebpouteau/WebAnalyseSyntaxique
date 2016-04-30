@@ -16,7 +16,7 @@ int main(void){
 
 
   printf("a\n");
-  draw(c);
+  draw("test.html",c);
   printf("fin\n");
   return 0;
 }

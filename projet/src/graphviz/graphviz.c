@@ -330,8 +330,11 @@ void draw_pattern(FILE * fd, struct pattern * p, char* name_parent){
 }
 
 
-void draw(struct ast* a){
-  FILE *fd = fopen("fichier.dot", "w+");
+void draw(char* name, struct ast* a){
+  char * s = malloc(100 * sizeof(char));
+  strncpy(s,name,strlen(name) - 5);
+  strcat(s,".dot");
+  FILE *fd = fopen(s, "w+");
   
   if (fd == NULL) {
     fprintf(stderr, "\"fichier.dot\": erreur ouverture fichier.");

@@ -11,3 +11,5 @@ film{ titre{"Pierrot le fou"} auteur{"Godard"} annee{"1965"}}
 
 film{ annee{"1963"} titre{"Les oiseaux"} auteur{"Hitchcock"}}
 };
+
+emit "valid_let5.html" {root};

@@ -11,7 +11,7 @@
 void emit( char * file, struct ast * ast){
     assert(file!=NULL && (ast ==NULL || ast!= NULL));
     build_xml(file, ast);
-    draw(ast);
+    draw(file,ast);
     return;
 }
 

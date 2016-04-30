@@ -4,4 +4,4 @@ let rec f x =
     | {/t/} -> t
     end;
 
-f div{ div{"bonjour je suis la"}};
+emit "valid_let3.html" {f div{ div{"bonjour je suis la"}}};

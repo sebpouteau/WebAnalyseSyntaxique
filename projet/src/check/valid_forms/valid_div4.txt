@@ -1,2 +1,2 @@
-div{"contenu,
-	contenu2"}
+emit "valid_div4.html" div{"contenu,
+	contenu2"};

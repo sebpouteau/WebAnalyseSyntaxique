@@ -21,7 +21,7 @@ graphviz: main.c $(PATH_LIB)/libgraphviz.a
 
 .PHONY: clean
 clean:
-	rm -f dep *.o *~ *.g* graphviz
+	rm -f dep *.o *~ *.g* graphviz *.dot
 
 
 
