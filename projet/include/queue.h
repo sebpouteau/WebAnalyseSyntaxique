@@ -1,6 +1,15 @@
+/**
+ *  \file queue.h
+ *  \brief Fichier regrouppant l'ensemble des fonctions utilisées pour gérer une file.
+ *  \author POUTEAU Sébastien <br>
+ *  PALARD Nicolas <br>
+ *  GOURAUD Jimmy <br>
+ *  KIROV Yordan <br>
+ *  ROBERT Etienne
+ */
+
 #ifndef QUEUE_H
 #define QUEUE_H
-/* Header file for the queue abstract data type (queue.h) */
 
 struct queue_t;
 
@@ -18,25 +27,46 @@ struct queue_t{
 
 typedef struct queue_t *queue;
 
-/* create an empty queue */
+/**
+ *  \brief Constructeur de file vide
+ *  \return queue la queue créée
+ */
 queue mk_queue(void);
 
-/* create an empty queue */
-void queue_destroy(queue s);
+/**
+ *  \brief Vide et détruit la file passée en parmètre.
+ *  \param queue q la file à vider
+ *  \return void
+ */
+void queue_destroy(queue q);
 
-/* return true if and only if the queue is empty */
-int queue_empty(queue s);
+/**
+ *  \brief Retourne vrai si la file est vide
+ *  \param queue q
+ *  \return int un booléen indiquant si la file est vide ou non
+ */
+int queue_empty(queue q);
 
-/* push an object on the back of the queue */
-void queue_push(queue s, void *object);
+/**
+ *  \brief Ajoute un object dans la file
+ *  \param queue q
+ *  \param void* object l'objet a ajouté => File générique
+ *  \return void
+ */
+void queue_push(queue q, void *object);
 
+/**
+ *  \brief Retourne l'objet en tête de file
+ *  \param queue q
+ *  \return void* l'objet en tête de file
+ */
+void* queue_front(queue q);
 
-/* return the front element of the queue.
-   The queue must not be empty (as reported by queue_empty()) */
-void * queue_front(queue s);
-
-/* pop the front element off of the queue.
-   The queue must not be empty (as reported by queue_empty()) */
-void queue_pop(queue s);
+/**
+ *  \brief Supprime l'élement en tête de file (FIRST IN FIRST OUT)
+ *  \param queue q
+ *  \return void
+ */
+void queue_pop(queue q);
 
 #endif

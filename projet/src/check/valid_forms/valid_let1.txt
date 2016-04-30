@@ -2,7 +2,7 @@ let LaBRI = a[href="www.labri.fr"]{"LaBRI"};
 let bdx = a[href="http://www.u-bordeaux.fr/"]{"Université de Bordeaux"};
 let email= a[href="mailto:author@bdx.fr"]{"email"};
 
-div{"Le " LaBRI, " est un laboratoire de l'" bdx, "."}
+emit "valid_let1.html" {div{"Le " LaBRI, " est un laboratoire de l'" bdx, "."}
 
-div{"Pour m'écrire utilisez l'adresse " email, "."}
+div{"Pour m'écrire utilisez l'adresse " email, "."}};
 

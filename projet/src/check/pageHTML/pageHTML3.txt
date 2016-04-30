@@ -1,0 +1,37 @@
+
+
+let body = div[id="Projet"]{
+    h1{"Projet ASPP3 2016"}
+    };
+
+let auteur = fun x ->
+    match x with
+    | seb{/y/} -> author{br/ "Auteur: " y}
+    | {}  -> {}
+    end;
+
+let f x = li{x};
+
+
+let rec list t =
+    match t with
+    | {x /s/} -> {f x, list s}
+    | {} -> {}
+    end;
+
+let file = html[lang="fr"]{
+   head{
+      meta[charset="utf-8"]/
+      link[rel="stylesheet" href="style.css"]/
+      title{"test match"}
+   }
+   body,
+   list {"Yordan" {"Jimmy" {"Nicolas" {"Etienne" {"Sebastien" {}}}}}},
+   auteur seb{"sebastien Pouteau"},
+   };
+   
+
+
+
+
+emit "pageHTML3.html" {file};

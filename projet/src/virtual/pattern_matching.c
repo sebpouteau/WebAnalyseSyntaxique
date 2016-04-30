@@ -214,11 +214,11 @@ bool match_forest(struct pforest *  pforest, struct ast ** ast, struct env ** e)
         case PVAR:
             return match_var(pforest->head->pnode->pvar,ast,e) &&
                 match_ind(pforest->tail, ast,e);
-                ;
+                
         case PFOREST:
             return match_forest(pforest->head->pnode->pforest,ast,e) &&
                 match_ind(pforest->tail,ast,e);
-        case ANYTREE:
+          case ANYTREE:
             if((*ast)->type==FOREST &&
                (*ast)->node->forest->head->type==TREE &&
                match_anytree(pforest->head->pnode->anytree,
@@ -229,6 +229,9 @@ bool match_forest(struct pforest *  pforest, struct ast ** ast, struct env ** e)
             else{
                 return false;
             }
+            ;
+          default:
+            return false;
         }
     }
 }

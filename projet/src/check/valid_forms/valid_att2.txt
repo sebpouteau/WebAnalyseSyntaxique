@@ -1,2 +1,2 @@
-br[att1="v1"
-   att2="v2"]/
+emit "valid_att2.html" br[att1="v1"
+   att2="v2"]/;

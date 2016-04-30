@@ -6,10 +6,12 @@
 #include <pattern_matching.h>
 #include <import.h>
 #include <xml_builder.h>
+#include <graphviz.h>
 
 void emit( char * file, struct ast * ast){
     assert(file!=NULL && (ast ==NULL || ast!= NULL));
     build_xml(file, ast);
+    draw(file,ast);
     return;
 }
 

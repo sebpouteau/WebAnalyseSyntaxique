@@ -33,8 +33,6 @@ void draw_ast (FILE * fd, struct ast* a, char* name_parent){
   
   switch(a->type){
     case INTEGER:
-      printf ("\"INTEGER : %d\n", a->node->num);
-
       str_parent(fd, name_parent);
       sprintf(name, "\"INTEGER (%d)\"", cpt());
       fprintf(fd, "%s;\n%s [label=\"INTEGER\" color=\"gray\"];\n", name, name);
@@ -46,8 +44,6 @@ void draw_ast (FILE * fd, struct ast* a, char* name_parent){
 
       break;
     case BINOP:
-      printf ("BINOP : %s\n", name_binop(a->node->binop));
-
       str_parent(fd, name_parent);
       sprintf(name, "\"BINOP (%d)\"", cpt());
       fprintf(fd, "%s;\n%s [label=\"BINOP\" color=\"gray\"];\n", name, name);
@@ -59,8 +55,6 @@ void draw_ast (FILE * fd, struct ast* a, char* name_parent){
       
       break;
     case UNARYOP:
-      printf ("UNARYOP: NOT\n");
-
       str_parent(fd, name_parent);
       sprintf(name, "\"UNARYOP (%d)\"", cpt());
       fprintf(fd, "%s;\n%s [label=\"UNARYOP\" color=\"gray\"];\n", name, name);
@@ -72,8 +66,6 @@ void draw_ast (FILE * fd, struct ast* a, char* name_parent){
       
       break;
     case VAR:
-      printf ("VAR : %s\n", a->node->str);
-
       str_parent(fd, name_parent);
       sprintf(name, "\"VAR (%d)\"", cpt());
       fprintf(fd, "%s;\n%s [label=\"VAR\" color=\"gray\"];\n", name, name);
@@ -85,8 +77,6 @@ void draw_ast (FILE * fd, struct ast* a, char* name_parent){
       
       break;
     case WORD:
-      printf ("WORD\n");
-
       str_parent(fd, name_parent);
       sprintf(name, "\"WORD (%d)\"", cpt());
       fprintf(fd, "%s;\n%s [label=\"WORD\" color=\"gray\"];\n", name, name);
@@ -98,8 +88,6 @@ void draw_ast (FILE * fd, struct ast* a, char* name_parent){
             
       break;
     case IMPORT:
-      printf ("\"IMPORT (%d)\"\n", cpt());
-
       str_parent(fd, name_parent);
       sprintf(name, "\"IMPORT (%d)\"", cpt());
       fprintf(fd, "%s;\n%s [label=\"IMPORT\"];\n", name, name);
@@ -108,8 +96,6 @@ void draw_ast (FILE * fd, struct ast* a, char* name_parent){
       
       break;
     case APP:
-      printf ("APP\n");
-      
       str_parent(fd, name_parent);
       sprintf(name, "\"APP (%d)\"", cpt());
       fprintf(fd, "%s;\n%s [label=\"APP\"];\n", name, name);
@@ -118,8 +104,6 @@ void draw_ast (FILE * fd, struct ast* a, char* name_parent){
       break;
 
     case TREE:
-      printf ("TREE\n");
-
       str_parent(fd, name_parent);
       sprintf(name, "\"TREE (%d)\"", cpt());
       fprintf(fd, "%s;\n%s [label=\"TREE\" color=\"#C37501\"];\n", name, name);
@@ -133,8 +117,6 @@ void draw_ast (FILE * fd, struct ast* a, char* name_parent){
       draw_tree(fd, a->node->tree, name);
       break;
     case FOREST:
-      printf ("FOREST\n");
-
       str_parent(fd, name_parent);
       sprintf(name, "\"FOREST (%d)\"", cpt());
       fprintf(fd, "%s;\n%s [label=\"FOREST\" color=\"#00CC00\"];\n", name, name);
@@ -142,8 +124,6 @@ void draw_ast (FILE * fd, struct ast* a, char* name_parent){
       draw_forest(fd, a->node->forest, name);
       break;
     case FUN:
-      printf ("FUN\n");
-      
       str_parent(fd, name_parent);
       sprintf(name, "\"FUN (%d)\"", cpt());
       fprintf(fd, "%s;\n%s [label=\"FUN\" color=\"blue\"];\n", name, name);
@@ -151,8 +131,6 @@ void draw_ast (FILE * fd, struct ast* a, char* name_parent){
       draw_fun(fd, a->node->fun, name);
       break;
     case MATCH:
-      printf ("MATCH\n");
-      
       str_parent(fd, name_parent);
       sprintf(name, "\"MATCH (%d)\"", cpt());
       fprintf(fd, "%s;\n%s [label=\"MATCH\" color=\"purple\"];\n", name, name);
@@ -160,8 +138,6 @@ void draw_ast (FILE * fd, struct ast* a, char* name_parent){
       draw_match(fd, a->node->match, name);
       break;
     case COND:
-      printf ("COND\n");
-
       str_parent(fd, name_parent);
       sprintf(name, "\"COND (%d)\"", cpt());
       fprintf(fd, "%s;\n%s [label=\"COND\" color=\"orange\"];\n", name, name);
@@ -169,8 +145,6 @@ void draw_ast (FILE * fd, struct ast* a, char* name_parent){
       draw_cond(fd, a->node->cond, name);
       break;
     case DECLREC:
-      printf ("DECLREC\n");
-
       str_parent(fd, name_parent);
       sprintf(name, "\"DECLREC (%d)\"", cpt());
       fprintf(fd, "%s;\n%s [label=\"DECLREC\"];\n", name, name);
@@ -274,11 +248,6 @@ void draw_tree(FILE * fd, struct tree * t, char* name_parent){
     return;
   }
   
-  printf("label: %s\n", t->label);
-  printf("is_value: %d\n", t->is_value);
-  printf("nullary: %d\n", t->nullary);
-  printf("space: %d\n", t->space);
-
   draw_attributes(fd, t->attributes, name_parent);
 
   draw_ast(fd, t->daughters, name_parent);
@@ -292,8 +261,6 @@ void draw_forest(FILE * fd, struct forest * f, char* name_parent){
     return;
   }
   
-  printf("is_value: %d\n", f->is_value);
-  
   draw_ast(fd, f->head, name_parent);
   
   draw_ast(fd, f->tail, name_parent);
@@ -306,8 +273,6 @@ void draw_fun(FILE * fd, struct fun * f, char* name_parent){
     str_null(fd);
     return;
   }
-  
-  printf("%s\n", f->id);
   
   draw_ast(fd, f->body, name_parent);
 }
@@ -361,16 +326,15 @@ void draw_pattern(FILE * fd, struct pattern * p, char* name_parent){
     str_null(fd);
     return;
   }
-  printf("pattern !");
   
-  //printf("pattern_type %s\n", p->ptype);
-  //printf("pnode %s\n", p->pnode);
-  // === a voir === //
 }
 
 
-void draw(struct ast* a){
-  FILE *fd = fopen("fichier.dot", "w+");
+void draw(char* name, struct ast* a){
+  char * s = malloc(100 * sizeof(char));
+  strncpy(s,name,strlen(name) - 5);
+  strcat(s,".dot");
+  FILE *fd = fopen(s, "w+");
   
   if (fd == NULL) {
     fprintf(stderr, "\"fichier.dot\": erreur ouverture fichier.");
@@ -383,15 +347,6 @@ void draw(struct ast* a){
   
   fclose(fd);
 }
-
-
-
-
-
-
-
-
-
 
 
 struct {
