@@ -204,9 +204,7 @@ content:        content function ','
                 }
         |       content begin_tree
                 {
-                  if($2 == NULL)
-                    $$ = NULL;
-                  else if ($1 == NULL){
+                  if ($1 == NULL){
                     $$ = mk_forest(false,$begin_tree, NULL);;
                   }else{
                     add_right($1, $begin_tree);
