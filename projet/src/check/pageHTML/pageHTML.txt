@@ -3,12 +3,12 @@ html{
     head{title{"ProjetAS"}}
     body[bgcolor="FFFAAA"]{
 	h1{"Page Web Test"}
-	p{b{"Je suis gras"}}
-	p{i{"Je suis italic"}}
-	p{u{"Je suis sousligne"}}
+	p{b{"Je suis en gras"}}
+	p{i{"Je suis en italic"}}
+	p{u{"Je suis sous-ligné"}}
 	br/
 	a[href="http://www.google.com"]{"Google"}
-	p{"je suis norm" b{i{"je suis bold/italic"}}}
+	p{"je suis normal" b{i{"je suis en bold/italic"}}}
 	p{"some math with fun foo"}
 	br/
 	br/

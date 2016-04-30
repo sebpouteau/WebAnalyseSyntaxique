@@ -19,14 +19,11 @@ html[lang="fr"]{
 	   			li{a[href="https://i.ytimg.com/vi/UPzZSZ_5dnM/maxresdefault.jpg"]{"Sebastien Pouteau"}}
 	   			li{a[href="http://vignette1.wikia.nocookie.net/mordhemia/images/d/d9/Air_god.jpg/revision/latest?cb=20121214162124&path-prefix=fr"]{"Etienne Robert"}}
 			}	
-			p{i{"Pour reussir ce projet, nous avons du faire preuve de courage et d'acharnement,
-		 	a traquer la moindre petit erreur que les profs avaient caches dans leur code. 
-		 	Bien entendu, lorsqu'il s'agit de dire ce qui n'est pas bien de faire, 
-		 	il y a du monde, mais pour appliquer les choses dites, il n'y a plus personne !"}
+			p{i{"Pour réussir ce projet, nous avons dû faire preuve de courage et d'acharnement !"}
 			}
 			br/
 			br/
-			h3{"Pour montrer ce qu’on a bien reussi, voila quelques exemples des fonctions: "}
+			h3{"Pour montrer notre réussite, voici quelques exemples des fonctions: "}
 			dl[type="1"]{
 				dt{"Test de where et if-then-else avec une fonction dedans: "}
 				 dd{" - Test-PASS si reponce est 40 : "
@@ -41,7 +38,7 @@ html[lang="fr"]{
 					| b{i} -> {i}
 				end}
 			}
-			p{"J’espere que notre petit demo vous a plu."}
+			p{"J’espère que notre petite demo vous a plu."}
 		}		 
 	}
 };

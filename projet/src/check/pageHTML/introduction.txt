@@ -1,34 +1,46 @@
 
+let logo_universite = img[src="https://upload.wikimedia.org/wikipedia/fr/b/b7/Universit%C3%A9_Bordeaux_(Logo_2013).jpg" align="center"]/;
+
+let auteur = h2[align="center"]{
+a[href="https://s-media-cache-ak0.pinimg.com/736x/e5/b2/ec/e5b2ec9c6d28db57d0a6ef7efc38129f.jpg"]{"Jimmy Gouraud"} ", " 
+a[href="https://shikhartechlabs.files.wordpress.com/2013/08/gowa-poseidon-1280x800.jpg"]{"Yordan Kirov" } ", " 
+a[href="http://www.fmvmagazine.com/wp-content/uploads/2013/01/God-Of-War-Ascension.jpg"]{"Nicolas Palard"} ", " 
+a[href="https://i.ytimg.com/vi/UPzZSZ_5dnM/maxresdefault.jpg"]{"Sebastien Pouteau"} ", " 
+a[href="http://vignette1.wikia.nocookie.net/mordhemia/images/d/d9/Air_god.jpg/revision/latest?cb=20121214162124&path-prefix=fr"]{"Etienne Robert"}};
+
+let date = h3[align="center"]{"30 avril 2016, Année 2015-2016"};
+
+
 let tree = html[lang="fr"]{
    head{
       meta[charset="utf-8"]/
-      img[src="https://upload.wikimedia.org/wikipedia/fr/b/b7/Universit%C3%A9_Bordeaux_(Logo_2013).jpg" align="center"]/
-      br/ br/ br/
       title{"Analyse Syntaxique et Projet de Programmation"}
-      h2[align="center"]{"Jimmy GOURAUD, Yordan KIROV, Nicolas PALARD, Sébastien POUTEAU, Etienne ROBERT"}
-      br/
-      h3[align="center"]{"30 avril 2016, Année 2015-2016"}
+      logo_universite,
+      h1[align="center"]{"Analyse Syntaxique et Projet de Programmation"}
+      auteur,
+      date,
    }
      body{
-	h2{"Introduction"}
-	p{"Le but final de ce projet est d'implémenter un compilateur de site web en créant un langage de programmation qui nous permettra de décrire des pages web."}
+	div[id="introduction"]{
+	   h2{"Introduction"}
+	   p{"Le but final de ce projet est d'implémenter un compilateur de site web en créant un langage de programmation qui nous permettra de décrire des pages web."}
 
-	p{"Pour ce faire, nous allons utiliser tout au long de ce projet " b{"Lex/Yacc (Bison)"} " et le langage " b{"C"} "."}
+	   p{"Pour ce faire, nous allons utiliser tout au long de ce projet " b{"Lex/Yacc (Bison)"} " et le langage " b{"C"} "."}
 
-	p{b{"Lex"} " nous servira d'analyseur lexical pour reconnaître les mots-clés de notre langage de programmation."}
+	   p{b{"Lex"} " nous servira d'analyseur lexical pour reconnaître les mots-clés de notre langage de programmation."}
 
-	p{b{"Yacc (Bison)"} " quant à lui, nous servira d'analyseur grammaticale, nous permettant ainsi d'établir la grammaire de notre langage de programmation, ou autrement dit, il va nous permettre de déceler les expressions/formes valides de celles qui ne le sont pas."}
+	   p{b{"Yacc (Bison)"} " quant à lui, nous servira d'analyseur grammaticale, nous permettant ainsi d'établir la grammaire de notre langage de programmation, ou autrement dit, il va nous permettre de déceler les expressions/formes valides de celles qui ne le sont pas."}
 
-	p{b{"Lex"} " et " b{"Yacc (Bison)"} " s'utilise avec le langage " b{"C"} ", celui-ci nous sera utile pour toutes les fonctions annexes permettant la liaison et l'interprétation de la grammaire générée."}
+	   p{b{"Lex"} " et " b{"Yacc (Bison)"} " s'utilise avec le langage " b{"C"} ", celui-ci nous sera utile pour toutes les fonctions annexes permettant la liaison et l'interprétation de la grammaire générée."}
 
-	p{"Ce langage que nous créons doit être capable de manipuler deux types de données :"
-	ul{
-	   li{"Le type C : " b{"int"} " appelé type numérique."}
-	   li{"Le type " b{"document"} " qui sera représenté par des arbres, ou plutôt des forêts d'arbres."}
+	   p{"Ce langage que nous créons doit être capable de manipuler deux types de données :"
+	   ul{	
+	      li{"Le type C : " b{"int"} " appelé type numérique."}
+	      li{"Le type " b{"document"} " qui sera représenté par des arbres, ou plutôt des forêts d'arbres."}
+	      }
 	   }
 	}
     }
-
 };
 
 emit "introduction.html" {tree};
