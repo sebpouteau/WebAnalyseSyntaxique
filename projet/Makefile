@@ -68,7 +68,7 @@ page: all
 	for i in bin/graph/*.dot; do \
 		echo -n -e "$$i ... wait"; \
 		dot -Tpng $$i -o $$i.png; \
-		echo -e "\033[32mFINISH\033[0m result: $$i.png" ; \
+		echo -e "\033[32mDONE\033[0m result: $$i.png" ; \
 	done
 
 

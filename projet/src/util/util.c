@@ -8,6 +8,7 @@
 #include <queue.h>
 #include <import.h>
 #include <util.h>
+#include <wchar.h>
 #define MAX_SIZE 500
 
 
@@ -186,17 +187,21 @@ char* convert_to_html(bool *is_emit, char* string){
     *is_emit = false;
     return strdup(string);
   }
+  wchar_t str[MAX_SIZE];
+    size_t origsize = strlen(string) + 1;
+
+  mbstowcs(str,string, origsize);
   char * base = "&#";
   char final_string[MAX_SIZE];
   int j=0;
-  for(unsigned long i = 0 ; i < strlen(string) ; i++){
+  for(unsigned long i = 0 ; i < wcslen(str) ; i++){
     //Char entre a-z ou A-Z
-    if((65 <= string[i] && string[i] <= 90) || (97 <= string[i] && string[i] <= 122) || ( 48 <=string[i] && string[i] <= 57) ){ 
-      final_string[j] = string[i];
+    if((65 <= str[i] && str[i] <= 90) || (97 <= str[i] && str[i] <= 122) || ( 48 <=str[i] && str[i] <= 57) ){ 
+      final_string[j] = str[i];
       j++;
     }
-    else if(string[i] != 32){
-      sprintf(final_string+j, "%s%d;", base, string[i]);
+    else if(str[i] != 32){
+      sprintf(final_string+j, "%s%d;", base, str[i]);
       while(final_string[j]!='\0')
         j++;
     }
