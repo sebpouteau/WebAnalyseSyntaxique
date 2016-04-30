@@ -1,0 +1,49 @@
+let tree =
+html[lang="fr"]{
+   head{
+      meta[charset="utf-8"]/
+      link[rel="stylesheet" href="style.css"]/
+      title{"Une page pas comme les autres..."}
+   }
+
+   body[bgcolor="B0E0E6"]{
+    	div[align="center" id="Projet"]{
+        	h1{"Notre projet"}
+	
+      		h2{"Autheurs"}
+
+      		ul{
+                li{a[href="https://s-media-cache-ak0.pinimg.com/736x/e5/b2/ec/e5b2ec9c6d28db57d0a6ef7efc38129f.jpg"]{"Jimmy Gouraud"}}
+	   			li{a[href="https://shikhartechlabs.files.wordpress.com/2013/08/gowa-poseidon-1280x800.jpg"]{"Yordan Kirov" }}
+	   			li{a[href="http://www.fmvmagazine.com/wp-content/uploads/2013/01/God-Of-War-Ascension.jpg"]{"Nicolas Palard"}}
+	   			li{a[href="https://i.ytimg.com/vi/UPzZSZ_5dnM/maxresdefault.jpg"]{"Sebastien Pouteau"}}
+	   			li{a[href="http://vignette1.wikia.nocookie.net/mordhemia/images/d/d9/Air_god.jpg/revision/latest?cb=20121214162124&path-prefix=fr"]{"Etienne Robert"}}
+			}	
+			p{i{"Pour reussir ce projet, nous avons du faire preuve de courage et d'acharnement,
+		 	a traquer la moindre petit erreur que les profs avaient caches dans leur code. 
+		 	Bien entendu, lorsqu'il s'agit de dire ce qui n'est pas bien de faire, 
+		 	il y a du monde, mais pour appliquer les choses dites, il n'y a plus personne !"}
+			}
+			br/
+			br/
+			h3{"Pour montrer ce qu’on a bien reussi, voila quelques exemples des fonctions: "}
+			dl[type="1"]{
+				dt{"Test de where et if-then-else avec une fonction dedans: "}
+				 dd{" - Test-PASS si reponce est 40 : "
+				(let a = if 85743 / 85743 == 1
+		      	       	then 10 else 0 in
+		     		   	foo a
+					where foo n = 4*n)}
+				dt{"Test de match:"}
+				dd{" - Test-PASS si reponce est une titre h4 :" 
+				match p{"bonjour"} with
+ 					| p{z} -> h1{z}
+					| b{i} -> {i}
+				end}
+			}
+			p{"J’espere que notre petit demo vous a plu."}
+		}		 
+	}
+};
+
+emit "pageHTMLfin.html" {tree};

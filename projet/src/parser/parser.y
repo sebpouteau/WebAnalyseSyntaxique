@@ -160,7 +160,7 @@ function:       function begin_tree                  {$$ = mk_app($1,$begin_tree
 // Début des types primitifs
 begin_tree:     attribute              {$$ = $attribute;}
         |       match                  {$$ = $match;}
-        |       '('block_where ')'     {$$ = mk_forest(false,$block_where, NULL);}
+        |       '(' block_where ')'     {$$ = mk_forest(false,$block_where, NULL);}
         |       T_NB                   {$$ = $T_NB;}
         |       emit                   {process_instruction($1,e);$$ = NULL ;} 
         |       container              {$$ = $container;}
@@ -204,7 +204,9 @@ content:        content function ','
                 }
         |       content begin_tree
                 {
-                  if ($1 == NULL){
+                  if($2 == NULL)
+                    $$ = NULL;
+                  else if ($1 == NULL){
                     $$ = mk_forest(false,$begin_tree, NULL);;
                   }else{
                     add_right($1, $begin_tree);
