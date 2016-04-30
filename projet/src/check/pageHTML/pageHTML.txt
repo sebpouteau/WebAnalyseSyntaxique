@@ -5,7 +5,7 @@ html{
 	h1{"Page Web Test"}
 	p{b{"Je suis en gras"}}
 	p{i{"Je suis en italic"}}
-	p{u{"Je suis sous-ligné"}}
+	p{u{"Je suis sous-ligne"}}
 	br/
 	a[href="http://www.google.com"]{"Google"}
 	p{"je suis normal" b{i{"je suis en bold/italic"}}}

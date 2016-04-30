@@ -1,3 +1,4 @@
+
 LIBS= src
 TESTS=$(wildcard src/check/valid_forms/*.txt)
 TESTS2=$(wildcard src/check/invalid_forms/*.txt)
@@ -81,7 +82,9 @@ clean:
 	rm -rf *.db *.g* log *.dot *.html
 	if [ -d "lib" ];then rm -rf lib; fi
 	if [ -d "bin" ];then rm -rf bin; fi
-	if [ -d "html" ];then rm -rf html; fi
-	if [ -d "latex" ];then rm -rf latex; fi
-doc: 
+	if [ -d "doc" ];then rm -rf doc; fi
+
+doc:	
+	if [ ! -d "doc" ];then mkdir doc; fi
 	doxygen Doxyfile
+	mv latex/ html/ doc/

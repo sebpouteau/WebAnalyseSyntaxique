@@ -43,4 +43,4 @@ html[lang="fr"]{
 	}
 };
 
-emit "pageHTMLfin.html" {tree};
+emit "pageHTML2.html" {tree};
