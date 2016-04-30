@@ -187,21 +187,18 @@ char* convert_to_html(bool *is_emit, char* string){
     *is_emit = false;
     return strdup(string);
   }
-  wchar_t str[MAX_SIZE];
-    size_t origsize = strlen(string) + 1;
 
-  mbstowcs(str,string, origsize);
   char * base = "&#";
   char final_string[MAX_SIZE];
   int j=0;
-  for(unsigned long i = 0 ; i < wcslen(str) ; i++){
+  for(unsigned long i = 0 ; i < strlen(string) ; i++){
     //Char entre a-z ou A-Z
-    if((65 <= str[i] && str[i] <= 90) || (97 <= str[i] && str[i] <= 122) || ( 48 <=str[i] && str[i] <= 57) ){ 
-      final_string[j] = str[i];
+    if((65 <= string[i] && string[i] <= 90) || (97 <= string[i] && string[i] <= 122) || ( 48 <=string[i] && string[i] <= 57) || string[i] < 0 ){ 
+      final_string[j] = string[i];
       j++;
     }
-    else if(str[i] != 32){
-      sprintf(final_string+j, "%s%d;", base, str[i]);
+    else if(string[i] != 32){
+      sprintf(final_string+j, "%s%d;", base, string[i]);
       while(final_string[j]!='\0')
         j++;
     }

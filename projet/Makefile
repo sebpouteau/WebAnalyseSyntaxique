@@ -11,7 +11,7 @@ all:
 
 
 check: all
-	echo -e "\n\n\033[32mVALIDE FORME\033[0m"
+	echo -e "\n\n\033[32mVALID FORMS\033[0m"
 	for i in $(TESTS); do \
 		echo -n  "$$i ... "; \
 		eval "./bin/parser.out <$$i" > log 2>&1; \
@@ -22,7 +22,7 @@ check: all
 		fi \
 	done
 
-	echo -e "\n\n\033[31mINVALIDE FORME\033[0m"
+	echo -e "\n\n\033[31mINVALID FORMS\033[0m"
 	for i in $(TESTS2); do \
 		echo -n  "$$i ... "; \
 		eval "./bin/parser.out <$$i" > log 2>&1; \
@@ -38,12 +38,12 @@ check: all
 	mv *.html bin/check/html
 	mv *.dot bin/check/graph
 
-	echo -e "\n\n\033[32mCONVERT TO PNG\033[0m"
+	echo -e "\n\n\033[32mCONVERTING TO PNG\033[0m"
 
 	for i in bin/check/graph/*.dot; do \
 		echo -n -e "$$i ... wait ... "; \
 		dot -Tpng $$i -o $$i.png; \
-		echo -e "\033[32mFINISH\033[0m result: $$i.png" ; \
+		echo -e "\033[32mDONE\033[0m result: $$i.png" ; \
 	done
 	gcov src/graphviz/graphviz.c
 	gcov src/util/util.c
@@ -56,16 +56,17 @@ check: all
 
 
 page: all
-	echo "\n\n\033[32mGENERATION DES PAGE HTML\033[0m"
+	echo "\n\n\033[32mGENERATING HTML\033[0m"
 	for i in $(PAGE); do \
 		echo -n -e "$$i ... "; \
 		eval "./bin/parser.out <$$i"; \
 	done
-	if [ ! -d "bin/html" ];then mkdir bin/html; fi
-	if [ ! -d "bin/graph" ];then mkdir bin/graph; fi
-	mv *.html bin/html
-	mv *.dot bin/graph
-	for i in bin/graph/*.dot; do \
+	if [ ! -d "bin/page" ];then mkdir bin/page; fi
+	if [ ! -d "bin/page/html" ];then mkdir bin/page/html; fi
+	if [ ! -d "bin/page/graph" ];then mkdir bin/page/graph; fi
+	mv *.html bin/page/html
+	mv *.dot bin/page/graph
+	for i in bin/page/graph/*.dot; do \
 		echo -n -e "$$i ... wait"; \
 		dot -Tpng $$i -o $$i.png; \
 		echo -e "\033[32mDONE\033[0m result: $$i.png" ; \

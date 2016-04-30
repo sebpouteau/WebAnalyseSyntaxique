@@ -2,9 +2,9 @@
 let tree = html[lang="fr"]{
    head{
       meta[charset="utf-8"]/
-      img[src="logo-universite-de-bordeaux.png" align="center"]/
+      img[src="https://upload.wikimedia.org/wikipedia/fr/b/b7/Universit%C3%A9_Bordeaux_(Logo_2013).jpg" align="center"]/
       br/ br/ br/
-      title{h1[align="center"]{"Analyse Syntaxique et Projet de Programmation"}}
+      title{"Analyse Syntaxique et Projet de Programmation"}
       h2[align="center"]{"Jimmy GOURAUD, Yordan KIROV, Nicolas PALARD, Sébastien POUTEAU, Etienne ROBERT"}
       br/
       h3[align="center"]{"30 avril 2016, Année 2015-2016"}
