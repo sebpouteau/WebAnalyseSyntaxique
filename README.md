@@ -1,10 +1,23 @@
-############################
-     PROJET ASPP3
-############################
+# PROJET Analyse syntaxique
+(Licence 3 - Informatique)
+
+Réalisé par:
+- Jimmy Gouraud
+- Yordan Kirov
+- Nicolas Palard
+- Sébastien Pouteau
+- Étienne Robert
+
+# Objectif de ce projet
+
+Ce projet permet de générer des pages html à partir de fichier écrit dans une syntaxe définie.
+
+Utilisation de flex et bison.
+
+Plus de détail dans le rapport.
 
 
-Action MAKEFILE:
-
+# Compilation
     - make
          compile le projet, l'exécutable se trouve dans bin/
     - make check
